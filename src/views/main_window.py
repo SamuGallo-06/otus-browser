@@ -3,7 +3,10 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QUrl, QUrlQuery
 from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 from PySide6.QtGui import QIcon
+
+from pathlib import Path
 
 from ui.ui_mainwindow import Ui_MainWindow
 from ui import resources_rc
@@ -11,7 +14,7 @@ from ui import resources_rc
 from settings import *
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self):
+    def __init__(self, profile_name: str = "OtusProfile"):
         super().__init__()
         self.setupUi(self)
         
@@ -40,6 +43,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
         
+        # Profile
+        # Create a persistent profile for the browser to store cookies, cache, and other data
+        # Profile data will be stored in the user's home directory under .local/share/OtusBrowser/Profiles/OtusProfile for the default profile, named "OtusProfile". 
+        # This allows the browser to maintain state across sessions.
+        self.profile = QWebEngineProfile(profile_name, self)
+        profile_path = PROFILES_DIR / profile_name
+        profile_path.mkdir(parents=True, exist_ok=True)
+        self.profile.setPersistentStoragePath(str(profile_path))
+        
         self.new_tab(HOME_URL)
     
     def navigate_back(self):
@@ -66,7 +78,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             view.load(QUrl(HOME_URL))
 
     def text_to_url(self, text: str) -> QUrl:
-        """Indirizzo se sembra un indirizzo, altrimenti ricerca."""
+        """Address bar input can be a URL or a search query. This function determines which it is and returns the appropriate QUrl."""
         looks_like_address = " " not in text and (
             "://" in text or "." in text or text.startswith("localhost")
         )
@@ -87,10 +99,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     # Tabs
     
-    def new_tab(self, url: str = "https://example.com") -> QWebEngineView:
+    def new_tab(self, url: str = HOME_URL) -> QWebEngineView:
         view = QWebEngineView()
+        page = QWebEnginePage(self.profile, view)
+        view.setPage(page)
         view.load(QUrl(url))
-        index = self.browserTabWidget.addTab(view, "Nuova scheda")
+        index = self.browserTabWidget.addTab(view, "New Tab")
         self.browserTabWidget.setCurrentIndex(index)
 
         view.titleChanged.connect(
@@ -126,4 +140,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         view = self.current_view()
         if view:
             self.urlBar.setText(view.url().toString())
+            
+            
+    # Web page navigation events
+    
+    def openLinkInNewTab(self, url: QUrl):
+        self.new_tab(url.toString())
     

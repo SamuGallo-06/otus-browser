@@ -22,7 +22,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="browserTabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>-1</number>
       </property>
       <property name="documentMode">
        <bool>true</bool>
@@ -33,14 +33,6 @@
       <property name="movable">
        <bool>true</bool>
       </property>
-      <widget class="QWidget" name="tab">
-       <attribute name="icon">
-        <iconset theme="QIcon::ThemeIcon::GoHome"/>
-       </attribute>
-       <attribute name="title">
-        <string>Home</string>
-       </attribute>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -61,20 +53,51 @@
     <addaction name="actionNew_Tab"/>
     <addaction name="actionNew_Window"/>
     <addaction name="actionNew_Private_Window"/>
+    <addaction name="actionClose_Tab"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionSelect_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionSearch"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="actionZoom_in"/>
+    <addaction name="actionZoom_out"/>
+    <addaction name="actionReset_Zoom"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_Otus"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionHistory_2"/>
+    <addaction name="actionBookmarks_2"/>
+    <addaction name="actionDownloads_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionPackage_Manager"/>
+    <addaction name="actionPreferences_2"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -182,6 +205,106 @@
   <action name="actionNew_Private_Window">
    <property name="text">
     <string>New Private Window</string>
+   </property>
+  </action>
+  <action name="actionClose_Tab">
+   <property name="text">
+    <string>Close Tab</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionSelect_All">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+  </action>
+  <action name="actionSearch">
+   <property name="text">
+    <string>Search</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+  </action>
+  <action name="actionReset_Zoom">
+   <property name="text">
+    <string>Reset Zoom</string>
+   </property>
+  </action>
+  <action name="actionAbout_Otus">
+   <property name="text">
+    <string>About Otus</string>
+   </property>
+  </action>
+  <action name="actionHistory">
+   <property name="text">
+    <string>History</string>
+   </property>
+  </action>
+  <action name="actionBookmarks">
+   <property name="text">
+    <string>Bookmarks</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionDownloads">
+   <property name="text">
+    <string>Downloads</string>
+   </property>
+  </action>
+  <action name="actionHistory_2">
+   <property name="text">
+    <string>History</string>
+   </property>
+  </action>
+  <action name="actionBookmarks_2">
+   <property name="text">
+    <string>Bookmarks</string>
+   </property>
+  </action>
+  <action name="actionDownloads_2">
+   <property name="text">
+    <string>Downloads</string>
+   </property>
+  </action>
+  <action name="actionPackage_Manager">
+   <property name="text">
+    <string>Package Manager</string>
+   </property>
+  </action>
+  <action name="actionPreferences_2">
+   <property name="text">
+    <string>Preferences</string>
    </property>
   </action>
  </widget>
