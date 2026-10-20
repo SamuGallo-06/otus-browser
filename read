@@ -1,0 +1,2 @@
+/home/samug/Progetti/Utilities/otus-browser/.venv/lib/python3.12/site-packages/PySide6/Qt/libexec/rcc: File does not exist '2'
+'/home/samug/Progetti/Utilities/otus-browser/.venv/lib/python3.12/site-packages/PySide6/Qt/libexec/rcc -g python src/resources/resources.qrc -o resources_rc.py 2 ERRORS' returned 1

@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="App Icons">
+    <file>otus_logo.png</file>
+    <file>otus_shield.svg</file>
+    <file>otus_shield_256x256.png</file>
+  </qresource>
+</RCC>
