@@ -8,30 +8,16 @@ from PySide6.QtGui import QIcon, Qt
 
 from pathlib import Path
 import logging
-import re
 
 from ui.ui_mainwindow import Ui_MainWindow
+from ui.ui_download import Ui_DownloadWidget
 from ui import resources_rc
 
 from settings import *
+from utils import *
+from views.download_widget import DownloadWidget
 
 logger = logging.getLogger(__name__)
-
-def sanitize_filename(name: str) -> str:
-    """Toglie percorsi, caratteri di controllo e nomi vuoti."""
-    name = Path(name.replace("\\", "/")).name          # niente cartelle
-    name = re.sub(r"[\x00-\x1f\x7f]", "", name).strip(" .")
-    return name or "download"
-
-
-def unique_path(directory: str, name: str) -> str:
-    """Se il file esiste già, aggiunge (1), (2)... prima dell'estensione."""
-    candidate = Path(directory) / name
-    stem, suffix, n = candidate.stem, candidate.suffix, 1
-    while candidate.exists():
-        candidate = Path(directory) / f"{stem} ({n}){suffix}"
-        n += 1
-    return candidate.name
 
 class BrowserPage(QWebEnginePage):
     def __init__(self, profile, create_tab, parent=None):
@@ -48,6 +34,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.debug("Initializing MainWindow with profile: %s", profile_name)
         self.setupUi(self)
         
+        self.setupActions()
+        
+        self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
+        
+        logger.debug("Setting up profile: %s", profile_name)
+        self.setup_profile(profile_name)
+        
+        self.downloads = []  # List to keep track of active download widgets
+        
+        self.new_tab(HOME_URL)
+        
+    def setupActions(self):
         # Address Bar
         self.urlBar = QLineEdit()
         self.urlBar.setPlaceholderText("Search or enter address")
@@ -55,28 +53,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.urlBar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.toolBar.insertWidget(self.actionSilentwing, self.urlBar)
         self.urlBar.returnPressed.connect(self.navigate)
-        
-        
+
         # Toolbar Actions
         self.actionBack.triggered.connect(self.navigate_back)
         self.actionForward.triggered.connect(self.navigate_forward)
         self.actionReload.triggered.connect(self.navigate_reload)
         self.actionHome.triggered.connect(self.navigate_home)
         self.actionSilentwing.setIcon(QIcon(":/App Icons/otus_shield.svg"))
-        
+
         # Menu Actions
         self.actionNew_Tab.triggered.connect(lambda: self.new_tab(HOME_URL))
-        
-        #Tabs
+
+        # Tabs
         self.browserTabWidget.tabCloseRequested.connect(self.close_tab)
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
-        
-        self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
-        
-        logger.debug("Setting up profile: %s", profile_name)
-        self.setup_profile(profile_name)
-        
-        self.new_tab(HOME_URL)
+                
         
     def setup_profile(self, profile_name):
         # Profile
@@ -214,4 +205,60 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def openLinkInNewTab(self, url: QUrl):
         self.new_tab(url.toString())
         
-    
+    # File Downloads
+
+    def onDownloadRequested(self, request: QWebEngineDownloadRequest):
+        dw_name = sanitize_filename(request.suggestedFileName())
+        dw_host = request.url().host() or "(unknown host)"
+        logger.debug("Download requested")
+
+        self.statusbar.showMessage(f"Download requested: {dw_name}", 5000)
+
+        # Downloa Requested
+        if Path(dw_name).suffix.lower() in RISKY_DOWNLOAD_EXTENSIONS:
+            box = QMessageBox(
+                QMessageBox.Icon.Warning,
+                "Suspicious Download",
+                "File «{dw_name}» is a potentially risky file. (such as an executable or script)\n"
+                "Source: {dw_host}\n\n"
+                "Downloading and executing files from the internet can be dangerous. "
+                "Do you want to download it anyway?".format(dw_name=dw_name, dw_host=dw_host),
+                parent=self,
+            )
+            box.setTextFormat(Qt.TextFormat.PlainText)
+            box.setDetailedText(request.url().toString())
+            box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel)
+            box.setDefaultButton(QMessageBox.StandardButton.Cancel)
+
+            if box.exec() == QMessageBox.StandardButton.Yes:
+                self.acceptDownload(request, dw_name)
+            else:
+                self.cancelDownload(request)
+        else:
+            self.acceptDownload(request, dw_name)
+
+    def acceptDownload(self, request: QWebEngineDownloadRequest, name: str):
+        directory = str(get_download_path())
+        request.setDownloadDirectory(directory)
+        request.setDownloadFileName(unique_path(directory, name))
+
+        widget = DownloadWidget(request, parent=self)
+        self.downloads.append(widget)
+        widget.show()
+
+        request.accept()
+        logger.debug("Download accepted")
+
+    def cancelDownload(self, request: QWebEngineDownloadRequest):
+        request.cancel()
+        logger.debug("Download canceled")
+        
+    def updateProgress(self, request):
+        received = request.receivedBytes()
+        totals = request.totalBytes()      # -1 if download size is unknown
+        if totals > 0:
+            perc = int(received * 100 / totals)
+            self.statusbar.showMessage(f"Download: {perc}%")
+        else:
+            self.statusbar.showMessage(f"Download: {received // 1024} KB")

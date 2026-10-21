@@ -14,7 +14,7 @@
    <string>Otus Browser</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../2ab23f29/resources.qrc">
+   <iconset>
     <normaloff>:/App Icons/c2d71cbe/otus_logo.png</normaloff>:/App Icons/c2d71cbe/otus_logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -55,6 +55,9 @@
     <addaction name="actionNew_Private_Window"/>
     <addaction name="actionClose_Tab"/>
     <addaction name="separator"/>
+    <addaction name="actionOpen_File"/>
+    <addaction name="actionSave_Page"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -86,12 +89,12 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionHistory_2"/>
-    <addaction name="actionBookmarks_2"/>
-    <addaction name="actionDownloads_2"/>
+    <addaction name="actionHistory"/>
+    <addaction name="actionBookmarks"/>
+    <addaction name="actionDownloads"/>
     <addaction name="separator"/>
     <addaction name="actionPackage_Manager"/>
-    <addaction name="actionPreferences_2"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -115,6 +118,7 @@
    <addaction name="actionForward"/>
    <addaction name="actionReload"/>
    <addaction name="actionSilentwing"/>
+   <addaction name="actionNew_Tab"/>
   </widget>
   <action name="actionSilentwing">
    <property name="checkable">
@@ -193,11 +197,17 @@
    </property>
   </action>
   <action name="actionNew_Tab">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+   </property>
    <property name="text">
     <string>New Tab</string>
    </property>
   </action>
   <action name="actionNew_Window">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::WindowNew"/>
+   </property>
    <property name="text">
     <string>New Window</string>
    </property>
@@ -208,56 +218,81 @@
    </property>
   </action>
   <action name="actionClose_Tab">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::WindowClose"/>
+   </property>
    <property name="text">
     <string>Close Tab</string>
    </property>
   </action>
-  <action name="actionExit">
-   <property name="text">
-    <string>Exit</string>
-   </property>
-  </action>
   <action name="actionCut">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditCut"/>
+   </property>
    <property name="text">
     <string>Cut</string>
    </property>
   </action>
   <action name="actionCopy">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditCopy"/>
+   </property>
    <property name="text">
     <string>Copy</string>
    </property>
   </action>
   <action name="actionPaste">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+   </property>
    <property name="text">
     <string>Paste</string>
    </property>
   </action>
   <action name="actionSelect_All">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditSelectAll"/>
+   </property>
    <property name="text">
     <string>Select All</string>
    </property>
   </action>
   <action name="actionSearch">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditFind"/>
+   </property>
    <property name="text">
     <string>Search</string>
    </property>
   </action>
   <action name="actionZoom_in">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ZoomIn"/>
+   </property>
    <property name="text">
     <string>Zoom in</string>
    </property>
   </action>
   <action name="actionZoom_out">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ZoomOut"/>
+   </property>
    <property name="text">
     <string>Zoom out</string>
    </property>
   </action>
   <action name="actionReset_Zoom">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ZoomFitBest"/>
+   </property>
    <property name="text">
     <string>Reset Zoom</string>
    </property>
   </action>
   <action name="actionAbout_Otus">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::DialogInformation"/>
+   </property>
    <property name="text">
     <string>About Otus</string>
    </property>
@@ -272,27 +307,7 @@
     <string>Bookmarks</string>
    </property>
   </action>
-  <action name="actionPreferences">
-   <property name="text">
-    <string>Preferences</string>
-   </property>
-  </action>
   <action name="actionDownloads">
-   <property name="text">
-    <string>Downloads</string>
-   </property>
-  </action>
-  <action name="actionHistory_2">
-   <property name="text">
-    <string>History</string>
-   </property>
-  </action>
-  <action name="actionBookmarks_2">
-   <property name="text">
-    <string>Bookmarks</string>
-   </property>
-  </action>
-  <action name="actionDownloads_2">
    <property name="text">
     <string>Downloads</string>
    </property>
@@ -302,9 +317,33 @@
     <string>Package Manager</string>
    </property>
   </action>
-  <action name="actionPreferences_2">
+  <action name="actionPreferences">
    <property name="text">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionOpen_File">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+   </property>
+   <property name="text">
+    <string>Open File</string>
+   </property>
+  </action>
+  <action name="actionSave_Page">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+   </property>
+   <property name="text">
+    <string>Save Page</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ApplicationExit"/>
+   </property>
+   <property name="text">
+    <string>Exit</string>
    </property>
   </action>
  </widget>
