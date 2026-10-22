@@ -11,6 +11,8 @@ LOG_FILE_PATH = PERSISTENT_STORAGE_PATH / "logs"
 
 RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop"}
 
+SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
+
 def get_download_path() -> Path:
     xdg_config = Path.home() / ".config" / "user-dirs.dirs"
     if xdg_config.exists():

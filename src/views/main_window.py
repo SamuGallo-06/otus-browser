@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QLineEdit, QMainWindow, QSizePolicy, QWidget, QMessageBox
+    QFileDialog, QLineEdit, QMainWindow, QSizePolicy, QWidget, QMessageBox
 )
 from PySide6.QtCore import QUrl, QUrlQuery
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -12,12 +12,20 @@ import logging
 from ui.ui_mainwindow import Ui_MainWindow
 from ui.ui_download import Ui_DownloadWidget
 from ui import resources_rc
+from views.download_widget import DownloadWidget
+from views.webview import OtusWebView
+
 
 from settings import *
 from utils import *
-from views.download_widget import DownloadWidget
 
 logger = logging.getLogger(__name__)
+
+SAVE_FORMATS = {
+    "Web page, single file (*.html)":   QWebEngineDownloadRequest.SavePageFormat.SingleHtmlSaveFormat,
+    "Web page, complete (*.html)":      QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat,
+    "MHTML archive (*.mhtml)":          QWebEngineDownloadRequest.SavePageFormat.MimeHtmlSaveFormat,
+}
 
 class BrowserPage(QWebEnginePage):
     def __init__(self, profile, create_tab, parent=None):
@@ -67,7 +75,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Tabs
         self.browserTabWidget.tabCloseRequested.connect(self.close_tab)
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
-                
         
     def setup_profile(self, profile_name):
         # Profile
@@ -127,8 +134,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     # Tabs
     
-    def new_tab(self, url: str | None = None) -> QWebEngineView:
-        view = QWebEngineView()
+    def new_tab(self, url: str | None = None) -> OtusWebView:
+        view = OtusWebView()
+        view.linkNewTabRequested.connect(self.openLinkInNewTab)
+        view.searchRequested.connect(self.searchSelection)
         page = BrowserPage(self.profile, self.new_tab, view)
         view.setPage(page)
         index = self.browserTabWidget.addTab(view, "New Tab")
@@ -154,10 +163,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         logger.debug("New tab created with URL: %s", url if url else "None")
         return view
+    
+    def searchSelection(self):
+        pass
 
-    def current_view(self) -> QWebEngineView | None:
+    def current_view(self) -> OtusWebView | None:
         widget = self.browserTabWidget.currentWidget()
-        if isinstance(widget, QWebEngineView):
+        if isinstance(widget, OtusWebView):
             return widget
         return None
 
@@ -183,23 +195,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.urlBar.setText(view.url().toString())
             logger.debug("Tab changed to index %d with URL: %s", index, view.url().toString())
 
-    def on_load_started(self, view: QWebEngineView):
+    def on_load_started(self, view: OtusWebView):
         logger.info("Started loading page: %s", view.url().toString())
         self.statusbar.showMessage("Loading page {pageUrl}".format(pageUrl=view.url()))
         
-    def on_load_progress(self, view: QWebEngineView, progress):
+    def on_load_progress(self, view: OtusWebView, progress):
         self.statusbar.showMessage("Loading({progress}%)...".format(progress=progress))
 
-    def on_load_finished(self, view: QWebEngineView, ok):
+    def on_load_finished(self, view: OtusWebView, ok):
         if ok:
             logger.info("Page loaded successfully: %s", view.url().toString())
             self.statusbar.showMessage("Loaded \"{pageName}\"".format(pageName=view.title()), 5000)       
         else:
             logger.error("Failed to load page: %s", view.url().toString())
             self.statusbar.showMessage("Failed to load page {pageUrl}".format(pageName=view.url()))   
-          
-            
-            
+               
     # Web page navigation events
     
     def openLinkInNewTab(self, url: QUrl):
@@ -208,6 +218,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     # File Downloads
 
     def onDownloadRequested(self, request: QWebEngineDownloadRequest):
+        if request.isSavePageDownload():
+            # path and filename are already set by the browser, no need to ask the user
+            widget = DownloadWidget(request, parent=self)
+            self.downloads.append(widget)
+            widget.show()
+            request.accept()
+            return
+        
         dw_name = sanitize_filename(request.suggestedFileName())
         dw_host = request.url().host() or "(unknown host)"
         logger.debug("Download requested")
@@ -262,3 +280,64 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.statusbar.showMessage(f"Download: {perc}%")
         else:
             self.statusbar.showMessage(f"Download: {received // 1024} KB")
+            
+    ######################################
+    ##     File Menu                    ##
+    ######################################
+    
+    def openFile(self):
+        logger.debug("Open file action triggered")
+
+        filePath = QFileDialog.getOpenFileName(
+            self,
+            "Open File",
+            str(Path.home()),
+            f"Supported files ({', '.join(SUPPORTED_OPEN_FILE_EXTENSIONS)});;All files (*)"
+        )[0]
+        
+        path = f"file://{filePath.replace(" ","%20")}"
+        url = self.text_to_url(path)
+        
+        if not filePath:
+            return
+        
+        if not Path(filePath).suffix.lower() in SUPPORTED_OPEN_FILE_EXTENSIONS:
+            QMessageBox.warning(
+                self,
+                "Unsupported file type",
+                f"The selected file type is not supported for viewing in the browser.\n\n"
+                f"Supported file types: {', '.join(SUPPORTED_OPEN_FILE_EXTENSIONS)}",
+                QMessageBox.StandardButton.Ok
+            )
+            return
+        
+        self.openLinkInNewTab(url)
+        
+    def savePage(self):
+        logger.debug("Save page action triggered")
+        view = self.current_view()
+        if view is None:
+            return
+        title = sanitize_filename(view.title() or "page")
+        start = str(Path(get_download_path()) / f"{title}.html")
+
+        path, selected_filter = QFileDialog.getSaveFileName(
+            self, "Save page as", start, ";;".join(SAVE_FORMATS)
+        )
+        if not path:
+            return
+        view.page().save(path, SAVE_FORMATS[selected_filter])
+        
+    def exitApplication(self):
+        logger.debug("Exit application action triggered")
+        self.close()
+        
+    def newWindow(self):
+        logger.debug("New window action triggered")
+        new_window = MainWindow(profile_name="OtusProfile")
+        new_window.show()
+        
+    def newNocturnalWindow(self):
+        logger.debug("New nocturnal window action triggered")
+        new_window = MainWindow(profile_name="OtusNocturnal")
+        new_window.show()

@@ -203,6 +203,9 @@
    <property name="text">
     <string>New Tab</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
   </action>
   <action name="actionNew_Window">
    <property name="icon">
@@ -211,10 +214,16 @@
    <property name="text">
     <string>New Window</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actionNew_Private_Window">
    <property name="text">
     <string>New Private Window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
    </property>
   </action>
   <action name="actionClose_Tab">
@@ -224,6 +233,9 @@
    <property name="text">
     <string>Close Tab</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
   </action>
   <action name="actionCut">
    <property name="icon">
@@ -231,6 +243,9 @@
    </property>
    <property name="text">
     <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
   <action name="actionCopy">
@@ -240,6 +255,9 @@
    <property name="text">
     <string>Copy</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
   </action>
   <action name="actionPaste">
    <property name="icon">
@@ -247,6 +265,9 @@
    </property>
    <property name="text">
     <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
   <action name="actionSelect_All">
@@ -256,6 +277,9 @@
    <property name="text">
     <string>Select All</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
   </action>
   <action name="actionSearch">
    <property name="icon">
@@ -263,6 +287,9 @@
    </property>
    <property name="text">
     <string>Search</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
   <action name="actionZoom_in">
@@ -272,6 +299,9 @@
    <property name="text">
     <string>Zoom in</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
   </action>
   <action name="actionZoom_out">
    <property name="icon">
@@ -280,6 +310,9 @@
    <property name="text">
     <string>Zoom out</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
   </action>
   <action name="actionReset_Zoom">
    <property name="icon">
@@ -287,6 +320,9 @@
    </property>
    <property name="text">
     <string>Reset Zoom</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
    </property>
   </action>
   <action name="actionAbout_Otus">
@@ -301,15 +337,24 @@
    <property name="text">
     <string>History</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
   </action>
   <action name="actionBookmarks">
    <property name="text">
     <string>Bookmarks</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
   </action>
   <action name="actionDownloads">
    <property name="text">
     <string>Downloads</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="actionPackage_Manager">
@@ -329,6 +374,9 @@
    <property name="text">
     <string>Open File</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionSave_Page">
    <property name="icon">
@@ -337,6 +385,9 @@
    <property name="text">
     <string>Save Page</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+S</string>
+   </property>
   </action>
   <action name="actionExit">
    <property name="icon">
@@ -344,6 +395,9 @@
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>
