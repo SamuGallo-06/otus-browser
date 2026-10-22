@@ -41,7 +41,6 @@ class Ui_ProfileSelectionWidget(object):
         self.gridLayout.addItem(self.verticalSpacer, 4, 1, 1, 1)
 
         self.profilesComboBox = QComboBox(ProfileSelectionWidget)
-        self.profilesComboBox.addItem("")
         self.profilesComboBox.setObjectName(u"profilesComboBox")
 
         self.gridLayout.addWidget(self.profilesComboBox, 2, 0, 1, 3)
@@ -55,6 +54,7 @@ class Ui_ProfileSelectionWidget(object):
 
         self.passwordField = QLineEdit(ProfileSelectionWidget)
         self.passwordField.setObjectName(u"passwordField")
+        self.passwordField.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.gridLayout.addWidget(self.passwordField, 3, 0, 1, 3)
 
@@ -65,6 +65,7 @@ class Ui_ProfileSelectionWidget(object):
 
         self.usersIcon = QLabel(ProfileSelectionWidget)
         self.usersIcon.setObjectName(u"usersIcon")
+        self.usersIcon.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.usersIcon, 1, 0, 1, 3)
 
@@ -78,9 +79,10 @@ class Ui_ProfileSelectionWidget(object):
         ProfileSelectionWidget.setWindowTitle(QCoreApplication.translate("ProfileSelectionWidget", u"Select Profile - Otus Browser", None))
         self.newProfileButton.setText(QCoreApplication.translate("ProfileSelectionWidget", u"New Profile", None))
         self.loginButton.setText(QCoreApplication.translate("ProfileSelectionWidget", u"Login", None))
-        self.profilesComboBox.setItemText(0, QCoreApplication.translate("ProfileSelectionWidget", u"Otus Profile", None))
-
+        self.profilesComboBox.setCurrentText("")
+        self.profilesComboBox.setPlaceholderText(QCoreApplication.translate("ProfileSelectionWidget", u"No profiles available, Please create a profile first", None))
         self.label.setText(QCoreApplication.translate("ProfileSelectionWidget", u"# Welcome to Otus Browser", None))
+        self.passwordField.setInputMask("")
         self.passwordField.setPlaceholderText(QCoreApplication.translate("ProfileSelectionWidget", u"Password", None))
         self.guestProfileButton.setText(QCoreApplication.translate("ProfileSelectionWidget", u"Guest", None))
         self.usersIcon.setText(QCoreApplication.translate("ProfileSelectionWidget", u"TextLabel", None))

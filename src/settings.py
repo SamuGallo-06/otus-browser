@@ -5,13 +5,17 @@ HOME_URL = "https://duckduckgo.com"
 PERSISTENT_STORAGE_PATH = Path.home() / ".local" / "share" / "OtusBrowser"
 PROFILES_DIR = PERSISTENT_STORAGE_PATH / "Profiles"
 
-ASK_FOR_PROFILE_CHOOSE = False  # If True, the user will be prompted to choose a profile on startup. If False, the default profile will be used.
+ASK_FOR_PROFILE_CHOOSE = True  # If True, the user will be prompted to choose a profile on startup. If False, the default profile will be used.
 
 LOG_FILE_PATH = PERSISTENT_STORAGE_PATH / "logs"
 
 RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop"}
 
 SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
+
+DEFAULT_PROFILE = "OtusProfile"  # The default profile name to use when ASK_FOR_PROFILE_CHOOSE is False.
+
+PROFILES_XML_PATH = Path("profiles.xml")
 
 def get_download_path() -> Path:
     xdg_config = Path.home() / ".config" / "user-dirs.dirs"

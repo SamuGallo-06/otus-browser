@@ -37,17 +37,17 @@ class BrowserPage(QWebEnginePage):
         return view.page()
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, profile_name: str = "OtusProfile"):
+    def __init__(self, profile_id: str = "OtusProfile"):
         super().__init__()
-        logger.debug("Initializing MainWindow with profile: %s", profile_name)
+        logger.debug("Initializing MainWindow with profile: %s", profile_id)
         self.setupUi(self)
         
         self.setupActions()
         
         self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
         
-        logger.debug("Setting up profile: %s", profile_name)
-        self.setup_profile(profile_name)
+        logger.debug("Setting up profile: %s", profile_id)
+        self.setup_profile(profile_id)
         
         self.downloads = []  # List to keep track of active download widgets
         
@@ -76,13 +76,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.browserTabWidget.tabCloseRequested.connect(self.close_tab)
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
         
-    def setup_profile(self, profile_name):
+    def setup_profile(self, profile_id):
         # Profile
         # Create a persistent profile for the browser to store cookies, cache, and other data
         # Profile data will be stored in the user's home directory under .local/share/OtusBrowser/Profiles/OtusProfile for the default profile, named "OtusProfile". 
         # This allows the browser to maintain state across sessions.
-        self.profile = QWebEngineProfile(profile_name, self)
-        profile_path = PROFILES_DIR / profile_name
+        self.profile = QWebEngineProfile(profile_id, self)
+        profile_path = PROFILES_DIR / profile_id
         profile_path.mkdir(parents=True, exist_ok=True)
         self.profile.setPersistentStoragePath(str(profile_path))
         
@@ -137,7 +137,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def new_tab(self, url: str | None = None) -> OtusWebView:
         view = OtusWebView()
         view.linkNewTabRequested.connect(self.openLinkInNewTab)
+        view.linkNewWindowRequested.connect(self.openLinkInNewWindow)
         view.searchRequested.connect(self.searchSelection)
+        view.savePageRequested.connect(self.savePage)
         page = BrowserPage(self.profile, self.new_tab, view)
         view.setPage(page)
         index = self.browserTabWidget.addTab(view, "New Tab")
@@ -164,8 +166,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.debug("New tab created with URL: %s", url if url else "None")
         return view
     
-    def searchSelection(self):
-        pass
+    def searchSelection(self, text: str):
+        query = QUrlQuery()
+        query.addQueryItem("q", text)
+        url = QUrl(SEARCH_URL)
+        url.setQuery(query)
+        self.openLinkInNewTab(url)
 
     def current_view(self) -> OtusWebView | None:
         widget = self.browserTabWidget.currentWidget()
@@ -196,7 +202,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             logger.debug("Tab changed to index %d with URL: %s", index, view.url().toString())
 
     def on_load_started(self, view: OtusWebView):
-        logger.info("Started loading page: %s", view.url().toString())
+        logger.debug("Started loading page: %s", view.url().toString())
         self.statusbar.showMessage("Loading page {pageUrl}".format(pageUrl=view.url()))
         
     def on_load_progress(self, view: OtusWebView, progress):
@@ -204,17 +210,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def on_load_finished(self, view: OtusWebView, ok):
         if ok:
-            logger.info("Page loaded successfully: %s", view.url().toString())
+            logger.debug("Page loaded successfully: %s", view.url().toString())
             self.statusbar.showMessage("Loaded \"{pageName}\"".format(pageName=view.title()), 5000)       
         else:
             logger.error("Failed to load page: %s", view.url().toString())
-            self.statusbar.showMessage("Failed to load page {pageUrl}".format(pageName=view.url()))   
+            self.statusbar.showMessage("Failed to load page {pageUrl}".format(pageUrl=view.url().toString()))   
                
     # Web page navigation events
     
     def openLinkInNewTab(self, url: QUrl):
         self.new_tab(url.toString())
-        
+      
+    def openLinkInNewWindow(self, url: QUrl):
+        window = MainWindow(profile_id=self.profile.storageName())
+        current_view = window.current_view()
+        if current_view is not None:
+            current_view.setUrl(url)
+            
+        window.show()
+     
     # File Downloads
 
     def onDownloadRequested(self, request: QWebEngineDownloadRequest):
@@ -331,13 +345,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def exitApplication(self):
         logger.debug("Exit application action triggered")
         self.close()
-        
+
     def newWindow(self):
         logger.debug("New window action triggered")
-        new_window = MainWindow(profile_name="OtusProfile")
+        new_window = MainWindow(profile_id="OtusProfile")
         new_window.show()
         
     def newNocturnalWindow(self):
         logger.debug("New nocturnal window action triggered")
-        new_window = MainWindow(profile_name="OtusNocturnal")
+        new_window = MainWindow(profile_id="OtusNocturnal")
         new_window.show()

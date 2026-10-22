@@ -46,11 +46,12 @@
    </item>
    <item row="2" column="0" colspan="3">
     <widget class="QComboBox" name="profilesComboBox">
-     <item>
-      <property name="text">
-       <string>Otus Profile</string>
-      </property>
-     </item>
+     <property name="currentText">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>No profiles available, Please create a profile first</string>
+     </property>
     </widget>
    </item>
    <item row="0" column="0" colspan="3">
@@ -68,6 +69,12 @@
    </item>
    <item row="3" column="0" colspan="3">
     <widget class="QLineEdit" name="passwordField">
+     <property name="inputMask">
+      <string/>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
      <property name="placeholderText">
       <string>Password</string>
      </property>
@@ -84,6 +91,9 @@
     <widget class="QLabel" name="usersIcon">
      <property name="text">
       <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
      </property>
     </widget>
    </item>
