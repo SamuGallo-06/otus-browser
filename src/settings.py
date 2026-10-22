@@ -15,7 +15,8 @@ SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
 
 DEFAULT_PROFILE = "OtusProfile"  # The default profile name to use when ASK_FOR_PROFILE_CHOOSE is False.
 
-PROFILES_XML_PATH = Path("profiles.xml")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROFILES_XML_PATH = PROJECT_ROOT / "profiles.xml"
 
 def get_download_path() -> Path:
     xdg_config = Path.home() / ".config" / "user-dirs.dirs"

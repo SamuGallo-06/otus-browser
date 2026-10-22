@@ -10,13 +10,15 @@ def get_profiles() -> dict:
     profiles = {}
 
     for child in root.findall("Profile"):
+        uid = child.findtext("uid")
+        if not uid:
+            continue
+
+        profile = {}
         for elem in child:
-            if(elem.tag == "uid"):
-                uid = elem.text
-                profiles[uid] = {}
-                profiles[uid][elem.tag] = elem.text
-            else:
-                profiles[uid][elem.tag] = elem.text
+            profile[elem.tag] = elem.text
+        profile["hidden"] = profile.get("hidden", "").strip().lower() == "true"
+        profiles[uid] = profile
                     
     return profiles
     

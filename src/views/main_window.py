@@ -79,7 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setup_profile(self, profile_id):
         # Profile
         # Create a persistent profile for the browser to store cookies, cache, and other data
-        # Profile data will be stored in the user's home directory under .local/share/OtusBrowser/Profiles/OtusProfile for the default profile, named "OtusProfile". 
+        # Profile data is stored under .local/share/OtusBrowser/Profiles using the profile UID.
         # This allows the browser to maintain state across sessions.
         self.profile = QWebEngineProfile(profile_id, self)
         profile_path = PROFILES_DIR / profile_id

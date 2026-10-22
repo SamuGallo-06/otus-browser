@@ -40,7 +40,7 @@ class ProfileSelectionWidget(QWidget):
         shown_profiles = 0
         self.ui.profilesComboBox.clear()
         for elem in profiles.values():
-            if not elem["hidden"]:
+            if not elem.get("hidden", False):
                 self.ui.profilesComboBox.addItem(elem["name"])
                 shown_profiles += 1
                         
@@ -63,12 +63,12 @@ class ProfileSelectionWidget(QWidget):
             return
 
         auth_real = profile.get("auth", None)
-        if auth_real is None or auth_real == "None":
+        if not auth_real or auth_real == "None":
             logger.info("Profile selected: %s", profile_name)
             self.profileSelected.emit(profile_id)
             return
         
-        if auth_real != hash_password(password):
+        if not check_password(profile_name, password):
             logger.warning("Incorrect password for profile: %s", profile_name)
             QMessageBox.warning(self, "Incorrect Password", "The password you entered is incorrect. Please try again.")
             self.ui.passwordField.clear()

@@ -2,6 +2,7 @@ from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import QLineEdit, QMessageBox, QWizard
 
 from ui.ui_profile_creator_wizard import Ui_ProfileCreatorWizard
+from profiles import createProfile
 
 (PAGE_WELCOME, PAGE_NAME, PAGE_ENCRYPTION,
  PAGE_PASSWORD, PAGE_PROGRESS, PAGE_FINISH) = range(6)
@@ -17,6 +18,7 @@ class ProfileCreatorWizard(QWizard):
         self.ui = Ui_ProfileCreatorWizard()
         self.ui.setupUi(self)
         self._busy = False
+        self._created_profile_id: str | None = None
 
         # At the last page, the Back button is disabled (at this time, the profile already exists).
         self.setOption(QWizard.WizardOption.DisabledBackButtonOnLastPage, True)
@@ -75,16 +77,22 @@ class ProfileCreatorWizard(QWizard):
         password = (self.ui.passwordField.text()
                     if self.ui.encryptProfileCheckbox.isChecked() else None)
 
-        # TODO: qui la tua logica (uid, cartella, registro XML, hash della password...).
-        # Se è lenta, eseguila in un QThread e chiama creationDone() o
-        # creationFailed(...) quando finisce, dal thread principale (via segnale).
-        # Per ora passa subito alla pagina finale, così puoi provare la navigazione:
+        try:
+            self._created_profile_id = createProfile(name, password)
+        except Exception as error:
+            self.creationFailed(str(error))
+            return
+
         self.creationDone()
 
     def creationDone(self):
         self._busy = False
         self._setNavigationEnabled(True)
-        self.profileCreated.emit(self.profileName())
+        if self._created_profile_id is None:
+            self.creationFailed("The profile ID was not generated.")
+            return
+
+        self.profileCreated.emit(self._created_profile_id)
         self.next()
 
     def creationFailed(self, message: str):
@@ -98,8 +106,8 @@ class ProfileCreatorWizard(QWizard):
     # ------------------------------------------------------------------
     def accept(self):
         super().accept()
-        if self.ui.loginNowCheckBox.isChecked():
-            self.loginRequested.emit(self.profileName())
+        if self.ui.loginNowCheckBox.isChecked() and self._created_profile_id is not None:
+            self.loginRequested.emit(self._created_profile_id)
 
     def reject(self):
         if self._busy:
