@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QFileDialog, QLineEdit, QMainWindow, QSizePolicy, QWidget, QMessageBox
 )
-from PySide6.QtCore import QUrl, QUrlQuery
+from PySide6.QtCore import QUrl, QUrlQuery, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile, QWebEngineDownloadRequest
 from PySide6.QtGui import QIcon, Qt
@@ -15,6 +15,7 @@ from ui import resources_rc
 from views.download_widget import DownloadWidget
 from views.webview import OtusWebView
 
+from pygocryptfs import PyGocryptfs
 
 from settings import *
 from utils import *
@@ -37,6 +38,9 @@ class BrowserPage(QWebEnginePage):
         return view.page()
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+    
+    exitRequested = Signal()
+    
     def __init__(self, profile_id: str = "OtusProfile"):
         super().__init__()
         logger.debug("Initializing MainWindow with profile: %s", profile_id)
@@ -48,6 +52,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         logger.debug("Setting up profile: %s", profile_id)
         self.setup_profile(profile_id)
+        
+        self.__gfs = PyGocryptfs()
         
         self.downloads = []  # List to keep track of active download widgets
         
@@ -68,6 +74,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionReload.triggered.connect(self.navigate_reload)
         self.actionHome.triggered.connect(self.navigate_home)
         self.actionSilentwing.setIcon(QIcon(":/App Icons/otus_shield.svg"))
+        
+        self.actionExit.triggered.connect(self.requestExit)
 
         # Menu Actions
         self.actionNew_Tab.triggered.connect(lambda: self.new_tab(HOME_URL))
@@ -187,7 +195,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def close_tab(self, index: int):
         #LClosing the last tab means the user want to exit the browser
         if self.browserTabWidget.count() <= 1:
-            self.close()
+            self.requestExit()
             return  
                       
         widget = self.browserTabWidget.widget(index)
@@ -341,10 +349,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not path:
             return
         view.page().save(path, SAVE_FORMATS[selected_filter])
-        
-    def exitApplication(self):
-        logger.debug("Exit application action triggered")
-        self.close()
 
     def newWindow(self):
         logger.debug("New window action triggered")
@@ -355,3 +359,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.debug("New nocturnal window action triggered")
         new_window = MainWindow(profile_id="OtusNocturnal")
         new_window.show()
+        
+    def requestExit(self):
+        logger.info("Exiting application requested by user.")
+        if()
+        self.exitRequested.emit()

@@ -1,7 +1,14 @@
+import os
 from xml.etree import ElementTree as ET
 import secrets, shutil, bcrypt
+from pathlib import Path
+import logging
 
-from settings import PROFILES_DIR, PROFILES_XML_PATH
+from settings import *
+from pygocryptfs import *
+
+log = logging.getLogger(__name__)
+
 
 def get_profiles() -> dict:
     tree = ET.parse(PROFILES_XML_PATH)
@@ -36,17 +43,31 @@ def createProfile(profile_name: str, password: str | None = None) -> str:
         uid = secrets.token_hex(8)
         profile_path = PROFILES_DIR / uid
         try:
-            profile_path.mkdir(mode=0o700)       # niente exist_ok
+            profile_path.mkdir(mode=0o700) 
             break
         except FileExistsError:
             continue
-
-    try:
-        auth = hash_password(password) if password else None
-        add_profile_to_registry(uid, profile_name, auth)
-    except Exception:
-        shutil.rmtree(profile_path, ignore_errors=True)
-        raise
+    
+    if password:
+        log.info("Setting profile password...")
+        try:
+            auth = hash_password(password) if password else None
+            add_profile_to_registry(uid, profile_name, auth)
+        except Exception:
+            log.error("An error occurred while adding the profile to the registry. Cleaning up...")
+            shutil.rmtree(profile_path, ignore_errors=True)
+            raise
+        
+        log.info("Encrypting Profile...")
+        try:
+            gfs = PyGocryptfs()
+            conf = KEYS_DIR / f"{uid}.conf"
+            cipher = PROFILES_DIR / uid     
+            gfs.setup(conf, password, cipher)
+        except GocryptfsError:
+            log.error("An error occurred while encrypting the profile. Cleaning up...")
+            shutil.rmtree(profile_path, ignore_errors=True)
+            raise
 
     return uid
 

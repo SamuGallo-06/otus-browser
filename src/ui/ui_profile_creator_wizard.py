@@ -102,10 +102,10 @@ class Ui_ProfileCreatorWizard(object):
         self.progressPage.setObjectName(u"progressPage")
         self.gridLayout_4 = QGridLayout(self.progressPage)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.label_7 = QLabel(self.progressPage)
-        self.label_7.setObjectName(u"label_7")
+        self.statusLabel = QLabel(self.progressPage)
+        self.statusLabel.setObjectName(u"statusLabel")
 
-        self.gridLayout_4.addWidget(self.label_7, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.statusLabel, 0, 0, 1, 1)
 
         self.progressBar = QProgressBar(self.progressPage)
         self.progressBar.setObjectName(u"progressBar")
@@ -162,7 +162,7 @@ class Ui_ProfileCreatorWizard(object):
         self.label_5.setText(QCoreApplication.translate("ProfileCreatorWizard", u"Password Confirmation", None))
         self.progressPage.setTitle(QCoreApplication.translate("ProfileCreatorWizard", u"Create a Profile", None))
         self.progressPage.setSubTitle(QCoreApplication.translate("ProfileCreatorWizard", u"Working on it...", None))
-        self.label_7.setText(QCoreApplication.translate("ProfileCreatorWizard", u"Creating profile...", None))
+        self.statusLabel.setText(QCoreApplication.translate("ProfileCreatorWizard", u"Creating profile...", None))
         self.finishPage.setTitle(QCoreApplication.translate("ProfileCreatorWizard", u"Profile Created!", None))
         self.finishPage.setSubTitle(QCoreApplication.translate("ProfileCreatorWizard", u"You're all set!", None))
         self.label_6.setText(QCoreApplication.translate("ProfileCreatorWizard", u"Your new profile is ready to use. You can now select it from the dropdown menu and switch between profiles at any time, or log in right now.", None))

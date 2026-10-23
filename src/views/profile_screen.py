@@ -32,6 +32,8 @@ class ProfileSelectionWidget(QWidget):
         self.ui.newProfileButton.clicked.connect(self.onCreateProfileButtonClicked)
         
         self.ui.usersIcon.setPixmap(QIcon(":/App Icons/otus-users.svg").pixmap(64, 64))
+    
+        self.__gfs = PyGocryptfs()
         
         self.refreshProfiles()
 
@@ -66,6 +68,7 @@ class ProfileSelectionWidget(QWidget):
         if not auth_real or auth_real == "None":
             logger.info("Profile selected: %s", profile_name)
             self.profileSelected.emit(profile_id)
+            #If profile is not protected, emit loginRequested signal. The function terminates here.
             return
         
         if not check_password(profile_name, password):
@@ -77,6 +80,36 @@ class ProfileSelectionWidget(QWidget):
             return
         
         logger.info("Profile selected: %s", profile_name)
+        logger.info("Decrypting profile...")
+        
+        try:
+            conf = KEYS_DIR / f"{profile_id}.conf"
+            cipher = PROFILES_DIR / profile_id
+            mnt = str(MOUNT_POINT).format(uid=profile_id)   
+            self.__gfs.mount(conf, cipher, mnt, password)
+        except GocryptfsNotInstalledError or MissingDependenciesError as e:
+            logger.error("Gocryptfs is not installed or missing dependencies. Please install it and try again.")
+            QMessageBox.critical(
+                self,
+                "Fatal Error",
+                "Gocryptfs is not installed or missing dependencies. Please install it and try again.\nDetais: {error}".format(error=str(e)),
+            )
+            return
+        except GocryptfsError as e:
+            QMessageBox.critical(
+                self,
+                "Fatal Error",
+                "Unable to decrypt the profile. Please check your password and try again.\nDetails: {error}".format(error=str(e)),
+            )
+            return
+        except Exception as e:
+            logger.error("An unexpected error occurred while decrypting the profile: %s", str(e))
+            QMessageBox.critical(
+                self,
+                "Fatal Error",
+                "An unexpected error occurred while decrypting the profile. Please try again.",
+            )
+            return
         
         self.profileSelected.emit(profile_id)
         

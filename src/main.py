@@ -50,11 +50,19 @@ class OtusApp:
     def openMainWindow(self, profile_id: str):
         logger.info("Opening main window")
         self.main_window = MainWindow(profile_id=profile_id)
+        self.main_window.exitRequested.connect(self.exitApplication)
         self.main_window.show()
         if self.login is not None:
             self.login.close() 
             self.login.deleteLater()
             self.login = None
+            
+    def exitApplication(self):
+        logger.info("Exiting application")
+        if self.main_window is not None:
+            self.main_window.close()
+            self.main_window.deleteLater()
+            self.main_window = None
 
 
 if __name__ == "__main__":

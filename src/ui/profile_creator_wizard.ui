@@ -159,7 +159,7 @@ Enabling encryption ensures that your settings and browsing data are securely lo
    </attribute>
    <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
-     <widget class="QLabel" name="label_7">
+     <widget class="QLabel" name="statusLabel">
       <property name="text">
        <string>Creating profile...</string>
       </property>

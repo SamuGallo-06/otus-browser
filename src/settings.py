@@ -1,23 +1,34 @@
 from pathlib import Path
-
-SEARCH_URL = "https://duckduckgo.com/"
-HOME_URL = "https://duckduckgo.com"
-PERSISTENT_STORAGE_PATH = Path.home() / ".local" / "share" / "OtusBrowser"
-PROFILES_DIR = PERSISTENT_STORAGE_PATH / "Profiles"
-KEYS_DIR = PERSISTENT_STORAGE_PATH / "Keys"
-
-ASK_FOR_PROFILE_CHOOSE = True  # If True, the user will be prompted to choose a profile on startup. If False, the default profile will be used.
-
-LOG_FILE_PATH = PERSISTENT_STORAGE_PATH / "logs"
-
-RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop"}
-
-SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
-
-DEFAULT_PROFILE = "OtusProfile"  # The default profile name to use when ASK_FOR_PROFILE_CHOOSE is False.
+import os
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PROFILES_XML_PATH = PROJECT_ROOT / "profiles.xml"
+
+## Paths
+PERSISTENT_STORAGE_PATH = Path.home() / ".local" / "share" / "OtusBrowser"
+PROFILES_DIR = PERSISTENT_STORAGE_PATH / "Profiles"
+KEYS_DIR = PERSISTENT_STORAGE_PATH / "Keys"
+MOUNT_POINT = Path(os.environ["XDG_RUNTIME_DIR"]) / "otus-browser" / "{uid}"
+
+LOG_FILE_PATH = PERSISTENT_STORAGE_PATH / "logs"
+
+## Browser Parameters
+
+RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop"}
+SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
+
+## Search Engines
+SEARCH_URL = "https://duckduckgo.com/"
+
+####################
+# Browser Settings #
+####################
+
+HOME_URL = "https://duckduckgo.com"
+
+ASK_FOR_PROFILE_CHOOSE = True  # If True, the user will be prompted to choose a profile on startup. If False, the default profile will be used.
+DEFAULT_PROFILE = "OtusProfile"  # The default profile name to use when ASK_FOR_PROFILE_CHOOSE is False.
+
 
 def get_download_path() -> Path:
     xdg_config = Path.home() / ".config" / "user-dirs.dirs"
