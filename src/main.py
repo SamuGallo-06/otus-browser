@@ -83,7 +83,8 @@ class OtusApp:
 
     def _unmountProfile(self, profile: OtusProfile):
         try:
-            PyGocryptfs().unmount(profile.mountpoint)
+            PyGocryptfs().unmount(profile.mountpoint) #type: ignore
+            logger.info("Unmounted encrypted profile: %s", profile.uid)
             profile.mountpoint = None
         except GocryptfsError:
             logger.exception("Unable to unmount encrypted profile: %s", profile.uid)
