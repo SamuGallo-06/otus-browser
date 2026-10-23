@@ -86,8 +86,8 @@ class PyGocryptfs:
         """Return the output of `gocryptfs -version`."""
         try:
             result = subprocess.run(
-                [self.gocryptfs, "-version"],                               #type: ignore
-                capture_output=True, 
+                [self.gocryptfs, "-version"],                               #type: ignore because self.gocryptfs is guaranteed to be a string if we reach this point.
+                capture_output=True,                                        # If was None, it would have raised GocryptfsNotInstalledError in __init__
                 text=True, 
                 timeout=DEFAULT_TIMEOUT,
             )                                                               

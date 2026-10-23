@@ -9,6 +9,7 @@ from PySide6.QtGui import QIcon, Qt
 from pathlib import Path
 import logging
 
+from bookmarks import Bookmark, BookmarkManager
 from ui.ui_mainwindow import Ui_MainWindow
 from ui.ui_download import Ui_DownloadWidget
 from ui import resources_rc
@@ -48,17 +49,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if profile is None:
             profile = OtusProfile(uid=profile_id, name=profile_id)
         self.profile_data = profile
-        logger.debug("Initializing MainWindow with profile: %s", profile.uid)
-        self.setupUi(self)
         
+        logger.debug("Initializing MainWindow with profile: %s", self.profile_data.uid)
+        self.setupUi(self)
         self.setupActions()
         
+        # Set the size policy of the browser tab widget to expand and fill the available space
         self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
+        logger.debug("Setting up profile: %s", self.profile_data.uid)
+        self.setup_profile(self.profile_data)
         
-        logger.debug("Setting up profile: %s", profile.uid)
-        self.setup_profile(profile)
+        # Setting Profile's Library
+        self.bookmarks = BookmarkManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
+        self.downloads = []  # List to keep track of active download widgets. It will be replaced with a more robust download manager in the future.
         
-        self.downloads = []  # List to keep track of active download widgets
+        self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
+        self.__rebuild_bookmarks_menu()
         
         self.new_tab(HOME_URL)
         
@@ -77,12 +83,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionReload.triggered.connect(self.navigate_reload)
         self.actionHome.triggered.connect(self.navigate_home)
         self.actionSilentwing.setIcon(QIcon(":/App Icons/otus_shield.svg"))
-        
-        self.actionExit.triggered.connect(self.requestExit)
 
         # Menu Actions
+        # File
         self.actionNew_Tab.triggered.connect(lambda: self.new_tab(HOME_URL))
-
+        self.actionNew_Window.triggered.connect(self.newWindow)
+        self.actionNew_Private_Window.triggered.connect(self.newNocturnalWindow)
+        self.actionClose_Tab.triggered.connect(lambda: self.close_tab(self.browserTabWidget.currentIndex()))
+        self.actionOpen_File.triggered.connect(self.openFile)
+        self.actionSave_Page.triggered.connect(self.savePage)
+        self.actionExit.triggered.connect(self.requestExit)
+        
+        # Edit
+        self.actionCopy.triggered.connect(self.browserCopy)
+        self.actionCut.triggered.connect(self.browserCut)
+        self.actionPaste.triggered.connect(self.browserPaste)
+        self.actionSelect_All.triggered.connect(self.browserSelectAll)
+        
+        # View
+        self.actionZoom_in.triggered.connect(self.browserZoomIn)
+        self.actionZoom_out.triggered.connect(self.browserZoomOut)
+        self.actionReset_Zoom.triggered.connect(self.browserResetZoom)
+        self.actionToggle_Fullscreen.triggered.connect(self.toggleFullscreen)
+        
+        # Bookmarks
+        self.actionAdd_Bookmark.triggered.connect(self.add_bookmark)
+        self.actionBookmark_all_tabs.triggered.connect(self.bookmark_all_tabs)
+        
+        # Help
+        self.actionAbout_Otus.triggered.connect(self.show_about_dialog)
+        
         # Tabs
         self.browserTabWidget.tabCloseRequested.connect(self.close_tab)
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
@@ -99,6 +129,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.profile.downloadRequested.connect(self.onDownloadRequested)
         self.profile.setDownloadPath(str(get_download_path()))
+
+    def get_current_profile(self) -> OtusProfile:
+        """Return the data structure for the profile currently used by this window."""
+        return self.profile_data
     
     def navigate_back(self):
         if view := self.current_view():
@@ -370,3 +404,105 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         event.accept()
         self.closed.emit(self.profile_data)
+        
+    ######################################
+    ##     Edit Menu                    ##
+    ######################################
+    
+    def browserCut(self):
+        view = self.current_view()
+        if view is not None:
+            view.triggerPageAction(QWebEnginePage.WebAction.Cut) 
+            
+    def browserCopy(self):
+            view = self.current_view()
+            if view is not None:
+                view.triggerPageAction(QWebEnginePage.WebAction.Copy)
+                
+    def browserPaste(self):
+            view = self.current_view()
+            if view is not None:
+                view.triggerPageAction(QWebEnginePage.WebAction.Paste)
+                
+    def browserSelectAll(self):
+        view = self.current_view()
+        if view is not None:
+            view.triggerPageAction(QWebEnginePage.WebAction.SelectAll)
+            
+    ######################################
+    ##     View Menu                    ##
+    ######################################  
+    
+    def browserZoomIn(self):
+        view = self.current_view()
+        if view is not None:
+            current_zoom = view.zoomFactor()
+            view.setZoomFactor(current_zoom + 0.1)
+    
+    def browserZoomOut(self):
+        view = self.current_view()
+        if view is not None:
+            current_zoom = view.zoomFactor()
+            view.setZoomFactor(current_zoom - 0.1)
+            
+    def browserResetZoom(self):
+        view = self.current_view()
+        if view is not None:
+            view.setZoomFactor(1.0)
+            
+    def toggleFullscreen(self):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
+            
+    ######################################
+    ##    Bookmarks Menu                ##
+    ######################################
+    
+    def add_bookmark(self):
+        view = self.current_view()
+        if view is not None:
+            url = view.url().toString()
+            title = view.title()
+            bookmark = Bookmark(url=url, title=title, desc="")
+            self.bookmarks.add_bookmark(bookmark)
+            
+    def bookmark_all_tabs(self):
+        for i in range(self.browserTabWidget.count()):
+            view = self.browserTabWidget.widget(i)
+            if isinstance(view, OtusWebView):
+                url = view.url().toString()
+                title = view.title()
+                bookmark = Bookmark(url=url, title=title, desc="")
+                self.bookmarks.add_bookmark(bookmark)
+            
+    def __rebuild_bookmarks_menu(self):
+        defaults = [self.actionAdd_Bookmark, self.actionBookmark_all_tabs, self.actionManage_bookmarks, self.actionShow_bookmarks_bar]
+        
+        self.menuBookmarks.clear()
+        for d in defaults:
+            self.menuBookmarks.addAction(d)
+            
+        self.menuBookmarks.addSeparator()
+        
+        bookmarks = self.bookmarks.load_bookmarks()
+        for bookmark in bookmarks:
+            action = self.menuBookmarks.addAction(bookmark.title)
+            action.setToolTip(bookmark.url)
+            action.triggered.connect(lambda checked, url=bookmark.url: self.openLinkInNewTab(QUrl(url)))
+        
+            
+    ######################################
+    ##     Help Menu                    ##
+    ######################################
+    
+    def show_about_dialog(self):
+        QMessageBox.about(
+            self,
+            "About Otus Browser",
+            "<h2>Otus Browser</h2>"
+            "<p>Version 1.0</p>"
+            "<p>A privacy-focused web browser built with PySide6 and Qt WebEngine.</p>"
+            "<p>For more information, visit <a href='https://github.com/SamuGallo-06/otus-browser'>the project repository</a>.</p>"
+        )

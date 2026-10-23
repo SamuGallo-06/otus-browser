@@ -31,6 +31,16 @@ class OtusProfile:
     deletable: bool = False
     protected: bool = False
     mountpoint: Path | None = None
+    
+    ## Properties
+    ## - uid:          Unique identifier for the profile
+    ## - name:         Name of the profile
+    ## - hidden:       Whether the profile is hidden
+    ## - auth:         Authentication information for the profile
+    ## - type:         Type of the profile. It can be "Normal", "Nocturnal", or "Guest". Normal profiles are standard profiles, Nocturnal profiles are private or incognito, and Guest is a special profile for temporary use.
+    ## - deletable:    Whether the profile is deletable through the GUI. 
+    ## - protected:    Whether the profile is protected
+    ## - mountpoint:   Path where the encrypted profile is mounted in case of encrypted profiles. It is None for unencrypted profiles.
 
     @property
     def encrypted(self) -> bool:

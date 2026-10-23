@@ -78,28 +78,41 @@
     <addaction name="actionZoom_in"/>
     <addaction name="actionZoom_out"/>
     <addaction name="actionReset_Zoom"/>
+    <addaction name="actionToggle_Fullscreen"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="actionAbout_Otus"/>
+    <addaction name="actionGitHub_Repository"/>
+    <addaction name="actionReport_Issue"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
     </property>
     <addaction name="actionHistory"/>
-    <addaction name="actionBookmarks"/>
     <addaction name="actionDownloads"/>
     <addaction name="separator"/>
     <addaction name="actionPackage_Manager"/>
     <addaction name="actionPreferences"/>
    </widget>
+   <widget class="QMenu" name="menuBookmarks">
+    <property name="title">
+     <string>Bookmarks</string>
+    </property>
+    <addaction name="actionAdd_Bookmark"/>
+    <addaction name="actionBookmark_all_tabs"/>
+    <addaction name="actionManage_bookmarks"/>
+    <addaction name="actionShow_bookmarks_bar"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuTools"/>
+   <addaction name="menuBookmarks"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -341,14 +354,6 @@
     <string>Ctrl+H</string>
    </property>
   </action>
-  <action name="actionBookmarks">
-   <property name="text">
-    <string>Bookmarks</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+B</string>
-   </property>
-  </action>
   <action name="actionDownloads">
    <property name="text">
     <string>Downloads</string>
@@ -398,6 +403,53 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionToggle_Fullscreen">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ViewFullscreen"/>
+   </property>
+   <property name="text">
+    <string>Toggle Full Screen</string>
+   </property>
+  </action>
+  <action name="actionGitHub_Repository">
+   <property name="text">
+    <string>GitHub Repository</string>
+   </property>
+  </action>
+  <action name="actionReport_Issue">
+   <property name="text">
+    <string>Report Issue</string>
+   </property>
+  </action>
+  <action name="actionAdd_Bookmark">
+   <property name="text">
+    <string>Add bookmark</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionBookmark_all_tabs">
+   <property name="text">
+    <string>Bookmark all tabs…</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionManage_bookmarks">
+   <property name="text">
+    <string>Manage bookmarks</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+O</string>
+   </property>
+  </action>
+  <action name="actionShow_bookmarks_bar">
+   <property name="text">
+    <string>Show bookmarks bar</string>
    </property>
   </action>
  </widget>
