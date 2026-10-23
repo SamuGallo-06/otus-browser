@@ -1,2 +1,4 @@
 PySide6
 bcrypt
+pypyr
+cryptography>=44
