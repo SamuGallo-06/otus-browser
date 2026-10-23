@@ -5,6 +5,7 @@
 
 #PySide6
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 
 #Python Modules
@@ -15,6 +16,8 @@ from pathlib import Path
 #Custom Modules
 from views.main_window import MainWindow
 from views.profile_screen import ProfileSelectionWidget
+from profiles import OtusProfile, get_profile_by_id
+from pygocryptfs import GocryptfsError, PyGocryptfs
 import settings
 
 logger = logging.getLogger(__name__)
@@ -38,6 +41,7 @@ class OtusApp:
         self.login = None
         self.main_window = None
 
+
     def start(self):
         if settings.ASK_FOR_PROFILE_CHOOSE:
             self.login = ProfileSelectionWidget()
@@ -45,12 +49,19 @@ class OtusApp:
             self.login.show()
         else:
             logger.info("Skipped profile selection")
-            self.openMainWindow(settings.DEFAULT_PROFILE)
+            profile = get_profile_by_id(settings.DEFAULT_PROFILE)
+            if profile is None:
+                profile = OtusProfile(
+                    uid=settings.DEFAULT_PROFILE,
+                    name=settings.DEFAULT_PROFILE,
+                )
+            self.openMainWindow(profile)
 
-    def openMainWindow(self, profile_id: str):
+    def openMainWindow(self, profile: OtusProfile):
         logger.info("Opening main window")
-        self.main_window = MainWindow(profile_id=profile_id)
+        self.main_window = MainWindow(profile=profile)
         self.main_window.exitRequested.connect(self.exitApplication)
+        self.main_window.closed.connect(self.unmountProfile)
         self.main_window.show()
         if self.login is not None:
             self.login.close() 
@@ -63,6 +74,19 @@ class OtusApp:
             self.main_window.close()
             self.main_window.deleteLater()
             self.main_window = None
+
+    def unmountProfile(self, profile: OtusProfile):
+        if not profile.encrypted or profile.mountpoint is None:
+            return
+
+        QTimer.singleShot(0, lambda: self._unmountProfile(profile))
+
+    def _unmountProfile(self, profile: OtusProfile):
+        try:
+            PyGocryptfs().unmount(profile.mountpoint)
+            profile.mountpoint = None
+        except GocryptfsError:
+            logger.exception("Unable to unmount encrypted profile: %s", profile.uid)
 
 
 if __name__ == "__main__":

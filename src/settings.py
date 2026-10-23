@@ -1,9 +1,6 @@
 from pathlib import Path
 import os
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PROFILES_XML_PATH = PROJECT_ROOT / "profiles.xml"
-
 ## Paths
 PERSISTENT_STORAGE_PATH = Path.home() / ".local" / "share" / "OtusBrowser"
 PROFILES_DIR = PERSISTENT_STORAGE_PATH / "Profiles"
@@ -11,6 +8,7 @@ KEYS_DIR = PERSISTENT_STORAGE_PATH / "Keys"
 MOUNT_POINT = Path(os.environ["XDG_RUNTIME_DIR"]) / "otus-browser" / "{uid}"
 
 LOG_FILE_PATH = PERSISTENT_STORAGE_PATH / "logs"
+PROFILES_XML_PATH = PERSISTENT_STORAGE_PATH / "profiles.xml"
 
 ## Browser Parameters
 

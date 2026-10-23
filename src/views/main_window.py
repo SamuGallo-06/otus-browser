@@ -15,10 +15,10 @@ from ui import resources_rc
 from views.download_widget import DownloadWidget
 from views.webview import OtusWebView
 
-from pygocryptfs import PyGocryptfs
 
 from settings import *
 from utils import *
+from profiles import OtusProfile
 
 logger = logging.getLogger(__name__)
 
@@ -40,20 +40,23 @@ class BrowserPage(QWebEnginePage):
 class MainWindow(QMainWindow, Ui_MainWindow):
     
     exitRequested = Signal()
+    closed = Signal(object)
     
-    def __init__(self, profile_id: str = "OtusProfile"):
+    def __init__(self, profile: OtusProfile | None = None,
+                 profile_id: str = "OtusProfile"):
         super().__init__()
-        logger.debug("Initializing MainWindow with profile: %s", profile_id)
+        if profile is None:
+            profile = OtusProfile(uid=profile_id, name=profile_id)
+        self.profile_data = profile
+        logger.debug("Initializing MainWindow with profile: %s", profile.uid)
         self.setupUi(self)
         
         self.setupActions()
         
         self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
         
-        logger.debug("Setting up profile: %s", profile_id)
-        self.setup_profile(profile_id)
-        
-        self.__gfs = PyGocryptfs()
+        logger.debug("Setting up profile: %s", profile.uid)
+        self.setup_profile(profile)
         
         self.downloads = []  # List to keep track of active download widgets
         
@@ -84,13 +87,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.browserTabWidget.tabCloseRequested.connect(self.close_tab)
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
         
-    def setup_profile(self, profile_id):
+    def setup_profile(self, profile: OtusProfile):
         # Profile
         # Create a persistent profile for the browser to store cookies, cache, and other data
         # Profile data is stored under .local/share/OtusBrowser/Profiles using the profile UID.
         # This allows the browser to maintain state across sessions.
-        self.profile = QWebEngineProfile(profile_id, self)
-        profile_path = PROFILES_DIR / profile_id
+        self.profile = QWebEngineProfile(profile.uid, self)
+        profile_path = profile.storage_path
         profile_path.mkdir(parents=True, exist_ok=True)
         self.profile.setPersistentStoragePath(str(profile_path))
         
@@ -230,7 +233,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.new_tab(url.toString())
       
     def openLinkInNewWindow(self, url: QUrl):
-        window = MainWindow(profile_id=self.profile.storageName())
+        window = MainWindow(profile=self.profile_data)
         current_view = window.current_view()
         if current_view is not None:
             current_view.setUrl(url)
@@ -362,5 +365,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def requestExit(self):
         logger.info("Exiting application requested by user.")
-        if()
         self.exitRequested.emit()
+
+    def closeEvent(self, event):
+        event.accept()
+        self.closed.emit(self.profile_data)

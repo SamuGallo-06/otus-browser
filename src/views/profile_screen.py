@@ -18,7 +18,7 @@ from profiles import *
 
 class ProfileSelectionWidget(QWidget):
     
-    profileSelected = Signal(str)
+    profileSelected = Signal(object)
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -33,8 +33,6 @@ class ProfileSelectionWidget(QWidget):
         
         self.ui.usersIcon.setPixmap(QIcon(":/App Icons/otus-users.svg").pixmap(64, 64))
     
-        self.__gfs = PyGocryptfs()
-        
         self.refreshProfiles()
 
     def refreshProfiles(self):
@@ -42,8 +40,8 @@ class ProfileSelectionWidget(QWidget):
         shown_profiles = 0
         self.ui.profilesComboBox.clear()
         for elem in profiles.values():
-            if not elem.get("hidden", False):
-                self.ui.profilesComboBox.addItem(elem["name"])
+            if not elem.hidden:
+                self.ui.profilesComboBox.addItem(elem.name)
                 shown_profiles += 1
                         
         if shown_profiles > 0:
@@ -58,20 +56,17 @@ class ProfileSelectionWidget(QWidget):
             logger.error("Profile not found for name: %s", profile_name)
             return
         
-        print(profile)
-        profile_id = profile["uid"]
-        if not profile_id:
+        if not profile.uid:
             logger.error("Profile ID not found for name: %s", profile_name)
             return
 
-        auth_real = profile.get("auth", None)
-        if not auth_real or auth_real == "None":
+        if not profile.auth:
             logger.info("Profile selected: %s", profile_name)
-            self.profileSelected.emit(profile_id)
+            self.profileSelected.emit(profile)
             #If profile is not protected, emit loginRequested signal. The function terminates here.
             return
         
-        if not check_password(profile_name, password):
+        if not check_password(profile, password):
             logger.warning("Incorrect password for profile: %s", profile_name)
             QMessageBox.warning(self, "Incorrect Password", "The password you entered is incorrect. Please try again.")
             self.ui.passwordField.clear()
@@ -83,11 +78,16 @@ class ProfileSelectionWidget(QWidget):
         logger.info("Decrypting profile...")
         
         try:
-            conf = KEYS_DIR / f"{profile_id}.conf"
-            cipher = PROFILES_DIR / profile_id
-            mnt = str(MOUNT_POINT).format(uid=profile_id)   
-            self.__gfs.mount(conf, cipher, mnt, password)
-        except GocryptfsNotInstalledError or MissingDependenciesError as e:
+            gfs = PyGocryptfs()
+            gfs.mount(
+                KEYS_DIR / f"{profile.uid}.conf",
+                profile.cipher_path,
+                profile.mount_path,
+                password,
+            )
+            mnt = profile.mount_path
+            profile.mountpoint = mnt
+        except (GocryptfsNotInstalledError, MissingDependenciesError) as e:
             logger.error("Gocryptfs is not installed or missing dependencies. Please install it and try again.")
             QMessageBox.critical(
                 self,
@@ -111,10 +111,10 @@ class ProfileSelectionWidget(QWidget):
             )
             return
         
-        self.profileSelected.emit(profile_id)
+        self.profileSelected.emit(profile)
         
     def onGuestButtonClicked(self):
-        self.profileSelected.emit("Otus Guest")
+        self.profileSelected.emit(OtusProfile(uid="Otus Guest", name="Otus Guest"))
         
     def onCreateProfileButtonClicked(self):
         wizard = ProfileCreatorWizard(self)
@@ -130,4 +130,6 @@ class ProfileSelectionWidget(QWidget):
 
     def onLoginRequested(self, profile_id: str):
         logger.info("Login requested for profile: %s", profile_id)
-        self.profileSelected.emit(profile_id)
+        profile = get_profile_by_id(profile_id)
+        if profile is not None:
+            self.profileSelected.emit(profile)
