@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import (
-    QFileDialog, QLineEdit, QMainWindow, QSizePolicy, QWidget, QMessageBox
+    QFileDialog, QLineEdit, QListWidgetItem, QMainWindow, QMenu, QSizePolicy, QTreeView, QVBoxLayout, QWidget, QMessageBox
 )
-from PySide6.QtCore import QUrl, QUrlQuery, Signal
+from PySide6.QtCore import QSortFilterProxyModel, QUrl, QUrlQuery, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile, QWebEngineDownloadRequest
-from PySide6.QtGui import QIcon, Qt
+from PySide6.QtGui import QIcon, QKeySequence, QStandardItem, QStandardItemModel, Qt
 
 from pathlib import Path
 import logging
@@ -28,6 +28,9 @@ SAVE_FORMATS = {
     "Web page, complete (*.html)":      QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat,
     "MHTML archive (*.mhtml)":          QWebEngineDownloadRequest.SavePageFormat.MimeHtmlSaveFormat,
 }
+
+ROLE_URL = Qt.ItemDataRole.UserRole + 1
+ROLE_IS_FOLDER = Qt.ItemDataRole.UserRole + 2
 
 class BrowserPage(QWebEnginePage):
     def __init__(self, profile, create_tab, parent=None):
@@ -146,16 +149,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if view := self.current_view():
             view.reload()
         
-    def navigate(self):
-        text = self.urlBar.text().strip()
+    def navigate(self, url: str | None = None):
+        if url is not None:
+            target = QUrl(url)
+        else:
+            #if no url is provided, use the text in the address bar
+            text = self.urlBar.text().strip()
+            target = self.text_to_url(text)
+        
         view = self.current_view()
         if text and view:
-            view.load(self.text_to_url(text))
-
+            view.load(target)
+            
     def navigate_home(self):
         view = self.current_view()
         if view:
             view.load(QUrl(HOME_URL))
+            
 
     def text_to_url(self, text: str) -> QUrl:
         """Address bar input can be a URL or a search query. This function determines which it is and returns the appropriate QUrl."""
@@ -254,12 +264,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.statusbar.showMessage("Loading({progress}%)...".format(progress=progress))
 
     def on_load_finished(self, view: OtusWebView, ok):
+        url = view.url().toString()
+        title = view.title()
         if ok:
-            logger.debug("Page loaded successfully: %s", view.url().toString())
-            self.statusbar.showMessage("Loaded \"{pageName}\"".format(pageName=view.title()), 5000)       
+            logger.debug("Page loaded successfully: {pageUrl}".format(pageUrl=url))
+            self.statusbar.showMessage("Loaded \"{pageName}\"".format(pageName=title), 5000)       
         else:
-            logger.error("Failed to load page: %s", view.url().toString())
-            self.statusbar.showMessage("Failed to load page {pageUrl}".format(pageUrl=view.url().toString()))   
+            logger.error("Failed to load page: {pageUrl}".format(pageUrl=url))
+            self.statusbar.showMessage("Failed to load page {pageUrl}".format(pageUrl=url))
+            
+        self.check_bookmark()  
                
     # Web page navigation events
     
@@ -466,7 +480,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             url = view.url().toString()
             title = view.title()
             bookmark = Bookmark(url=url, title=title, desc="")
+            self.bookmarks.save_icon(bookmark.url, view.icon())
             self.bookmarks.add_bookmark(bookmark)
+            
+        self.check_bookmark()
             
     def bookmark_all_tabs(self):
         for i in range(self.browserTabWidget.count()):
@@ -476,6 +493,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 title = view.title()
                 bookmark = Bookmark(url=url, title=title, desc="")
                 self.bookmarks.add_bookmark(bookmark)
+                
+    def remove_bookmark(self):
+        view = self.current_view()
+        if view is not None:
+            url = view.url().toString()
+            b = self.bookmarks.search(url)
+            if b is not None:
+                self.bookmarks.deleteBookmark(b)
+                
+            self.check_bookmark()
+                
+    def check_bookmark(self):
+        view = self.current_view()
+        if view is not None:
+            url = view.url().toString()
+            if(self.bookmarks.has_bookmark(url)):
+                self.actionAdd_Bookmark.setText("Remove Bookmark")
+                self.actionAdd_Bookmark.triggered.connect(self.remove_bookmark)
+            else:
+                self.actionAdd_Bookmark.setText("Add Bookmark")
+                self.actionAdd_Bookmark.triggered.connect(self.add_bookmark) 
             
     def __rebuild_bookmarks_menu(self):
         defaults = [self.actionAdd_Bookmark, self.actionBookmark_all_tabs, self.actionManage_bookmarks, self.actionShow_bookmarks_bar]

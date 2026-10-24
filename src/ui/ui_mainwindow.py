@@ -145,6 +145,7 @@ class Ui_MainWindow(object):
         self.gridLayout.setObjectName(u"gridLayout")
         self.browserTabWidget = QTabWidget(self.centralwidget)
         self.browserTabWidget.setObjectName(u"browserTabWidget")
+        self.browserTabWidget.setEnabled(True)
         self.browserTabWidget.setDocumentMode(True)
         self.browserTabWidget.setTabsClosable(True)
         self.browserTabWidget.setMovable(True)

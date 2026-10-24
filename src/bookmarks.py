@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
 import json
 import logging
+import hashlib
+from pathlib import Path
+from PySide6.QtGui import QIcon
 
 from profiles import OtusProfile
 
@@ -34,9 +37,9 @@ class BookmarkManager(QObject):
         self.profile = profile
         self.persistent = persistent
         self.bookmarks_file = self.profile.storage_path / "bookmarks.json"
-        self.bookmarks = self.load_bookmarks()
+        self.bookmarks: list[Bookmark] = self.load_bookmarks()
         
-    def load_bookmarks(self):
+    def load_bookmarks(self) -> list[Bookmark]:
         if not self.bookmarks_file.exists():
             self.bookmarks_file.touch(exist_ok=True)
             return []
@@ -54,8 +57,23 @@ class BookmarkManager(QObject):
                 json.dump([bookmark.__dict__ for bookmark in self.bookmarks], f, ensure_ascii=False, indent=4)
         except Exception as e:
             logger.error("Failed to save bookmarks: %s", e)
+            
+    def search(self, url: str) -> Bookmark | None:
+        for b in self.bookmarks:
+            if b.url == url:
+                return b
+        return None
+    
+    def has_bookmark(self, url) -> bool:
+        return self.search(url) is not None
     
     def add_bookmark(self, bookmark: Bookmark):
+        if not bookmark.url or not bookmark.title:
+            logger.error("Bookmark must have a URL and a title.")
+            return
+        if any(b.url == bookmark.url for b in self.bookmarks):
+            logger.warning("Bookmark with URL '%s' already exists. Skipping addition.", bookmark.url)
+            return
         print(f"Adding bookmark: {bookmark}")
         self.bookmarks.append(bookmark)
         if self.persistent:
@@ -67,8 +85,25 @@ class BookmarkManager(QObject):
         self.bookmarks = [b for b in self.bookmarks if b.url != bookmark.url]
         if self.persistent:
             self.save_bookmarks()
+        self._icon_file(bookmark.url).unlink(missing_ok=True)
         self.reloadRequired.emit()
         
     def get_folders(self):
         """Return a list of unique folder names from the bookmarks."""
         return list(set(b.parent for b in self.bookmarks if b.parent is not None))
+
+    def _icon_file(self, url: str) -> Path:
+        digest = hashlib.sha1(url.encode("utf-8")).hexdigest()
+        return self.profile.storage_path / "favicons" / f"{digest}.png"
+
+    def save_icon(self, url: str, icon: QIcon) -> None:
+        """Store the page favicon next to the bookmark (persistent profiles only)."""
+        if not self.persistent or icon.isNull():
+            return
+        path = self._icon_file(url)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        icon.pixmap(64, 64).save(str(path), "PNG")
+
+    def icon_for(self, url: str) -> QIcon:
+        path = self._icon_file(url)
+        return QIcon(str(path)) if path.exists() else QIcon()
