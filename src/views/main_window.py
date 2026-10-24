@@ -4,17 +4,17 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QSortFilterProxyModel, QUrl, QUrlQuery, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile, QWebEngineDownloadRequest
-from PySide6.QtGui import QIcon, QKeySequence, QStandardItem, QStandardItemModel, Qt
+from PySide6.QtGui import QIcon, Qt
 
 from pathlib import Path
 import logging
 
 from bookmarks import Bookmark, BookmarkManager
+from downloads import Download, DownloadManager
 from ui.ui_mainwindow import Ui_MainWindow
-from ui.ui_download import Ui_DownloadWidget
 from ui import resources_rc
-from views.download_widget import DownloadWidget
 from views.webview import OtusWebView
+from views.download_widget import DownloadWidget
 
 
 from settings import *
@@ -28,9 +28,6 @@ SAVE_FORMATS = {
     "Web page, complete (*.html)":      QWebEngineDownloadRequest.SavePageFormat.CompleteHtmlSaveFormat,
     "MHTML archive (*.mhtml)":          QWebEngineDownloadRequest.SavePageFormat.MimeHtmlSaveFormat,
 }
-
-ROLE_URL = Qt.ItemDataRole.UserRole + 1
-ROLE_IS_FOLDER = Qt.ItemDataRole.UserRole + 2
 
 class BrowserPage(QWebEnginePage):
     def __init__(self, profile, create_tab, parent=None):
@@ -64,7 +61,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Setting Profile's Library
         self.bookmarks = BookmarkManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
-        self.downloads = []  # List to keep track of active download widgets. It will be replaced with a more robust download manager in the future.
+        self.downloads = DownloadManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
         
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
@@ -293,8 +290,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onDownloadRequested(self, request: QWebEngineDownloadRequest):
         if request.isSavePageDownload():
             # path and filename are already set by the browser, no need to ask the user
+            self.downloads.register(request)
             widget = DownloadWidget(request, parent=self)
-            self.downloads.append(widget)
             widget.show()
             request.accept()
             return
@@ -333,16 +330,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         directory = str(get_download_path())
         request.setDownloadDirectory(directory)
         request.setDownloadFileName(unique_path(directory, name))
-
+        
+        self.downloads.register(request)
         widget = DownloadWidget(request, parent=self)
-        self.downloads.append(widget)
         widget.show()
-
         request.accept()
         logger.debug("Download accepted")
 
     def cancelDownload(self, request: QWebEngineDownloadRequest):
         request.cancel()
+        
         logger.debug("Download canceled")
         
     def updateProgress(self, request):
