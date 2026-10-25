@@ -13,6 +13,7 @@ from bookmarks import Bookmark, BookmarkManager
 from downloads import Download, DownloadManager
 from ui.ui_mainwindow import Ui_MainWindow
 from ui import resources_rc
+from views.download_history import DownloadHistoryView
 from views.webview import OtusWebView
 from views.download_widget import DownloadWidget
 
@@ -109,6 +110,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Bookmarks
         self.actionAdd_Bookmark.triggered.connect(self.add_bookmark)
         self.actionBookmark_all_tabs.triggered.connect(self.bookmark_all_tabs)
+        
+        # Tools
+        self.actionDownloads.triggered.connect(self.on_download_history)
         
         # Help
         self.actionAbout_Otus.triggered.connect(self.show_about_dialog)
@@ -526,7 +530,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             action = self.menuBookmarks.addAction(bookmark.title)
             action.setToolTip(bookmark.url)
             action.triggered.connect(lambda checked, url=bookmark.url: self.openLinkInNewTab(QUrl(url)))
-        
+            
+    #######################################
+    ##     Tools Menu                    ##
+    #######################################
+    
+    def on_download_history(self):
+        download_list = self.downloads.load()
+        self.history_view = DownloadHistoryView(parent=self, download_list=download_list)
+        self.history_view.show()
             
     ######################################
     ##     Help Menu                    ##

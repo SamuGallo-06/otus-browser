@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import logging
 from datetime import datetime
+from functools import partial
 
 from profiles import OtusProfile
 from settings import *
@@ -27,8 +28,10 @@ class DownloadManager(QObject):
     __download_history: list[Download]
     
     def __init__(self, profile: OtusProfile, persistent:bool = True):
+        super().__init__()
         self.profile = profile
-        self.peristent = persistent
+        self.persistent = persistent
+        self.__registered_requests: dict[QWebEngineDownloadRequest, Download] = {}
         self.__download_history = self.load() if persistent else []
     
     def load(self) -> list[Download]:
@@ -40,11 +43,20 @@ class DownloadManager(QObject):
         try:
             with open(json_file, "r", encoding="utf-8") as f:
                 downloads_data = json.load(f)
-                self.__download_history = [Download(**data) for data in downloads_data]
+                self.__download_history = self.__consolidate_history(
+                    [Download(**data) for data in downloads_data]
+                )
+                self.save()
                 return self.__download_history
-        except Exception as e:
-            log.error("Failed to load download history: {e}".format(e))
+        except FileNotFoundError:
+            log.info("No download history file found, starting with an empty history.")
             self.__download_history = []
+            self.save()
+            return []
+        except Exception as e:
+            log.error("Failed to load download history: {error}".format(error=str(e)))
+            self.__download_history = []
+            self.save()
             return []
         
     def save(self):
@@ -53,9 +65,14 @@ class DownloadManager(QObject):
             with open(json_file, "w", encoding="utf-8") as f:
                 json.dump([download.__dict__ for download in self.__download_history], f, ensure_ascii=False, indent=4)
         except Exception as e:
-            log.error("Failed to save download history: {e}".format(e))
+            log.error("Failed to save download history: {error}".format(error=str(e)))
             
     def register(self, request: QWebEngineDownloadRequest):
+        existing = self.__registered_requests.get(request)
+        if existing is not None:
+            self.__update_record(request, existing)
+            return
+
         record = Download(
             source=request.url().toString(),
             filename=request.downloadFileName(),  # final name, after unique_path
@@ -64,27 +81,70 @@ class DownloadManager(QObject):
             timestamp=datetime.now().timestamp()
         )
         self.__download_history.append(record)
+        self.__registered_requests[request] = record
         self.save()
 
         # Keep the record in sync with the request
-        request.receivedBytesChanged.connect(self.__on_recieved_bytes_changed(request, record))
-        request.stateChanged.connect(self.__on_state_changed(request, record))
-        request.isFinishedChanged.connect(self.__on_finished_changed(request, record))
+        request.receivedBytesChanged.connect(
+            partial(self.__on_recieved_bytes_changed, request, record)
+        )
+        request.stateChanged.connect(
+            partial(self.__on_state_changed, request, record)
+        )
+        request.isFinishedChanged.connect(
+            partial(self.__on_finished_changed, request, record)
+        )
         
-    def __on_recieved_bytes_changed(self, request: QWebEngineDownloadRequest, record: Download):
-        record.total_bytes = request.totalBytes()
-        self.__download_history = [d if d.ident != record.ident else record for d in self.__download_history]
-        self.save()
+    def __on_recieved_bytes_changed(
+        self, request: QWebEngineDownloadRequest, record: Download, *args
+    ):
+        self.__update_record(request, record)
         
-    def __on_state_changed(self, request: QWebEngineDownloadRequest, record: Download):
+    def __on_state_changed(
+        self, request: QWebEngineDownloadRequest, record: Download, *args
+    ):
+        self.__update_record(request, record)
+        
+    def __on_finished_changed(
+        self, request: QWebEngineDownloadRequest, record: Download, *args
+    ):
+        self.__update_record(request, record)
+
+    def __update_record(
+        self, request: QWebEngineDownloadRequest, record: Download
+    ):
         record.status = request.state().name
-        self.__download_history = [d if d.ident != record.ident else record for d in self.__download_history]
-        self.save()
-        
-    def __on_finished_changed(self, request: QWebEngineDownloadRequest, record: Download):
         record.total_bytes = request.totalBytes()
         self.__download_history = [d if d.ident != record.ident else record for d in self.__download_history]
         self.save()
+
+    @staticmethod
+    def __consolidate_history(downloads: list[Download]) -> list[Download]:
+        consolidated: list[Download] = []
+        for download in downloads:
+            duplicate = next(
+                (
+                    item
+                    for item in consolidated
+                    if item.source == download.source
+                    and item.filename == download.filename
+                    and {
+                        item.status,
+                        download.status,
+                    }
+                    <= {"DownloadRequested", "DownloadStarted", "DownloadInProgress"}
+                ),
+                None,
+            )
+            if duplicate is None:
+                consolidated.append(download)
+                continue
+
+            duplicate.status = download.status
+            duplicate.total_bytes = download.total_bytes
+            duplicate.timestamp = min(duplicate.timestamp, download.timestamp)
+
+        return consolidated
         
     def get_download_history(self) -> list[Download]:
         return self.__download_history.copy()
