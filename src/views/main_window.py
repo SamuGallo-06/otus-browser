@@ -13,6 +13,7 @@ from bookmarks import Bookmark, BookmarkManager
 from downloads import Download, DownloadManager
 from ui.ui_mainwindow import Ui_MainWindow
 from ui import resources_rc
+from views.bookmarks_library import BookmarksLibraryView
 from views.download_history import DownloadHistoryView
 from views.webview import OtusWebView
 from views.download_widget import DownloadWidget
@@ -117,6 +118,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Tools
         self.actionDownloads.triggered.connect(self.on_download_history)
+        self.actionManage_bookmarks.triggered.connect(self.on_bookmarks_library)
         
         # Help
         self.actionAbout_Otus.triggered.connect(self.show_about_dialog)
@@ -563,7 +565,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.history_view.resumeRequested.connect(self.resume_download)
         self.history_view.cancelRequested.connect(self.cancel_download)
         self.history_view.show()
-            
+
+    def on_bookmarks_library(self):
+        self.bookmarks_library = BookmarksLibraryView(parent=self, bookmarks=self.bookmarks.bookmarks)
+        self.bookmarks_library.delete_requested.connect(self.on_bookmark_delete_requested)
+        self.bookmarks.reloadRequired.connect(self.bookmarks_library.refresh_view)
+        self.bookmarks_library.elementSaved.connect(self.on_bookmark_saved)
+        self.bookmarks_library.show()
+        
+    def on_bookmark_delete_requested(self, bookmark: Bookmark):
+        print(f"Bookmark delete requested for {bookmark}")
+        self.bookmarks.deleteBookmark(bookmark)
+
+    def on_bookmark_saved(self):
+        print("Bookmark saved.")
+        self.bookmarks.save_bookmarks()
+
     ######################################
     ##     Help Menu                    ##
     ######################################

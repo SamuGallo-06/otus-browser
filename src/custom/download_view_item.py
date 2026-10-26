@@ -8,9 +8,6 @@ from custom.elided_label import ElidedLabel
 
 from utils import human, fmt_time, open_file
 
-## TODO: implement the progress bar for in-progress downloads
-## TODO: implement the pause/resume/cancel button for in-progress downloads
-
 class DownloadViewItem(QWidget):
     
     deleteRequested = Signal(Download)
@@ -29,7 +26,7 @@ class DownloadViewItem(QWidget):
         self._layout.setContentsMargins(8, 4, 8, 4)
         self._layout.setSpacing(2)
         
-        self.__title_label = QLabel("{filename}".format(filename=self.download.filename), textFormat=Qt.TextFormat.MarkdownText)
+        self.__title_label = QLabel("**{filename}**".format(filename=self.download.filename), textFormat=Qt.TextFormat.MarkdownText)
         self.__title_label.setStyleSheet("QLabel { font-style: bold; }")
         self.__title_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 

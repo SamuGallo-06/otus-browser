@@ -55,6 +55,7 @@ class BookmarkManager(QObject):
         try:
             with open(self.bookmarks_file, "w", encoding="utf-8") as f:
                 json.dump([bookmark.__dict__ for bookmark in self.bookmarks], f, ensure_ascii=False, indent=4)
+            self.reloadRequired.emit()
         except Exception as e:
             logger.error("Failed to save bookmarks: %s", e)
             
@@ -78,15 +79,17 @@ class BookmarkManager(QObject):
         self.bookmarks.append(bookmark)
         if self.persistent:
             self.save_bookmarks()
-        self.reloadRequired.emit()
+        else:
+            self.reloadRequired.emit()
         
     def deleteBookmark(self, bookmark: Bookmark):
         print(f"Deleting bookmark: {bookmark}")
-        self.bookmarks = [b for b in self.bookmarks if b.url != bookmark.url]
+        self.bookmarks[:] = [b for b in self.bookmarks if b.url != bookmark.url]
         if self.persistent:
             self.save_bookmarks()
+        else:
+            self.reloadRequired.emit()
         self._icon_file(bookmark.url).unlink(missing_ok=True)
-        self.reloadRequired.emit()
         
     def get_folders(self):
         """Return a list of unique folder names from the bookmarks."""
