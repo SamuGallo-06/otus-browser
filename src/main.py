@@ -5,8 +5,8 @@
 
 #PySide6
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtGui import QGuiApplication, QIcon
 
 #Python Modules
 import sys, logging
@@ -19,6 +19,7 @@ from views.profile_screen import ProfileSelectionWidget
 from profiles import OtusProfile, get_profile_by_id
 from pygocryptfs import GocryptfsError, PyGocryptfs
 import settings
+from ui import resources_rc
 
 logger = logging.getLogger(__name__)
 def setupLogger():
@@ -88,6 +89,10 @@ class OtusApp:
             profile.mountpoint = None
         except GocryptfsError:
             logger.exception("Unable to unmount encrypted profile: %s", profile.uid)
+            
+def apply_theme(theme: str) -> None:
+    hints = QGuiApplication.styleHints()
+    hints.setColorScheme(settings.AVAILABLE_THEMES.get(theme.lower(), Qt.ColorScheme.Light))
 
 
 if __name__ == "__main__":
@@ -95,9 +100,12 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Otus Browser")
-    app.setWindowIcon(QIcon(":/App Icons/otus_logo.png"))
+    app.setWindowIcon(QIcon(":/resources/otus_logo.png"))
     app.setApplicationName("otus-browser")
     app.setApplicationVersion("0.0.1")
+    
+    theme = settings.THEME
+    apply_theme(theme)
 
     otus = OtusApp()
     otus.start()

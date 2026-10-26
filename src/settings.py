@@ -1,5 +1,5 @@
 from pathlib import Path
-from PySide6.QtCore import QStandardPaths
+from PySide6.QtCore import QStandardPaths, Qt
 import os
 
 ## Paths
@@ -17,6 +17,12 @@ RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop", ".b
 SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
 AUTO_DOWNLOAD_DIRECTORY = "<auto>"
 
+AVAILABLE_THEMES = {
+    "light": Qt.ColorScheme.Light,
+    "dark": Qt.ColorScheme.Dark,
+    "system": Qt.ColorScheme.Unknown
+}
+
 ##################################################################
 # Browser Settings (This variable can be overridden by the user) #
 ##################################################################
@@ -26,13 +32,17 @@ SEARCH_URL = "https://duckduckgo.com/"
 
 ASK_FOR_PROFILE_CHOOSE = True  # If True, the user will be prompted to choose a profile on startup. If False, the default profile will be used.
 DEFAULT_PROFILE = "OtusProfile"  # The default profile name to use when ASK_FOR_PROFILE_CHOOSE is False.
-DATETIME_FORMAT = "it"
-LANG="it-IT"
 
 ASK_FOR_DOWNLOAD_PATH = False
 DOWNLOAD_DIRECTORY = AUTO_DOWNLOAD_DIRECTORY
 
 ALWAYS_ASK_BEFORE_EXIT = True
+
+## User Interface
+DATETIME_FORMAT = "it"
+LANG="it-IT"
+
+THEME = "Light"  # Options: "Light", "Dark", "System"
 
 
 def get_download_path() -> Path:

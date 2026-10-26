@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt, Signal
 
 from bookmarks import Bookmark
 from custom.elided_label import ElidedLabel
+from ui import resources_rc
 
 from utils import human, fmt_time, open_file
 
@@ -34,12 +35,12 @@ class BookmarkViewItem(QWidget):
         self.__url_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         
         self.__edit_button = QPushButton("")
-        self.__edit_button.setIcon(QIcon.fromTheme("document-edit"))
+        self.__edit_button.setIcon(QIcon(":/resources/feather/edit-3.svg"))
         self.__edit_button.clicked.connect(
             partial(self.edit_requested.emit, b)
         )
         self.__delete_button = QPushButton("")
-        self.__delete_button.setIcon(self.style().standardIcon(getattr(QStyle, "SP_TrashIcon")))
+        self.__delete_button.setIcon(QIcon(":/resources/feather/trash-2.svg"))
         self.__delete_button.clicked.connect(
             partial(self.delete_requested.emit, b)
         )

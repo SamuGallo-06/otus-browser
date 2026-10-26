@@ -88,7 +88,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionForward.triggered.connect(self.navigate_forward)
         self.actionReload.triggered.connect(self.navigate_reload)
         self.actionHome.triggered.connect(self.navigate_home)
-        self.actionSilentwing.setIcon(QIcon(":/App Icons/otus_shield.svg"))
+        self.actionSilentwing.setIcon(QIcon(":/resources/otus_shield.svg"))
 
         # Menu Actions
         # File

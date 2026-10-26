@@ -8,6 +8,7 @@ import logging, sys
 from settings import *
 from profiles import *
 from ui.ui_profile_selection import Ui_ProfileSelectionWidget
+from ui import resources_rc
 
 from views.profile_creator_wizard import ProfileCreatorWizard
 
@@ -24,14 +25,14 @@ class ProfileSelectionWidget(QWidget):
         super().__init__(parent)
         self.ui = Ui_ProfileSelectionWidget()
         self.ui.setupUi(self)
-        self.setWindowIcon(QIcon(":/App Icons/otus_logo.svg"))
+        self.setWindowIcon(QIcon(":/resources/otus_logo.png"))
         logger.info("Profile Slection Screen Opened")
         
         self.ui.loginButton.clicked.connect(self.onLoginButtonClicked)
         self.ui.guestProfileButton.clicked.connect(self.onGuestButtonClicked)
         self.ui.newProfileButton.clicked.connect(self.onCreateProfileButtonClicked)
         
-        self.ui.usersIcon.setPixmap(QIcon(":/App Icons/otus-users.svg").pixmap(64, 64))
+        self.ui.usersIcon.setPixmap(QIcon(":/resources/otus-users.svg").pixmap(64, 64))
     
         self.refreshProfiles()
 

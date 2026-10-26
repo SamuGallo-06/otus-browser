@@ -26,7 +26,7 @@ for f in "${files[@]}"; do
     printf "\r[%s%s] %d/%d - %s\033[K" "$bar" "$empty" "$i" "$total" "$filename"
     
     pyside6-uic --from-imports "$f" -o "$BASE_PATH/ui_$(basename "${f%.ui}").py"
-    sleep 0.1
+    sleep 0.05
     
     ((i++))
 done
