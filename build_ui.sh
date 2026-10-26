@@ -35,7 +35,7 @@ echo ""
 echo -n "Building Resource file..."
 
 
-output=$(pyside6-rcc "$ASSETS_PATH/resources.qrc" -o "$BASE_PATH/resources_rc.py" 2>&1)
+output=$(pyside6-rcc "src/resources.qrc" -o "$BASE_PATH/resources_rc.py" 2>&1)
 err_code=$?
 
 if [ $err_code -eq 0 ]; then
