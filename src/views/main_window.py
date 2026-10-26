@@ -67,7 +67,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest",
             parent=self,
         )
-        self.__download_requests: dict[str, QWebEngineDownloadRequest] = {}
         
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
@@ -299,11 +298,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onDownloadRequested(self, request: QWebEngineDownloadRequest):
         if request.isSavePageDownload():
             # path and filename are already set by the browser, no need to ask the user
-            record = self.downloads.register(request)
-            self.__download_requests[record.ident] = request
-            widget = DownloadWidget(request, parent=self)
+            record = self.downloads.accept(request)
+            widget = DownloadWidget(record, self.downloads, parent=self)
             widget.show()
-            request.accept()
             return
         
         dw_name = sanitize_filename(request.suggestedFileName())
@@ -341,11 +338,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         request.setDownloadDirectory(directory)
         request.setDownloadFileName(unique_path(directory, name))
         
-        record = self.downloads.register(request)
-        self.__download_requests[record.ident] = request
-        widget = DownloadWidget(request, parent=self)
+        record = self.downloads.accept(request)
+        widget = DownloadWidget(record, self.downloads, parent=self)
         widget.show()
-        request.accept()
         logger.debug("Download accepted")
 
     def cancelDownload(self, request: QWebEngineDownloadRequest):
@@ -354,28 +349,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.debug("Download canceled")
 
     def pause_download(self, download: Download):
-        request = self.__download_requests.get(download.ident)
-        if request is not None:
-            request.pause()
+        self.downloads.pause(download)
 
     def resume_download(self, download: Download):
-        request = self.__download_requests.get(download.ident)
-        if request is not None:
-            request.resume()
+        self.downloads.resume(download)
 
     def cancel_download(self, download: Download):
-        request = self.__download_requests.get(download.ident)
-        if request is not None:
-            request.cancel()
-        
-    def updateProgress(self, request):
-        received = request.receivedBytes()
-        totals = request.totalBytes()      # -1 if download size is unknown
-        if totals > 0:
-            perc = int(received * 100 / totals)
-            self.statusbar.showMessage(f"Download: {perc}%")
-        else:
-            self.statusbar.showMessage(f"Download: {received // 1024} KB")
+        self.downloads.cancel(download)
+
             
     ######################################
     ##     File Menu                    ##

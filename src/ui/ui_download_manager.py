@@ -23,7 +23,7 @@ class Ui_DownloadHistory(object):
     def setupUi(self, DownloadHistory):
         if not DownloadHistory.objectName():
             DownloadHistory.setObjectName(u"DownloadHistory")
-        DownloadHistory.resize(397, 289)
+        DownloadHistory.resize(563, 488)
         self.gridLayout = QGridLayout(DownloadHistory)
         self.gridLayout.setObjectName(u"gridLayout")
         self.searchBox = QLineEdit(DownloadHistory)
@@ -43,7 +43,7 @@ class Ui_DownloadHistory(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 377, 237))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 543, 436))
         self.verticalLayout_2 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.label = QLabel(self.scrollAreaWidgetContents)

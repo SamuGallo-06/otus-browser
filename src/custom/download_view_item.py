@@ -134,5 +134,5 @@ class DownloadViewItem(QWidget):
             self.__update_progress()
         if hasattr(self, "_DownloadViewItem__pause_button"):
             self.__pause_button.setText(
-                "Resume" if download.status == "DownloadPaused" else "Pause"
+                "Resume" if download.paused else "Pause"
             )

@@ -21,6 +21,8 @@ class DownloadHistoryView(QWidget):
         self.ui = Ui_DownloadHistory()
         self.setWindowFlag(Qt.WindowType.Window)
         self.ui.setupUi(self)
+        
+        
         if download_manager is None:
             return
         else:
@@ -49,6 +51,8 @@ class DownloadHistoryView(QWidget):
         if placeholder is not None:
             if placeholder.widget() is not None:
                 placeholder.widget().deleteLater() #type: ignore
+                
+        self.download_list.sort(key=lambda d: d.timestamp, reverse=True) # Sort downloads by timestamp, most recent first
         
         for download in self.download_list:
             print(f"Adding download to history view: {download.filename}, status: {download.status}")

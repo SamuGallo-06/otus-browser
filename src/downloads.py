@@ -24,6 +24,7 @@ class Download:
     total_bytes: int
     filepath: Path
     received_bytes: int = 0
+    paused: bool = False
     ident: str = field(default_factory=lambda: token_hex(4))
 
     def __post_init__(self):
@@ -110,6 +111,32 @@ class DownloadManager(QObject):
             partial(self.__on_finished_changed, request, record)
         )
         return record
+
+    def accept(self, request: QWebEngineDownloadRequest) -> Download:
+        record = self.register(request)
+        request.accept()
+        return record
+
+    def pause(self, record: Download):
+        request = self.__request_for(record)
+        if request is not None and not request.isPaused():
+            request.pause()
+            record.paused = True
+            self.save()
+            self.downloadUpdated.emit(record)
+
+    def resume(self, record: Download):
+        request = self.__request_for(record)
+        if request is not None and request.isPaused():
+            request.resume()
+            record.paused = False
+            self.save()
+            self.downloadUpdated.emit(record)
+
+    def cancel(self, record: Download):
+        request = self.__request_for(record)
+        if request is not None and not request.isFinished():
+            request.cancel()
         
     def remove(self, record: Download, refresh_callback: Callable[[], None] | None = None):
         self.__download_history = [
@@ -146,9 +173,16 @@ class DownloadManager(QObject):
         record.status = request.state().name
         record.total_bytes = request.totalBytes()
         record.received_bytes = request.receivedBytes()
+        record.paused = request.isPaused()
         self.__download_history = [d if d.ident != record.ident else record for d in self.__download_history]
         self.save()
         self.downloadUpdated.emit(record)
+
+    def __request_for(self, record: Download) -> QWebEngineDownloadRequest | None:
+        for request, registered_record in self.__registered_requests.items():
+            if registered_record.ident == record.ident:
+                return request
+        return None
 
     @staticmethod
     def __consolidate_history(downloads: list[Download]) -> list[Download]:
@@ -189,6 +223,5 @@ class DownloadManager(QObject):
     
     def cancel_all(self):
         for download in self.active_downloads():
-            download.status = "DownloadCancelled"
-            self.downloadUpdated.emit(download)
+            self.cancel(download)
         self.save()

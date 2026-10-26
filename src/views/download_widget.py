@@ -1,42 +1,45 @@
 from PySide6.QtCore import Qt, QElapsedTimer, QUrl
 from PySide6.QtGui import QDesktopServices
-from PySide6.QtWidgets import QMessageBox, QMessageBox, QWidget
-from PySide6.QtWebEngineCore import QWebEngineDownloadRequest as DR
+from PySide6.QtWidgets import QMessageBox, QWidget
+from downloads import Download, DownloadManager
 from ui.ui_download import Ui_DownloadWidget
 
 from utils import human, fmt_eta
 
 class DownloadWidget(QWidget):
-    def __init__(self, request: DR, parent=None):
+    def __init__(
+        self, download: Download, download_manager: DownloadManager, parent=None
+    ):
         super().__init__(parent)
         self.setWindowFlag(Qt.WindowType.Window)
         self.ui = Ui_DownloadWidget()
         self.ui.setupUi(self)
-        self.request = request
+        self.download = download
+        self.download_manager = download_manager
 
         # PlainText: un QLabel interpreta HTML, e il nome file è input non fidato
         self.ui.headerLabel.setTextFormat(Qt.TextFormat.PlainText)
         self.ui.headerLabel.setText(
-            f"Downloading: {request.downloadFileName()} from {request.url().host()}")
+            f"Downloading: {download.filename} from {QUrl(download.source).host()}")
         self.ui.progressBar.setValue(0)
 
         self._clock = QElapsedTimer(); self._clock.start()
         self._last_ms, self._last_bytes, self._speed = 0, 0, 0.0
 
-        request.receivedBytesChanged.connect(self.refresh)
-        request.totalBytesChanged.connect(self.refresh)
-        request.stateChanged.connect(self.onStateChanged)
+        download_manager.downloadUpdated.connect(self.update_download)
         self.ui.pauseDownloadButton.clicked.connect(self.togglePause)
         self.ui.cancelDownloadButton.clicked.connect(self.toggleCancel)
         self.ui.openDownloadFolderButton.clicked.connect(self.openFolder)
+        self.refresh()
     
     def refresh(self):
         now = self._clock.elapsed()
-        if now - self._last_ms < 500:
+        elapsed = now - self._last_ms
+        if elapsed <= 0:
             return
-        received, total = self.request.receivedBytes(), self.request.totalBytes()
+        received, total = self.download.received_bytes, self.download.total_bytes
 
-        inst = (received - self._last_bytes) / ((now - self._last_ms) / 1000)
+        inst = (received - self._last_bytes) / (elapsed / 1000)
         self._speed = inst if self._speed == 0 else 0.7 * self._speed + 0.3 * inst
         self._last_ms, self._last_bytes = now, received
 
@@ -55,18 +58,18 @@ class DownloadWidget(QWidget):
             f"Estimated time left: {fmt_eta(eta)}")
         
     def togglePause(self):
-        if self.request.isPaused():
-            self.request.resume()
+        if self.download.paused:
+            self.download_manager.resume(self.download)
             self.ui.pauseDownloadButton.setText("Pause")
         else:
-            self.request.pause()
+            self.download_manager.pause(self.download)
             self.ui.pauseDownloadButton.setText("Resume")
 
     def openFolder(self):
-        QDesktopServices.openUrl(QUrl.fromLocalFile(self.request.downloadDirectory()))
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.download.filepath.parent)))
         
     def toggleCancel(self):
-        if self.request.isFinished():
+        if self.download.status in {"DownloadCompleted", "DownloadCancelled", "DownloadInterrupted"}:
             self.close()
         else:
             result = QMessageBox.warning(
@@ -78,21 +81,32 @@ class DownloadWidget(QWidget):
             )
 
             if result == QMessageBox.StandardButton.Yes:
-                self.request.cancel()
+                self.download_manager.cancel(self.download)
 
-    def onStateChanged(self, state):
-        S = DR.DownloadState
-        if state == S.DownloadCompleted:
+    def onStateChanged(self):
+        if self.download.status == "DownloadCompleted":
             self.ui.progressBar.setRange(0, 100)
             self.ui.progressBar.setValue(100)
             self.ui.detailsLabel.setText("Download completed")
-        elif state == S.DownloadCancelled:
+        elif self.download.status == "DownloadCancelled":
             self.ui.detailsLabel.setText("Download canceled")
             self.close()
-        elif state == S.DownloadInterrupted:
-            self.ui.detailsLabel.setText(
-                f"Download interrupted: {self.request.interruptReasonString()}")
+        elif self.download.status == "DownloadInterrupted":
+            self.ui.detailsLabel.setText("Download interrupted")
         else:
             return                       # DownloadInProgress / Requested
         self.ui.pauseDownloadButton.setEnabled(False)
         self.ui.cancelDownloadButton.setEnabled(False)
+
+    def update_download(self, download: Download):
+        if download.ident != self.download.ident:
+            return
+        self.download = download
+        self.refresh()
+        if self.download.status not in {
+            "DownloadCompleted", "DownloadCancelled", "DownloadInterrupted"
+        }:
+            self.ui.pauseDownloadButton.setText(
+                "Resume" if download.paused else "Pause"
+            )
+        self.onStateChanged()
