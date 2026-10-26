@@ -62,7 +62,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Setting Profile's Library
         self.bookmarks = BookmarkManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
-        self.downloads = DownloadManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
+        self.downloads = DownloadManager(
+            self.profile_data,
+            persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest",
+            parent=self,
+        )
+        self.__download_requests: dict[str, QWebEngineDownloadRequest] = {}
         
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
@@ -294,7 +299,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def onDownloadRequested(self, request: QWebEngineDownloadRequest):
         if request.isSavePageDownload():
             # path and filename are already set by the browser, no need to ask the user
-            self.downloads.register(request)
+            record = self.downloads.register(request)
+            self.__download_requests[record.ident] = request
             widget = DownloadWidget(request, parent=self)
             widget.show()
             request.accept()
@@ -335,7 +341,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         request.setDownloadDirectory(directory)
         request.setDownloadFileName(unique_path(directory, name))
         
-        self.downloads.register(request)
+        record = self.downloads.register(request)
+        self.__download_requests[record.ident] = request
         widget = DownloadWidget(request, parent=self)
         widget.show()
         request.accept()
@@ -345,6 +352,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         request.cancel()
         
         logger.debug("Download canceled")
+
+    def pause_download(self, download: Download):
+        request = self.__download_requests.get(download.ident)
+        if request is not None:
+            request.pause()
+
+    def resume_download(self, download: Download):
+        request = self.__download_requests.get(download.ident)
+        if request is not None:
+            request.resume()
+
+    def cancel_download(self, download: Download):
+        request = self.__download_requests.get(download.ident)
+        if request is not None:
+            request.cancel()
         
     def updateProgress(self, request):
         received = request.receivedBytes()
@@ -413,6 +435,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         new_window.show()
         
     def requestExit(self):
+        if(self.downloads.count_active_downloads() > 0):
+            box = QMessageBox(
+                QMessageBox.Icon.Warning,
+                "Active Downloads",
+                "There are active downloads in progress. Are you sure you want to exit?",
+                parent=self,
+            )
+            box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel)
+            box.setDefaultButton(QMessageBox.StandardButton.Cancel)
+
+            if box.exec() == QMessageBox.StandardButton.Cancel:
+                return
         logger.info("Exiting application requested by user.")
         self.exitRequested.emit()
 
@@ -536,8 +571,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #######################################
     
     def on_download_history(self):
-        download_list = self.downloads.load()
-        self.history_view = DownloadHistoryView(parent=self, download_list=download_list)
+        self.history_view = DownloadHistoryView(parent=self, download_manager=self.downloads)
+        self.history_view.pauseRequested.connect(self.pause_download)
+        self.history_view.resumeRequested.connect(self.resume_download)
+        self.history_view.cancelRequested.connect(self.cancel_download)
         self.history_view.show()
             
     ######################################

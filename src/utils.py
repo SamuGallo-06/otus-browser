@@ -1,4 +1,5 @@
-import re
+from datetime import datetime
+import re, platform, sys, subprocess, os
 from pathlib import Path
 
 def human(n: float) -> str:
@@ -15,6 +16,12 @@ def fmt_eta(seconds) -> str:
     h, m = divmod(m, 60)
     return f"{h}h {m}m" if h else f"{m}m {s}s"
 
+def fmt_time(timestamp: float) -> str:
+    
+    clock = datetime.fromtimestamp(timestamp)
+    
+    return clock.strftime("%d/%m/%Y %H:%M:%S")
+
 def sanitize_filename(name: str) -> str:
     """Toglie percorsi, caratteri di controllo e nomi vuoti."""
     name = Path(name.replace("\\", "/")).name          # niente cartelle
@@ -30,3 +37,12 @@ def unique_path(directory: str, name: str) -> str:
         candidate = Path(directory) / f"{stem} ({n}){suffix}"
         n += 1
     return candidate.name
+
+def open_file(filename):
+    filename = os.fspath(filename)
+    if sys.platform == "darwin":        
+        subprocess.run(["open", filename], check=True)     # macOS
+    elif sys.platform == "win32":       
+        os.startfile(filename)                             # Windows
+    else:                               
+        subprocess.run(["xdg-open", filename], check=True) # Linux

@@ -26,17 +26,17 @@ class Ui_DownloadHistory(object):
         DownloadHistory.resize(397, 289)
         self.gridLayout = QGridLayout(DownloadHistory)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.lineEdit = QLineEdit(DownloadHistory)
-        self.lineEdit.setObjectName(u"lineEdit")
-        self.lineEdit.setFrame(True)
-        self.lineEdit.setClearButtonEnabled(True)
+        self.searchBox = QLineEdit(DownloadHistory)
+        self.searchBox.setObjectName(u"searchBox")
+        self.searchBox.setFrame(True)
+        self.searchBox.setClearButtonEnabled(True)
 
-        self.gridLayout.addWidget(self.lineEdit, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.searchBox, 0, 1, 1, 1)
 
-        self.pushButton = QPushButton(DownloadHistory)
-        self.pushButton.setObjectName(u"pushButton")
+        self.clearHistoryButton = QPushButton(DownloadHistory)
+        self.clearHistoryButton.setObjectName(u"clearHistoryButton")
 
-        self.gridLayout.addWidget(self.pushButton, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.clearHistoryButton, 0, 0, 1, 1)
 
         self.scrollArea = QScrollArea(DownloadHistory)
         self.scrollArea.setObjectName(u"scrollArea")
@@ -64,9 +64,9 @@ class Ui_DownloadHistory(object):
 
     def retranslateUi(self, DownloadHistory):
         DownloadHistory.setWindowTitle(QCoreApplication.translate("DownloadHistory", u"Downloads - Otus Browser", None))
-        self.lineEdit.setText("")
-        self.lineEdit.setPlaceholderText(QCoreApplication.translate("DownloadHistory", u"Search downloads", None))
-        self.pushButton.setText(QCoreApplication.translate("DownloadHistory", u"Clear History", None))
+        self.searchBox.setText("")
+        self.searchBox.setPlaceholderText(QCoreApplication.translate("DownloadHistory", u"Search downloads", None))
+        self.clearHistoryButton.setText(QCoreApplication.translate("DownloadHistory", u"Clear History", None))
         self.label.setText(QCoreApplication.translate("DownloadHistory", u"Recent Downloads", None))
     # retranslateUi
 

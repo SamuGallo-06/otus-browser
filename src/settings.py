@@ -1,4 +1,5 @@
 from pathlib import Path
+from PySide6.QtCore import QStandardPaths
 import os
 
 ## Paths
@@ -12,41 +13,41 @@ PROFILES_XML_PATH = PERSISTENT_STORAGE_PATH / "profiles.xml"
 
 ## Browser Parameters
 
-RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop"}
+RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop", ".bat", ".bin", ".run", ".deb", ".rpm", ".msi", ""}
 SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
+AUTO_DOWNLOAD_DIRECTORY = "<auto>"
 
-## Search Engines
-SEARCH_URL = "https://duckduckgo.com/"
-
-####################
-# Browser Settings #
-####################
+##################################################################
+# Browser Settings (This variable can be overridden by the user) #
+##################################################################
 
 HOME_URL = "https://duckduckgo.com"
+SEARCH_URL = "https://duckduckgo.com/"
 
 ASK_FOR_PROFILE_CHOOSE = True  # If True, the user will be prompted to choose a profile on startup. If False, the default profile will be used.
 DEFAULT_PROFILE = "OtusProfile"  # The default profile name to use when ASK_FOR_PROFILE_CHOOSE is False.
+DATETIME_FORMAT = "it"
+LANG="it-IT"
+
+ASK_FOR_DOWNLOAD_PATH = False
+DOWNLOAD_DIRECTORY = AUTO_DOWNLOAD_DIRECTORY
 
 
 def get_download_path() -> Path:
-    xdg_config = Path.home() / ".config" / "user-dirs.dirs"
-    if xdg_config.exists():
-        try:
-            for line in xdg_config.read_text(encoding="utf-8").splitlines():
-                if line.startswith("XDG_DOWNLOAD_DIR="):
-                    path_str = line.split("=", 1)[1].strip('"').strip("'")
-                    path_str = path_str.replace("$HOME", str(Path.home()))
-                    download_dir = Path(path_str)
-                    if download_dir.exists():
-                        return download_dir
-        except Exception:
-            pass
-            
-    for name in ["Scaricati", "Downloads"]:
-        fallback_path = Path.home() / name
-        if fallback_path.exists():
-            return fallback_path
+    # User override, if it is still a valid folder
+    if DOWNLOAD_DIRECTORY != AUTO_DOWNLOAD_DIRECTORY:
+        custom = Path(DOWNLOAD_DIRECTORY).expanduser()
+        if custom.is_dir():
+            return custom
 
+    # System download folder (reads XDG user-dirs on Linux)
+    location = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DownloadLocation)
+    if location:
+        path = Path(location)
+        if path.is_dir():
+            return path
+
+    # Last resort
     default_path = Path.home() / "Downloads"
-    default_path.mkdir(exist_ok=True)
+    default_path.mkdir(parents=True, exist_ok=True)
     return default_path
