@@ -98,7 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionClose_Tab.triggered.connect(lambda: self.close_tab(self.browserTabWidget.currentIndex()))
         self.actionOpen_File.triggered.connect(self.openFile)
         self.actionSave_Page.triggered.connect(self.savePage)
-        self.actionExit.triggered.connect(self.requestExit)
+        self.actionExit.triggered.connect(self.close)
         
         # Edit
         self.actionCopy.triggered.connect(self.browserCopy)
@@ -248,7 +248,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def close_tab(self, index: int):
         #LClosing the last tab means the user want to exit the browser
         if self.browserTabWidget.count() <= 1:
-            self.requestExit()
+            self.close()
             return  
                       
         widget = self.browserTabWidget.widget(index)
@@ -434,26 +434,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         new_window = MainWindow(profile_id="OtusNocturnal")
         new_window.show()
         
-    def requestExit(self):
-        if(self.downloads.count_active_downloads() > 0):
+    def closeEvent(self, event):
+        if ALWAYS_ASK_BEFORE_EXIT:
             box = QMessageBox(
-                QMessageBox.Icon.Warning,
-                "Active Downloads",
-                "There are active downloads in progress. Are you sure you want to exit?",
+                QMessageBox.Icon.Question,
+                "Exit Confirmation",
+                "Are you sure you want to exit the browser?",
                 parent=self,
             )
             box.setStandardButtons(
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel)
             box.setDefaultButton(QMessageBox.StandardButton.Cancel)
-
+        
             if box.exec() == QMessageBox.StandardButton.Cancel:
+                event.ignore()  # keeps the window open
                 return
-        logger.info("Exiting application requested by user.")
-        self.exitRequested.emit()
-
-    def closeEvent(self, event):
+        
+        if self.downloads.active_downloads():
+            answer = QMessageBox.question(
+                self, "Downloads in progress",
+                "Some downloads are still running. Quit and cancel them?",
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                event.ignore()  # keeps the window open
+                return
+            self.downloads.cancel_all()
         event.accept()
-        self.closed.emit(self.profile_data)
         
     ######################################
     ##     Edit Menu                    ##

@@ -32,6 +32,8 @@ LANG="it-IT"
 ASK_FOR_DOWNLOAD_PATH = False
 DOWNLOAD_DIRECTORY = AUTO_DOWNLOAD_DIRECTORY
 
+ALWAYS_ASK_BEFORE_EXIT = True
+
 
 def get_download_path() -> Path:
     # User override, if it is still a valid folder

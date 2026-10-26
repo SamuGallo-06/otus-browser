@@ -183,3 +183,12 @@ class DownloadManager(QObject):
     
     def count_active_downloads(self) -> int:
         return len([d for d in self.__download_history if d.status in ["DownloadRequested", "DownloadStarted", "DownloadInProgress"]])
+    
+    def active_downloads(self) -> list[Download]:
+        return [d for d in self.__download_history if d.status in ["DownloadRequested", "DownloadStarted", "DownloadInProgress"]]
+    
+    def cancel_all(self):
+        for download in self.active_downloads():
+            download.status = "DownloadCancelled"
+            self.downloadUpdated.emit(download)
+        self.save()

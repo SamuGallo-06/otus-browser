@@ -6,7 +6,7 @@ from downloads import Download
 
 from custom.elided_label import ElidedLabel
 
-from utils import human, fmt_eta, open_file
+from utils import human, fmt_time, open_file
 
 ## TODO: implement the progress bar for in-progress downloads
 ## TODO: implement the pause/resume/cancel button for in-progress downloads
@@ -37,7 +37,7 @@ class DownloadViewItem(QWidget):
         self.__details_label = QLabel(
             "Total Size: {size} · Created at: {time}".format(
                 size=human(self.download.total_bytes),
-                time=fmt_eta(self.download.timestamp),
+                time=fmt_time(self.download.timestamp),
             )
         )
         self.__details_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
