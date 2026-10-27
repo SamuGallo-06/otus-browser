@@ -31,9 +31,17 @@ TODO: Implement SilentWing Mode, a privacy-focused mode that disables all tracki
 TODO: Implement a settings/preferences dialog for customizing the browser's behavior and appearance.
 TODO: About dialog with version information and credits.
 
-** Release 0.1.0 ** will be the first public release, with a focus on privacy and security.
+** Release 0.1.0 ** will be the first public release
 
 In a Future release, the following features are planned:
 
 TODO: Add support for extensions or plugins to enhance the browser's functionality (Otus Package Manager).
 TODO: Add support for importing and exporting bookmarks in various formats (e.g., HTML, JSON).
+
+## Known issues
+
+### Blank page on some ad-heavy websites
+
+On some sites (e.g. AutoScout24) the page may go blank shortly after loading, and the log shows `RenderProcessTerminationStatus.CrashedTerminationStatus, exit_code=5`.
+
+This is a crash of the Chromium renderer embedded in Qt WebEngine, not of Otus itself: a minimal `QWebEngineView` script reproduces it (observed with PySide6/Qt 6.12.0, Chromium 140.0.7339.225, on Linux). It is triggered by requests to some ad networks. As a mitigation, Otus blocks a small list of ad and tracking hosts (see `src/adblock.py`), but other ad networks may still trigger it.

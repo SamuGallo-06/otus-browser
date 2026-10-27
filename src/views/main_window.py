@@ -22,6 +22,7 @@ from views.download_widget import DownloadWidget
 from settings import *
 from utils import *
 from profiles import OtusProfile
+from adblock import OtusAdBlocker
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, profile: OtusProfile | None = None,
                  profile_id: str = "OtusProfile"):
         super().__init__()
+        self._child_windows: list[MainWindow] = []
         if profile is None:
             profile = OtusProfile(uid=profile_id, name=profile_id)
         self.profile_data = profile
@@ -135,7 +137,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.profile = QWebEngineProfile(profile.uid, self)
         profile_path = profile.storage_path
         profile_path.mkdir(parents=True, exist_ok=True)
-        self.profile.setPersistentStoragePath(str(profile_path))
+        webengine_path = profile_path / "webengine"
+        webengine_path.mkdir(parents=True, exist_ok=True)
+        self.profile.setPersistentStoragePath(str(webengine_path))
+        self.profile.setCachePath(str(webengine_path / "cache"))
+        
+        # The ad blocker is parented to the profile, so it lives exactly as long as the profile.
+        self.ad_blocker = None
+        if ADBLOCKER_ENABLED:
+            self.ad_blocker = OtusAdBlocker(parent=self.profile)
+            self.profile.setUrlRequestInterceptor(self.ad_blocker)
         
         self.profile.downloadRequested.connect(self.onDownloadRequested)
         self.profile.setDownloadPath(str(get_download_path()))
@@ -165,7 +176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             target = self.text_to_url(text)
         
         view = self.current_view()
-        if text and view:
+        if view and target.isValid():
             view.load(target)
             
     def navigate_home(self):
@@ -221,6 +232,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         view.loadFinished.connect(
             lambda ok, v=view: self.on_load_finished(v, ok)
+        )
+        view.renderProcessTerminated.connect(
+            lambda status, exit_code, v=view: self.on_render_process_terminated(
+                v, status, exit_code
+            )
         )
         if url:
             view.load(QUrl(url))
@@ -281,6 +297,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.statusbar.showMessage("Failed to load page {pageUrl}".format(pageUrl=url))
             
         self.check_bookmark()  
+
+    def on_render_process_terminated(self, view, status, exit_code):
+        logger.error(
+            "WebEngine render process terminated for %s: status=%s, exit_code=%s",
+            view.url().toString(),
+            status,
+            exit_code,
+        )
+        self.statusbar.showMessage(
+            "Il processo di rendering della pagina è terminato. Ricarica la pagina."
+        )
                
     # Web page navigation events
     
@@ -289,10 +316,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
       
     def openLinkInNewWindow(self, url: QUrl):
         window = MainWindow(profile=self.profile_data)
+        self._child_windows.append(window)
         current_view = window.current_view()
         if current_view is not None:
             current_view.setUrl(url)
-            
+        window.destroyed.connect(
+            lambda _object=None, child=window: self._child_windows.remove(child)
+            if child in self._child_windows else None
+        )
         window.show()
      
     # File Downloads
@@ -410,11 +441,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def newWindow(self):
         logger.debug("New window action triggered")
         new_window = MainWindow(profile_id="OtusProfile")
+        self._child_windows.append(new_window)
+        new_window.destroyed.connect(
+            lambda _object=None, child=new_window: self._child_windows.remove(child)
+            if child in self._child_windows else None
+        )
         new_window.show()
         
     def newNocturnalWindow(self):
         logger.debug("New nocturnal window action triggered")
         new_window = MainWindow(profile_id="OtusNocturnal")
+        self._child_windows.append(new_window)
+        new_window.destroyed.connect(
+            lambda _object=None, child=new_window: self._child_windows.remove(child)
+            if child in self._child_windows else None
+        )
         new_window.show()
         
     def closeEvent(self, event):
