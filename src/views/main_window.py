@@ -173,7 +173,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             #if no url is provided, use the text in the address bar
             text = self.urlBar.text().strip()
-            target = self.text_to_url(text)
+            target = text_to_url(text)
         
         view = self.current_view()
         if view and target.isValid():
@@ -183,27 +183,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         view = self.current_view()
         if view:
             view.load(QUrl(HOME_URL))
-            
-
-    def text_to_url(self, text: str) -> QUrl:
-        """Address bar input can be a URL or a search query. This function determines which it is and returns the appropriate QUrl."""
-        looks_like_address = " " not in text and (
-            "://" in text or "." in text or text.startswith("localhost")
-        )
-        if looks_like_address:
-            url = QUrl.fromUserInput(text)
-            if url.isValid():
-                # fromUserInput usa http se manca lo schema: per un browser
-                # privacy meglio https (localhost escluso)
-                if "://" not in text and url.scheme() == "http" and url.host() != "localhost":
-                    url.setScheme("https")
-                return url
-
-        query = QUrlQuery()
-        query.addQueryItem("q", text)
-        url = QUrl(SEARCH_URL)
-        url.setQuery(query)
-        return url
     
     # Tabs
     
@@ -406,7 +385,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )[0]
         
         path = f"file://{filePath.replace(" ","%20")}"
-        url = self.text_to_url(path)
+        url = text_to_url(path)
         
         if not filePath:
             return
@@ -582,7 +561,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.actionAdd_Bookmark.triggered.connect(self.add_bookmark) 
             
     def __rebuild_bookmarks_menu(self):
-        defaults = [self.actionAdd_Bookmark, self.actionBookmark_all_tabs, self.actionManage_bookmarks, self.actionShow_bookmarks_bar]
+        defaults = [self.actionAdd_Bookmark, self.actionBookmark_all_tabs, self.actionManage_bookmarks]
         
         self.menuBookmarks.clear()
         for d in defaults:

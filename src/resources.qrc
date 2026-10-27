@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource>
+<qresource prefix="feather">
     <file>resources/feather/activity.svg</file>
     <file>resources/feather/airplay.svg</file>
     <file>resources/feather/alert-circle.svg</file>
@@ -287,6 +287,8 @@
     <file>resources/feather/zap.svg</file>
     <file>resources/feather/zoom-in.svg</file>
     <file>resources/feather/zoom-out.svg</file>
+</qresource>
+<qresource prefix="otus">
     <file>resources/new-window-nocturnal.svg</file>
     <file>resources/otus_logo.png</file>
     <file>resources/otus_shield_256x256.png</file>

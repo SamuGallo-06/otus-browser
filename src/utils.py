@@ -1,6 +1,13 @@
 from datetime import datetime
 import re, platform, sys, subprocess, os
 from pathlib import Path
+from settings import *
+
+from PySide6.QtCore import QByteArray, QFile, QIODevice, Qt, QUrl, QUrlQuery
+from PySide6.QtGui import QColor, QGuiApplication, QIcon, QPainter, QPixmap
+from PySide6.QtSvg import QSvgRenderer
+
+from ui import resources_rc  #noqa: F401
 
 def human(n: float) -> str:
     for unit in ("B", "KB", "MB", "GB"):
@@ -46,3 +53,23 @@ def open_file(filename):
         os.startfile(filename)                             # Windows
     else:                               
         subprocess.run(["xdg-open", filename], check=True) # Linux
+        
+def text_to_url(text: str) -> QUrl:
+    """Address bar input can be a URL or a search query. This function determines which it is and returns the appropriate QUrl."""
+    looks_like_address = " " not in text and (
+        "://" in text or "." in text or text.startswith("localhost")
+    )
+    if looks_like_address:
+        url = QUrl.fromUserInput(text)
+        if url.isValid():
+            # fromUserInput usa http se manca lo schema: per un browser
+            # privacy meglio https (localhost escluso)
+            if "://" not in text and url.scheme() == "http" and url.host() != "localhost":
+                url.setScheme("https")
+            return url
+
+    query = QUrlQuery()
+    query.addQueryItem("q", text)
+    url = QUrl(SEARCH_URL)
+    url.setQuery(query)
+    return url

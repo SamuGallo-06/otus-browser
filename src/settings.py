@@ -11,6 +11,8 @@ KEYS_DIR = PERSISTENT_STORAGE_PATH / "Keys"
 MOUNT_POINT = Path(os.environ["XDG_RUNTIME_DIR"]) / "otus-browser" / "{uid}"
 LOG_FILE_PATH = PERSISTENT_STORAGE_PATH / "logs"
 PROFILES_XML_PATH = PERSISTENT_STORAGE_PATH / "profiles.xml"
+BASE_DIR = Path(__file__).resolve().parent
+RESOURCES_DIR = BASE_DIR / "resources"
 
 
 # Browser parameters

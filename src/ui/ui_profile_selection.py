@@ -18,6 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QGridLayout, QLabel,
     QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
     QWidget)
+from . import resources_rc
 
 class Ui_ProfileSelectionWidget(object):
     def setupUi(self, ProfileSelectionWidget):
@@ -28,11 +29,17 @@ class Ui_ProfileSelectionWidget(object):
         self.gridLayout.setObjectName(u"gridLayout")
         self.newProfileButton = QPushButton(ProfileSelectionWidget)
         self.newProfileButton.setObjectName(u"newProfileButton")
+        icon = QIcon()
+        icon.addFile(u":/feather/resources/feather/user-plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.newProfileButton.setIcon(icon)
 
         self.gridLayout.addWidget(self.newProfileButton, 5, 1, 1, 1)
 
         self.loginButton = QPushButton(ProfileSelectionWidget)
         self.loginButton.setObjectName(u"loginButton")
+        icon1 = QIcon()
+        icon1.addFile(u":/feather/resources/feather/log-out.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.loginButton.setIcon(icon1)
 
         self.gridLayout.addWidget(self.loginButton, 5, 2, 1, 1)
 
@@ -85,6 +92,6 @@ class Ui_ProfileSelectionWidget(object):
         self.passwordField.setInputMask("")
         self.passwordField.setPlaceholderText(QCoreApplication.translate("ProfileSelectionWidget", u"Password", None))
         self.guestProfileButton.setText(QCoreApplication.translate("ProfileSelectionWidget", u"Guest", None))
-        self.usersIcon.setText(QCoreApplication.translate("ProfileSelectionWidget", u"TextLabel", None))
+        self.usersIcon.setText(QCoreApplication.translate("ProfileSelectionWidget", u"<html><head/><body><p><img src=\":/otus/resources/otus-users.svg\"/></p></body></html>", None))
     # retranslateUi
 

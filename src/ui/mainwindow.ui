@@ -108,7 +108,6 @@
     <addaction name="actionAdd_Bookmark"/>
     <addaction name="actionBookmark_all_tabs"/>
     <addaction name="actionManage_bookmarks"/>
-    <addaction name="actionShow_bookmarks_bar"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
@@ -140,6 +139,10 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/otus/resources/otus_shield.svg</normaloff>:/otus/resources/otus_shield.svg</iconset>
+   </property>
    <property name="text">
     <string>Silent Wing</string>
    </property>
@@ -152,7 +155,8 @@
   </action>
   <action name="actionHome">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::GoHome"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/home.svg</normaloff>:/feather/resources/feather/home.svg</iconset>
    </property>
    <property name="text">
     <string>Home</string>
@@ -169,7 +173,8 @@
   </action>
   <action name="actionReload">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ViewRefresh"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/rotate-cw.svg</normaloff>:/feather/resources/feather/rotate-cw.svg</iconset>
    </property>
    <property name="text">
     <string>Reload</string>
@@ -186,7 +191,8 @@
   </action>
   <action name="actionForward">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::GoNext"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/arrow-right-circle.svg</normaloff>:/feather/resources/feather/arrow-right-circle.svg</iconset>
    </property>
    <property name="text">
     <string>Forward</string>
@@ -200,7 +206,8 @@
   </action>
   <action name="actionBack">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::GoPrevious"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/arrow-left-circle.svg</normaloff>:/feather/resources/feather/arrow-left-circle.svg</iconset>
    </property>
    <property name="text">
     <string>Back</string>
@@ -214,7 +221,8 @@
   </action>
   <action name="actionNew_Tab">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/plus-square.svg</normaloff>:/feather/resources/feather/plus-square.svg</iconset>
    </property>
    <property name="text">
     <string>New Tab</string>
@@ -225,7 +233,8 @@
   </action>
   <action name="actionNew_Window">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::WindowNew"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/otus/resources/otus_window.svg</normaloff>:/otus/resources/otus_window.svg</iconset>
    </property>
    <property name="text">
     <string>New Window</string>
@@ -235,6 +244,10 @@
    </property>
   </action>
   <action name="actionNew_Private_Window">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/otus/resources/new-window-nocturnal.svg</normaloff>:/otus/resources/new-window-nocturnal.svg</iconset>
+   </property>
    <property name="text">
     <string>New Private Window</string>
    </property>
@@ -244,7 +257,8 @@
   </action>
   <action name="actionClose_Tab">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::WindowClose"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/x-square.svg</normaloff>:/feather/resources/feather/x-square.svg</iconset>
    </property>
    <property name="text">
     <string>Close Tab</string>
@@ -255,7 +269,8 @@
   </action>
   <action name="actionCut">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditCut"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/scissors.svg</normaloff>:/feather/resources/feather/scissors.svg</iconset>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -266,7 +281,8 @@
   </action>
   <action name="actionCopy">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditCopy"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/copy.svg</normaloff>:/feather/resources/feather/copy.svg</iconset>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -277,7 +293,8 @@
   </action>
   <action name="actionPaste">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/clipboard.svg</normaloff>:/feather/resources/feather/clipboard.svg</iconset>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -288,7 +305,8 @@
   </action>
   <action name="actionSelect_All">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditSelectAll"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/menu.svg</normaloff>:/feather/resources/feather/menu.svg</iconset>
    </property>
    <property name="text">
     <string>Select All</string>
@@ -299,7 +317,8 @@
   </action>
   <action name="actionSearch">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditFind"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/search.svg</normaloff>:/feather/resources/feather/search.svg</iconset>
    </property>
    <property name="text">
     <string>Search</string>
@@ -310,7 +329,8 @@
   </action>
   <action name="actionZoom_in">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ZoomIn"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/zoom-in.svg</normaloff>:/feather/resources/feather/zoom-in.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom in</string>
@@ -321,7 +341,8 @@
   </action>
   <action name="actionZoom_out">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ZoomOut"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/zoom-out.svg</normaloff>:/feather/resources/feather/zoom-out.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom out</string>
@@ -332,7 +353,8 @@
   </action>
   <action name="actionReset_Zoom">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ZoomFitBest"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/crosshair.svg</normaloff>:/feather/resources/feather/crosshair.svg</iconset>
    </property>
    <property name="text">
     <string>Reset Zoom</string>
@@ -343,13 +365,18 @@
   </action>
   <action name="actionAbout_Otus">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DialogInformation"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/info.svg</normaloff>:/feather/resources/feather/info.svg</iconset>
    </property>
    <property name="text">
     <string>About Otus</string>
    </property>
   </action>
   <action name="actionHistory">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/archive.svg</normaloff>:/feather/resources/feather/archive.svg</iconset>
+   </property>
    <property name="text">
     <string>History</string>
    </property>
@@ -358,6 +385,10 @@
    </property>
   </action>
   <action name="actionDownloads">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/download-cloud.svg</normaloff>:/feather/resources/feather/download-cloud.svg</iconset>
+   </property>
    <property name="text">
     <string>Downloads</string>
    </property>
@@ -366,18 +397,27 @@
    </property>
   </action>
   <action name="actionPackage_Manager">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/package.svg</normaloff>:/feather/resources/feather/package.svg</iconset>
+   </property>
    <property name="text">
     <string>Package Manager</string>
    </property>
   </action>
   <action name="actionPreferences">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/tool.svg</normaloff>:/feather/resources/feather/tool.svg</iconset>
+   </property>
    <property name="text">
     <string>Preferences</string>
    </property>
   </action>
   <action name="actionOpen_File">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/file-plus.svg</normaloff>:/feather/resources/feather/file-plus.svg</iconset>
    </property>
    <property name="text">
     <string>Open File</string>
@@ -388,7 +428,8 @@
   </action>
   <action name="actionSave_Page">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/save.svg</normaloff>:/feather/resources/feather/save.svg</iconset>
    </property>
    <property name="text">
     <string>Save Page</string>
@@ -399,7 +440,8 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ApplicationExit"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/log-out.svg</normaloff>:/feather/resources/feather/log-out.svg</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -410,23 +452,36 @@
   </action>
   <action name="actionToggle_Fullscreen">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ViewFullscreen"/>
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/maximize.svg</normaloff>:/feather/resources/feather/maximize.svg</iconset>
    </property>
    <property name="text">
     <string>Toggle Full Screen</string>
    </property>
   </action>
   <action name="actionGitHub_Repository">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/github.svg</normaloff>:/feather/resources/feather/github.svg</iconset>
+   </property>
    <property name="text">
     <string>GitHub Repository</string>
    </property>
   </action>
   <action name="actionReport_Issue">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/alert-circle.svg</normaloff>:/feather/resources/feather/alert-circle.svg</iconset>
+   </property>
    <property name="text">
     <string>Report Issue</string>
    </property>
   </action>
   <action name="actionAdd_Bookmark">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/bookmark.svg</normaloff>:/feather/resources/feather/bookmark.svg</iconset>
+   </property>
    <property name="text">
     <string>Add bookmark</string>
    </property>
@@ -435,6 +490,10 @@
    </property>
   </action>
   <action name="actionBookmark_all_tabs">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/feather/resources/feather/book-open.svg</normaloff>:/feather/resources/feather/book-open.svg</iconset>
+   </property>
    <property name="text">
     <string>Bookmark all tabs…</string>
    </property>
@@ -448,11 +507,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+O</string>
-   </property>
-  </action>
-  <action name="actionShow_bookmarks_bar">
-   <property name="text">
-    <string>Show bookmarks bar</string>
    </property>
   </action>
  </widget>
