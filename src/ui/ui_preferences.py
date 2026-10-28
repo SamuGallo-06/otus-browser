@@ -133,6 +133,7 @@ class Ui_Preferences(object):
         self.toolBox.addItem(self.generals, u"Generals")
         self.search = QWidget()
         self.search.setObjectName(u"search")
+        self.search.setGeometry(QRect(0, 0, 228, 260))
         self.gridLayout_2 = QGridLayout(self.search)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.customSearchEngineField = QLineEdit(self.search)
@@ -176,6 +177,7 @@ class Ui_Preferences(object):
         self.toolBox.addItem(self.search, u"Search")
         self.appearance = QWidget()
         self.appearance.setObjectName(u"appearance")
+        self.appearance.setGeometry(QRect(0, 0, 245, 178))
         self.gridLayout_4 = QGridLayout(self.appearance)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.timeFormatComboBox = QComboBox(self.appearance)
@@ -239,6 +241,7 @@ class Ui_Preferences(object):
         self.toolBox.addItem(self.appearance, u"Appearance")
         self.downloads = QWidget()
         self.downloads.setObjectName(u"downloads")
+        self.downloads.setGeometry(QRect(0, 0, 299, 79))
         self.gridLayout_5 = QGridLayout(self.downloads)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.label_13 = QLabel(self.downloads)
@@ -263,6 +266,7 @@ class Ui_Preferences(object):
         self.toolBox.addItem(self.downloads, u"Downloads")
         self.privacy_ad_blocker = QWidget()
         self.privacy_ad_blocker.setObjectName(u"privacy_ad_blocker")
+        self.privacy_ad_blocker.setGeometry(QRect(0, 0, 571, 328))
         self.gridLayout_6 = QGridLayout(self.privacy_ad_blocker)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.enableAdBlockerCheckbox = QCheckBox(self.privacy_ad_blocker)
@@ -288,7 +292,7 @@ class Ui_Preferences(object):
         self.retranslateUi(Preferences)
 
         self.applyButton.setDefault(True)
-        self.toolBox.setCurrentIndex(4)
+        self.toolBox.setCurrentIndex(0)
         self.toolBox.layout().setSpacing(4)
 
 

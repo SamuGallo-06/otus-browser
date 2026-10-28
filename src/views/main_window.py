@@ -18,6 +18,7 @@ from user_settings import (
     SettingsManager,
     get_app_settings,
 )
+from views.about_dialog import AboutDialog
 from views.bookmarks_library import BookmarksLibraryView
 from views.download_history import DownloadHistoryView
 from views.history_view import HistoryView
@@ -660,11 +661,5 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     ######################################
     
     def show_about_dialog(self):
-        QMessageBox.about(
-            self,
-            "About Otus Browser",
-            "<h2>Otus Browser</h2>"
-            "<p>Version 1.0</p>"
-            "<p>A privacy-focused web browser built with PySide6 and Qt WebEngine.</p>"
-            "<p>For more information, visit <a href='https://github.com/SamuGallo-06/otus-browser'>the project repository</a>.</p>"
-        )
+        aboutDialog = AboutDialog(parent=self)
+        aboutDialog.exec()
