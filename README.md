@@ -45,3 +45,7 @@ TODO: Add dynamic icon colors based on the system theme (light/dark mode).
 On some sites the page may go blank shortly after loading, and the log shows `RenderProcessTerminationStatus.CrashedTerminationStatus, exit_code=5`.
 
 This is a crash of the Chromium renderer embedded in Qt WebEngine, not of Otus itself: a minimal `QWebEngineView` script reproduces it (observed with PySide6/Qt 6.12.0, Chromium 140.0.7339.225, on Linux). It is triggered by requests to some ad networks. As a mitigation, Otus blocks a small list of ad and tracking hosts (see `src/adblock.py`), but other ad networks may still trigger it. Users can add additional hosts to the block list in `src/settings.py` (see `DEFAULT_BLOCKED_HOSTS`), via command line or GUI.
+
+## Notes
+
+> The Feather icons used in the UI are from [Feather](https://feathericons.com/), an open-source icon set. The icons are licensed under the MIT License.

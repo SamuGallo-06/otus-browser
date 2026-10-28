@@ -11,6 +11,7 @@ from custom.elided_label import ElidedLabel
 from ui import resources_rc
 
 from utils import human, fmt_time, open_file
+from settings import FEATHER_ICON_PACK, OTUS_ICON_PACK
 
 class BookmarkViewItem(QWidget):
     
@@ -35,12 +36,12 @@ class BookmarkViewItem(QWidget):
         self.__url_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         
         self.__edit_button = QPushButton("")
-        self.__edit_button.setIcon(QIcon(":/resources/feather/edit-3.svg"))
+        self.__edit_button.setIcon(QIcon(FEATHER_ICON_PACK + ":edit-3.svg"))
         self.__edit_button.clicked.connect(
             partial(self.edit_requested.emit, b)
         )
         self.__delete_button = QPushButton("")
-        self.__delete_button.setIcon(QIcon(":/resources/feather/trash-2.svg"))
+        self.__delete_button.setIcon(QIcon(FEATHER_ICON_PACK + "trash-2.svg"))
         self.__delete_button.clicked.connect(
             partial(self.delete_requested.emit, b)
         )

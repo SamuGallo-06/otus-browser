@@ -25,14 +25,12 @@ class ProfileSelectionWidget(QWidget):
         super().__init__(parent)
         self.ui = Ui_ProfileSelectionWidget()
         self.ui.setupUi(self)
-        self.setWindowIcon(QIcon(":/resources/otus_logo.png"))
+        self.setWindowIcon(QIcon(OTUS_ICON_PACK + "otus_logo.png"))
         logger.info("Profile Slection Screen Opened")
         
         self.ui.loginButton.clicked.connect(self.onLoginButtonClicked)
         self.ui.guestProfileButton.clicked.connect(self.onGuestButtonClicked)
         self.ui.newProfileButton.clicked.connect(self.onCreateProfileButtonClicked)
-        
-        self.ui.usersIcon.setPixmap(QIcon(":/resources/otus-users.svg").pixmap(64, 64))
     
         self.refreshProfiles()
 

@@ -15,6 +15,7 @@ from ui.ui_mainwindow import Ui_MainWindow
 from ui import resources_rc
 from views.bookmarks_library import BookmarksLibraryView
 from views.download_history import DownloadHistoryView
+from views.history_view import HistoryView, HistoryManager
 from views.webview import OtusWebView
 from views.download_widget import DownloadWidget
 
@@ -70,6 +71,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest",
             parent=self,
         )
+        self.history = HistoryManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
+        self.history
         
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
@@ -90,7 +93,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionForward.triggered.connect(self.navigate_forward)
         self.actionReload.triggered.connect(self.navigate_reload)
         self.actionHome.triggered.connect(self.navigate_home)
-        self.actionSilentwing.setIcon(QIcon(":/resources/otus_shield.svg"))
 
         # Menu Actions
         # File
@@ -121,6 +123,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Tools
         self.actionDownloads.triggered.connect(self.on_download_history)
         self.actionManage_bookmarks.triggered.connect(self.on_bookmarks_library)
+        self.actionHistory.triggered.connect(self.on_history)
         
         # Help
         self.actionAbout_Otus.triggered.connect(self.show_about_dialog)
@@ -219,8 +222,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if url:
             view.load(QUrl(url))
+            
+        logger.debug("New tab created with URL: {url}".format(url=(url if url else "None")))
         
-        logger.debug("New tab created with URL: %s", url if url else "None")
         return view
     
     def searchSelection(self, text: str):
@@ -268,7 +272,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_load_finished(self, view: OtusWebView, ok):
         url = view.url().toString()
         title = view.title()
-        if ok:
+        if ok and view.url().scheme() in ("http", "https"):
+            self.history.add_visit(url, title or url)
             logger.debug("Page loaded successfully: {pageUrl}".format(pageUrl=url))
             self.statusbar.showMessage("Loaded \"{pageName}\"".format(pageName=title), 5000)       
         else:
@@ -344,11 +349,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.cancelDownload(request)
         else:
             self.acceptDownload(request, dw_name)
+        
 
     def acceptDownload(self, request: QWebEngineDownloadRequest, name: str):
-        directory = str(get_download_path())
-        request.setDownloadDirectory(directory)
-        request.setDownloadFileName(unique_path(directory, name))
+        if ASK_FOR_DOWNLOAD_PATH:
+            suggested = str(get_download_path() / name)
+            path, _ = QFileDialog.getSaveFileName(
+                self, "Save download as", suggested, "All files (*)",
+            )
+            if not path:
+                self.cancelDownload(request)  # user dismissed the dialog
+                return
+            target = Path(path)
+            request.setDownloadDirectory(str(target.parent))
+            request.setDownloadFileName(target.name)
+        else:
+            directory = str(get_download_path())
+            request.setDownloadDirectory(directory)
+            request.setDownloadFileName(unique_path(directory, name))
         
         record = self.downloads.accept(request)
         widget = DownloadWidget(record, self.downloads, parent=self)
@@ -512,9 +530,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def toggleFullscreen(self):
         if self.isFullScreen():
             self.showNormal()
+            self.actionToggle_Fullscreen.setText("Enter Fullscreen")
+            self.actionToggle_Fullscreen.setIcon(QIcon(FEATHER_ICON_PACK + "maximize.svg"))
         else:
             self.showFullScreen()
-            
+            self.actionToggle_Fullscreen.setText("Exit Fullscreen")
+            self.actionToggle_Fullscreen.setIcon(QIcon(FEATHER_ICON_PACK + "minimize.svg"))
+
     ######################################
     ##    Bookmarks Menu                ##
     ######################################
@@ -580,11 +602,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #######################################
     
     def on_download_history(self):
-        self.history_view = DownloadHistoryView(parent=self, download_manager=self.downloads)
-        self.history_view.pauseRequested.connect(self.pause_download)
-        self.history_view.resumeRequested.connect(self.resume_download)
-        self.history_view.cancelRequested.connect(self.cancel_download)
-        self.history_view.show()
+        self.download_history_view = DownloadHistoryView(parent=self, download_manager=self.downloads)
+        self.download_history_view.pauseRequested.connect(self.pause_download)
+        self.download_history_view.resumeRequested.connect(self.resume_download)
+        self.download_history_view.cancelRequested.connect(self.cancel_download)
+        self.download_history_view.show()
 
     def on_bookmarks_library(self):
         self.bookmarks_library = BookmarksLibraryView(parent=self, bookmarks=self.bookmarks.bookmarks)
@@ -600,6 +622,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_bookmark_saved(self):
         print("Bookmark saved.")
         self.bookmarks.save_bookmarks()
+        
+    def on_history(self):
+        self.history_view = HistoryView(parent=self, history_manager=self.history)
+        self.history_view.openUrlRequested.connect(lambda url: self.openLinkInNewTab(QUrl(url)))
+        self.history_view.show()
 
     ######################################
     ##     Help Menu                    ##

@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 def setupLogger():
     global logger
     
-    date = datetime.now().strftime("%d-%m-%Y")
-    clock = datetime.now().strftime("%H:%M:%S") 
+    date = datetime.now().strftime(settings.DATE_FORMAT)
+    clock = datetime.now().strftime(settings.TIME_FORMAT) 
     dt = "{date} {clock}".format(date=date, clock=clock) 
     
     logdir: Path = settings.LOG_FILE_PATH / date
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Otus Browser")
-    app.setWindowIcon(QIcon(":/resources/otus_logo.png"))
+    app.setWindowIcon(QIcon(settings.OTUS_ICON_PACK + "otus_logo.svg"))
     app.setApplicationName("otus-browser")
     app.setApplicationVersion("0.0.1")
     

@@ -3,6 +3,9 @@ from pathlib import Path
 
 from PySide6.QtCore import QStandardPaths, Qt
 
+##################################
+## Browser Parameters           ##
+##################################
 
 # Application paths
 PERSISTENT_STORAGE_PATH = Path.home() / ".local" / "share" / "OtusBrowser"
@@ -14,7 +17,6 @@ PROFILES_XML_PATH = PERSISTENT_STORAGE_PATH / "profiles.xml"
 BASE_DIR = Path(__file__).resolve().parent
 RESOURCES_DIR = BASE_DIR / "resources"
 
-
 # Browser parameters
 RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop", ".bat", ".bin", ".run", ".deb", ".rpm", ".msi", ""}
 SUPPORTED_OPEN_FILE_EXTENSIONS = {".html", ".htm", ".xhtml", ".mhtml", ".mht"}
@@ -25,8 +27,13 @@ AVAILABLE_THEMES = {
     "system": Qt.ColorScheme.Unknown,
 }
 
+FEATHER_ICON_PACK = ":feather/resources/feather/"
+OTUS_ICON_PACK = ":otus/resources/"
 
-# User-configurable settings
+##################################
+## User-configurable settings   ##
+##################################
+
 HOME_URL = "https://duckduckgo.com"
 SEARCH_URL = "https://duckduckgo.com/"
 
@@ -38,14 +45,15 @@ DOWNLOAD_DIRECTORY = AUTO_DOWNLOAD_DIRECTORY
 
 ALWAYS_ASK_BEFORE_EXIT = True
 
+## User Interface
 
-# User interface settings
-DATETIME_FORMAT = "it"
+DATE_FORMAT = "%d/%m/%Y"
+TIME_FORMAT = "%H:%M:%s"
 LANG = "it-IT"
 THEME = "Dark"  # Options: "Light", "Dark", "System"
 
+## Ad-blocker settings
 
-# Ad blocking settings
 DEFAULT_BLOCKED_HOSTS = (
     "doubleclick.net",
     "googlesyndication.com",
@@ -53,6 +61,10 @@ DEFAULT_BLOCKED_HOSTS = (
     "analytics.tiktok.com",
 )
 ADBLOCKER_ENABLED = True
+
+##################################
+## Helpers                      ##
+##################################
 
 
 def get_download_path() -> Path:

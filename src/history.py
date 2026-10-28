@@ -16,13 +16,13 @@ class HistoryEntry:
     visited_at: float  # Unix timestamp of the last visit
     visit_count: int = 1
     
-__COLUMNS = "id, url, title, visited_at, visit_count"
-    
 
 class HistoryManager(QObject):
     
-    onHistoryLoaded = Signal(list[HistoryEntry])
+    onHistoryLoaded = Signal(list)
     historyChanged = Signal()
+    
+    _COLUMNS = "id, url, title, visited_at, visit_count"
     
     def __init__(self, profile: OtusProfile, persistent: bool = True, parent=None):
         super().__init__(parent)
@@ -44,20 +44,20 @@ class HistoryManager(QObject):
         )
         
         
-    def load_history(self):
-        cursor = self.__db.execute(f"SELECT {__COLUMNS} FROM History ORDER BY visited_at DESC")
+    def load_history(self) -> list[HistoryEntry]:
+        """Load the history from the database."""
+        cursor = self.__db.execute(f"SELECT {self._COLUMNS} FROM History ORDER BY visited_at DESC")
         self.records = [HistoryEntry(**row) for row in cursor]
-        self.onHistoryLoaded.emit(self.records)
+        return self.records
     
     def add_visit(self, url: str, title: str) -> None:
-        # Upsert: bump the counter if the URL is already stored
         self.__db.execute(
-            """INSERT INTO History (url, title, visited_at)
-               VALUES (?, ?, ?)
-               ON CONFLICT(url) DO UPDATE SET
-                   title = excluded.title,
-                   visited_at = excluded.visited_at,
-                   visit_count = visit_count + 1""",
+            """INSERT INTO History (url, title, visited_at, visit_count)
+            VALUES (?, ?, ?, 1)
+            ON CONFLICT(url) DO UPDATE SET
+                title = excluded.title,
+                visited_at = excluded.visited_at,
+                visit_count = visit_count + 1""",
             (url, title, time.time()),
         )
         self.__db.commit()
@@ -65,7 +65,7 @@ class HistoryManager(QObject):
     def search_history(self, text: str, limit: int = 500) -> list[HistoryEntry]:
         like = f"%{text}%"
         cursor = self.__db.execute(
-            f"SELECT {__COLUMNS} FROM History "
+            f"SELECT {self._COLUMNS} FROM History "
             "WHERE url LIKE ? OR title LIKE ? "
             "ORDER BY visited_at DESC LIMIT ?",
             (like, like, limit),

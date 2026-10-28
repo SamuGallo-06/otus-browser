@@ -27,7 +27,7 @@ def fmt_time(timestamp: float) -> str:
     
     clock = datetime.fromtimestamp(timestamp)
     
-    return clock.strftime("%d/%m/%Y %H:%M:%S")
+    return clock.strftime(f"{DATE_FORMAT} {TIME_FORMAT}")
 
 def sanitize_filename(name: str) -> str:
     """Toglie percorsi, caratteri di controllo e nomi vuoti."""
