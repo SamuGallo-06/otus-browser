@@ -290,7 +290,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             exit_code,
         )
         self.statusbar.showMessage(
-            "Il processo di rendering della pagina è terminato. Ricarica la pagina."
+            "Web Engine render process terminated for {pageUrl}: status={status}, exit_code={exitCode}".format(
+                pageUrl=view.url().toString(), status=status, exitCode=exit_code
+            )
         )
                
     # Web page navigation events
