@@ -9,6 +9,8 @@ from typing import Callable
 
 from profiles import OtusProfile
 from settings import *
+from user_settings import ProfileSettings, SettingsManager
+from utils import get_download_path
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWebEngineCore import QWebEngineDownloadRequest
@@ -35,9 +37,16 @@ class DownloadManager(QObject):
     
     __download_history: list[Download]
     
-    def __init__(self, profile: OtusProfile, persistent: bool = True, parent=None):
+    def __init__(
+        self,
+        profile: OtusProfile,
+        profile_settings: SettingsManager[ProfileSettings],
+        persistent: bool = True,
+        parent=None,
+    ):
         super().__init__(parent)
         self.profile = profile
+        self.profile_settings = profile_settings
         self.persistent = persistent
         self.__registered_requests: dict[QWebEngineDownloadRequest, Download] = {}
         self.__download_history = self.load() if persistent else []
@@ -53,7 +62,9 @@ class DownloadManager(QObject):
                 downloads_data = json.load(f)
                 for data in downloads_data:
                     if "filepath" not in data:
-                        data["filepath"] = get_download_path() / data["filename"]
+                        data["filepath"] = (
+                            get_download_path(self.profile_settings) / data["filename"]
+                        )
                 self.__download_history = self.__consolidate_history(
                     [Download(**data) for data in downloads_data]
                 )

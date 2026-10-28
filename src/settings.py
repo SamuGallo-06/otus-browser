@@ -35,24 +35,6 @@ OTUS_ICON_PACK = ":otus/resources/"
 ## User-configurable settings   ##
 ##################################
 
-HOME_URL = "https://duckduckgo.com"
-SEARCH_URL = "https://duckduckgo.com/"
-
-ASK_FOR_PROFILE_CHOOSE = True  # If True, the user will be prompted to choose a profile on startup. If False, the default profile will be used.
-DEFAULT_PROFILE = "OtusProfile"  # The default profile name to use when ASK_FOR_PROFILE_CHOOSE is False.
-
-ASK_FOR_DOWNLOAD_PATH = False
-DOWNLOAD_DIRECTORY = AUTO_DOWNLOAD_DIRECTORY
-
-ALWAYS_ASK_BEFORE_EXIT = True
-
-## User Interface
-
-DATE_FORMAT = "%d/%m/%Y"
-TIME_FORMAT = "%H:%M:%s"
-LANG = "it-IT"
-THEME = "Dark"  # Options: "Light", "Dark", "System"
-
 ## Ad-blocker settings
 
 DEFAULT_BLOCKED_HOSTS = (
@@ -61,20 +43,12 @@ DEFAULT_BLOCKED_HOSTS = (
     "googletagservices.com",
     "analytics.tiktok.com",
 )
-ADBLOCKER_ENABLED = True
-
 ##################################
 ## Helpers                      ##
 ##################################
 
 
 def get_download_path() -> Path:
-    # Use the user-configured download folder when it is still valid.
-    if DOWNLOAD_DIRECTORY != AUTO_DOWNLOAD_DIRECTORY:
-        custom = Path(DOWNLOAD_DIRECTORY).expanduser()
-        if custom.is_dir():
-            return custom
-
     # Fall back to the system download folder (including XDG user-dirs on Linux).
     location = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DownloadLocation)
     if location:

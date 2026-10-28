@@ -8,7 +8,8 @@ from datetime import datetime
 
 from history import HistoryManager, HistoryEntry
 from ui.ui_history import Ui_HistoryForm
-from settings import DATE_FORMAT, FEATHER_ICON_PACK
+from settings import FEATHER_ICON_PACK
+from user_settings import get_app_settings
 
 class HistoryView(QWidget):
     
@@ -52,7 +53,9 @@ class HistoryView(QWidget):
         self.history = self.__history_manager.load_history()
         
         for i, entry in enumerate(self.history):
-            visited_at = datetime.fromtimestamp(entry.visited_at).strftime(DATE_FORMAT)
+            visited_at = datetime.fromtimestamp(entry.visited_at).strftime(
+                get_app_settings().settings.date_format
+            )
         
             self.ui.historyTable.insertRow(i)
             self.ui.historyTable.setItem(i, 0, QTableWidgetItem(entry.url))

@@ -7,7 +7,7 @@ from adblock import OtusAdBlocker
 from bookmarks import BookmarkManager
 from downloads import DownloadManager
 from profiles import OtusProfile
-from settings import ADBLOCKER_ENABLED
+from user_settings import ProfileSettings, SettingsManager
 from utils import get_download_path
 from views.history_view import HistoryManager
 
@@ -23,12 +23,16 @@ class ProfileContext(QObject):
     _instances: dict[str, "ProfileContext"] = {}
 
     @classmethod
-    def for_profile(cls, profile_data: OtusProfile) -> "ProfileContext":
+    def for_profile(
+        cls,
+        profile_data: OtusProfile,
+        profile_settings: SettingsManager[ProfileSettings],
+    ) -> "ProfileContext":
         """Return the context for this profile, creating it on first use."""
         ctx = cls._instances.get(profile_data.uid)
         if ctx is None:
             # The parent is the QApplication, so the context outlives any single window.
-            ctx = cls(profile_data, parent=QApplication.instance())
+            ctx = cls(profile_data, profile_settings, parent=QApplication.instance())
             cls._instances[profile_data.uid] = ctx
         return ctx
 
@@ -39,9 +43,15 @@ class ProfileContext(QObject):
         if ctx is not None:
             ctx.deleteLater()
 
-    def __init__(self, profile_data: OtusProfile, parent=None):
+    def __init__(
+        self,
+        profile_data: OtusProfile,
+        profile_settings: SettingsManager[ProfileSettings],
+        parent=None,
+    ):
         super().__init__(parent)
         self.profile_data = profile_data
+        self.profile_settings = profile_settings
         persistent = profile_data.type not in ("Nocturnal", "Guest")
 
         # Profile data is stored under .local/share/OtusBrowser/Profiles using the profile UID.
@@ -53,17 +63,23 @@ class ProfileContext(QObject):
         webengine_path.mkdir(parents=True, exist_ok=True)
         self.profile.setPersistentStoragePath(str(webengine_path))
         self.profile.setCachePath(str(webengine_path / "cache"))
-        self.profile.setDownloadPath(str(get_download_path()))
+        self.profile.setDownloadPath(str(get_download_path(profile_settings)))
+        profile_settings.settingsChanged.connect(
+            lambda: self.profile.setDownloadPath(str(get_download_path(profile_settings)))
+        )
 
         # The ad blocker is parented to the profile, so it lives exactly as long as the profile.
-        self.ad_blocker = None
-        if ADBLOCKER_ENABLED:
-            self.ad_blocker = OtusAdBlocker(parent=self.profile)
-            self.profile.setUrlRequestInterceptor(self.ad_blocker)
+        self.ad_blocker = OtusAdBlocker(profile_settings, parent=self.profile)
+        self.profile.setUrlRequestInterceptor(self.ad_blocker)
+        profile_settings.settingsChanged.connect(
+            lambda: self.ad_blocker.refresh(profile_settings.settings)
+        )
 
         # Profile library, shared by every window of this profile
         self.bookmarks = BookmarkManager(profile_data, persistent=persistent)
-        self.downloads = DownloadManager(profile_data, persistent=persistent, parent=self)
+        self.downloads = DownloadManager(
+            profile_data, profile_settings, persistent=persistent, parent=self
+        )
         self.history = HistoryManager(profile_data, persistent=persistent)
 
         # Connected once here, NOT in every window: otherwise each download

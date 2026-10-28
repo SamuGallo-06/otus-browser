@@ -13,7 +13,11 @@ from bookmarks import Bookmark
 from downloads import Download
 from ui.ui_mainwindow import Ui_MainWindow
 from ui import resources_rc
-from user_settings import UserSettingsManager, get_settings_manager
+from user_settings import (
+    ProfileSettings,
+    SettingsManager,
+    get_app_settings,
+)
 from views.bookmarks_library import BookmarksLibraryView
 from views.download_history import DownloadHistoryView
 from views.history_view import HistoryView
@@ -48,13 +52,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     exitRequested = Signal()
     closed = Signal(object)
     
-    def __init__(self, profile: OtusProfile | None = None, profile_id: str = "OtusProfile"):
+    def __init__(
+        self,
+        profile: OtusProfile | None = None,
+        profile_id: str = "OtusProfile",
+        profile_settings: SettingsManager[ProfileSettings] | None = None,
+    ):
         super().__init__()
         self._child_windows: list[MainWindow] = []
         if profile is None:
             profile = OtusProfile(uid=profile_id, name=profile_id)
         self.profile_data = profile
-        self.settings_manager = get_settings_manager()
+        if profile_settings is None:
+            raise ValueError("profile_settings is required")
+        self.profile_settings = profile_settings
         
         logger.debug("Initializing MainWindow with profile: %s", self.profile_data.uid)
         self.setupUi(self)
@@ -65,7 +76,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.debug("Setting up profile: %s", self.profile_data.uid)
         # The web profile, ad blocker and library managers are shared by all the windows
         # that use the same profile, so they are owned by the ProfileContext, not by the window.
-        self.context = ProfileContext.for_profile(self.profile_data)
+        self.context = ProfileContext.for_profile(
+            self.profile_data, self.profile_settings
+        )
         self.profile = self.context.profile
         self.ad_blocker = self.context.ad_blocker
         self.bookmarks = self.context.bookmarks
@@ -75,7 +88,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
         
-        self.new_tab(self.settings_manager.settings.home_url)
+        self.new_tab(self.profile_settings.settings.home_url)
         
     def setupActions(self):
         # Address Bar
@@ -94,7 +107,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Menu Actions
         # File
-        self.actionNew_Tab.triggered.connect(lambda: self.new_tab(self.settings_manager.settings.home_url))
+        self.actionNew_Tab.triggered.connect(
+            lambda: self.new_tab(self.profile_settings.settings.home_url)
+        )
         self.actionNew_Window.triggered.connect(self.newWindow)
         self.actionNew_Private_Window.triggered.connect(self.newNocturnalWindow)
         self.actionClose_Tab.triggered.connect(lambda: self.close_tab(self.browserTabWidget.currentIndex()))
@@ -152,7 +167,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             #if no url is provided, use the text in the address bar
             text = self.urlBar.text().strip()
-            target = text_to_url(text)
+            target = text_to_url(text, self.profile_settings.settings.search_url)
         
         view = self.current_view()
         if view and target.isValid():
@@ -161,7 +176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def navigate_home(self):
         view = self.current_view()
         if view:
-            view.load(QUrl(self.settings_manager.settings.home_url))
+            view.load(QUrl(self.profile_settings.settings.home_url))
     
     # Tabs
     
@@ -206,7 +221,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def searchSelection(self, text: str):
         query = QUrlQuery()
         query.addQueryItem("q", text)
-        url = QUrl(self.settings_manager.settings.search_url)
+        url = QUrl(self.profile_settings.settings.search_url)
         url.setQuery(query)
         self.openLinkInNewTab(url)
 
@@ -275,7 +290,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.new_tab(url.toString())
       
     def openLinkInNewWindow(self, url: QUrl):
-        window = MainWindow(profile=self.profile_data)
+        window = MainWindow(
+            profile=self.profile_data,
+            profile_settings=self.profile_settings,
+        )
         self._child_windows.append(window)
         current_view = window.current_view()
         if current_view is not None:
@@ -328,8 +346,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
 
     def acceptDownload(self, request: QWebEngineDownloadRequest, name: str):
-        if self.settings_manager.settings.ask_for_download_path:
-            suggested = str(get_download_path() / name)
+        if self.profile_settings.settings.ask_for_download_path:
+            suggested = str(get_download_path(self.profile_settings) / name)
             path, _ = QFileDialog.getSaveFileName(
                 self, "Save download as", suggested, "All files (*)",
             )
@@ -340,7 +358,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             request.setDownloadDirectory(str(target.parent))
             request.setDownloadFileName(target.name)
         else:
-            directory = str(get_download_path())
+            directory = str(get_download_path(self.profile_settings))
             request.setDownloadDirectory(directory)
             request.setDownloadFileName(unique_path(directory, name))
         
@@ -379,7 +397,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )[0]
         
         path = f"file://{filePath.replace(" ","%20")}"
-        url = text_to_url(path)
+        url = text_to_url(path, self.profile_settings.settings.search_url)
         
         if not filePath:
             return
@@ -402,7 +420,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if view is None:
             return
         title = sanitize_filename(view.title() or "page")
-        start = str(Path(get_download_path()) / f"{title}.html")
+        start = str(
+            get_download_path(self.profile_settings) / f"{title}.html"
+        )
 
         path, selected_filter = QFileDialog.getSaveFileName(
             self, "Save page as", start, ";;".join(SAVE_FORMATS)
@@ -413,7 +433,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def newWindow(self):
         logger.debug("New window action triggered")
-        new_window = MainWindow(profile=self.profile_data)
+        new_window = MainWindow(
+            profile=self.profile_data,
+            profile_settings=self.profile_settings,
+        )
         self._child_windows.append(new_window)
         new_window.destroyed.connect(
             lambda _object=None, child=new_window: self._child_windows.remove(child)
@@ -423,7 +446,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def newNocturnalWindow(self):
         logger.debug("New nocturnal window action triggered")
-        new_window = MainWindow(profile_id="OtusNocturnal")
+        nocturnal_profile = OtusProfile(uid="OtusNocturnal", name="OtusNocturnal")
+        nocturnal_settings = SettingsManager(
+            nocturnal_profile.storage_path / "settings.ini",
+            ProfileSettings,
+            parent=self,
+        )
+        new_window = MainWindow(
+            profile=nocturnal_profile,
+            profile_settings=nocturnal_settings,
+        )
         self._child_windows.append(new_window)
         new_window.destroyed.connect(
             lambda _object=None, child=new_window: self._child_windows.remove(child)
@@ -440,7 +472,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
     def closeEvent(self, event):
-        if self.settings_manager.settings.always_ask_before_exit:
+        if get_app_settings().settings.always_ask_before_exit:
             box = QMessageBox(
                 QMessageBox.Icon.Question,
                 "Exit Confirmation",
@@ -465,6 +497,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 event.ignore()  # keeps the window open
                 return
             self.downloads.cancel_all()
+        self.closed.emit(self.profile_data)
         event.accept()
         
     ######################################

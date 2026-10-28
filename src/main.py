@@ -20,13 +20,19 @@ from profiles import OtusProfile, get_profile_by_id
 from pygocryptfs import GocryptfsError, PyGocryptfs
 import settings
 from ui import resources_rc
+from user_settings import (
+    AppSettings,
+    ProfileSettings,
+    SettingsManager,
+    init_app_settings,
+)
 
 logger = logging.getLogger(__name__)
 def setupLogger():
     global logger
     
-    date = datetime.now().strftime(settings.DATE_FORMAT)
-    clock = datetime.now().strftime(settings.TIME_FORMAT) 
+    date = datetime.now().strftime("%Y-%m-%d")
+    clock = datetime.now().strftime("%H-%M-%S")
     dt = "{date} {clock}".format(date=date, clock=clock) 
     
     logdir: Path = settings.LOG_FILE_PATH / date
@@ -38,29 +44,40 @@ def setupLogger():
 
 
 class OtusApp:
-    def __init__(self):
+    def __init__(self, app_settings: SettingsManager[AppSettings]):
+        self.app_settings = app_settings
         self.login = None
         self.main_window = None
+        self.profile_settings: SettingsManager[ProfileSettings] | None = None
 
 
     def start(self):
-        if settings.ASK_FOR_PROFILE_CHOOSE:
+        if self.app_settings.settings.ask_for_profile_choose:
             self.login = ProfileSelectionWidget()
             self.login.profileSelected.connect(self.openMainWindow)
             self.login.show()
         else:
             logger.info("Skipped profile selection")
-            profile = get_profile_by_id(settings.DEFAULT_PROFILE)
+            default_profile = self.app_settings.settings.default_profile
+            profile = get_profile_by_id(default_profile)
             if profile is None:
                 profile = OtusProfile(
-                    uid=settings.DEFAULT_PROFILE,
-                    name=settings.DEFAULT_PROFILE,
+                    uid=default_profile,
+                    name=default_profile,
                 )
             self.openMainWindow(profile)
 
     def openMainWindow(self, profile: OtusProfile):
         logger.info("Opening main window")
-        self.main_window = MainWindow(profile=profile)
+        self.profile_settings = SettingsManager(
+            profile.storage_path / "settings.ini",
+            ProfileSettings,
+            parent=QApplication.instance(),
+        )
+        self.main_window = MainWindow(
+            profile=profile,
+            profile_settings=self.profile_settings,
+        )
         self.main_window.exitRequested.connect(self.exitApplication)
         self.main_window.closed.connect(self.unmountProfile)
         self.main_window.show()
@@ -77,7 +94,10 @@ class OtusApp:
             self.main_window = None
 
     def unmountProfile(self, profile: OtusProfile):
+        if self.profile_settings is not None:
+            self.profile_settings.close()
         if not profile.encrypted or profile.mountpoint is None:
+            self.profile_settings = None
             return
 
         QTimer.singleShot(0, lambda: self._unmountProfile(profile))
@@ -87,12 +107,16 @@ class OtusApp:
             PyGocryptfs().unmount(profile.mountpoint) #type: ignore
             logger.info("Unmounted encrypted profile: %s", profile.uid)
             profile.mountpoint = None
+            self.profile_settings = None
         except GocryptfsError:
             logger.exception("Unable to unmount encrypted profile: %s", profile.uid)
             
-def apply_theme(theme: str) -> None:
-    hints = QGuiApplication.styleHints()
-    hints.setColorScheme(settings.AVAILABLE_THEMES.get(theme.lower(), Qt.ColorScheme.Light))
+def apply_theme(app: QApplication, manager: SettingsManager[AppSettings]) -> None:
+    scheme = settings.AVAILABLE_THEMES.get(
+        manager.settings.theme,
+        Qt.ColorScheme.Unknown,
+    )
+    app.styleHints().setColorScheme(scheme)
 
 
 if __name__ == "__main__":
@@ -104,10 +128,11 @@ if __name__ == "__main__":
     app.setApplicationName("otus-browser")
     app.setApplicationVersion("0.0.1")
     
-    theme = settings.THEME
-    apply_theme(theme)
+    app_settings = init_app_settings(settings.SETTINGS_PATH, parent=app)
+    apply_theme(app, app_settings)
+    app_settings.settingsChanged.connect(lambda: apply_theme(app, app_settings))
 
-    otus = OtusApp()
+    otus = OtusApp(app_settings)
     otus.start()
     sys.exit(app.exec())
     

@@ -1,12 +1,17 @@
 from datetime import datetime
 import re, platform, sys, subprocess, os
 from pathlib import Path
-from typing import Any
-from settings import *
+from typing import Any, TYPE_CHECKING
 
-from PySide6.QtCore import QByteArray, QFile, QIODevice, Qt, QUrl, QUrlQuery
+from PySide6.QtCore import QByteArray, QFile, QIODevice, QStandardPaths, Qt, QUrl, QUrlQuery
 from PySide6.QtGui import QColor, QGuiApplication, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
+import logging
+
+logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from user_settings import SettingsManager, ProfileSettings
 
 from ui import resources_rc  #noqa: F401
 
@@ -26,15 +31,20 @@ def fmt_eta(seconds) -> str:
 
 def fmt_time(timestamp: float) -> str:
     clock = datetime.fromtimestamp(timestamp)
-    return clock.strftime(f"{DATE_FORMAT} {TIME_FORMAT}")
+    from user_settings import get_app_settings
+    return clock.strftime(
+        f"{get_app_settings().settings.date_format} {get_app_settings().settings.time_format}"
+    )
 
 def fmt_date(timestamp: float): 
     clock = datetime.fromtimestamp(timestamp)
-    return clock.strftime(f"{DATE_FORMAT}")  
+    from user_settings import get_app_settings
+    return clock.strftime(get_app_settings().settings.date_format)
 
 def fmt_clock(timestamp: float): 
     clock = datetime.fromtimestamp(timestamp)
-    return clock.strftime(f"{TIME_FORMAT}")  
+    from user_settings import get_app_settings
+    return clock.strftime(get_app_settings().settings.time_format)
 
 def sanitize_filename(name: str) -> str:
     """Toglie percorsi, caratteri di controllo e nomi vuoti."""
@@ -61,7 +71,28 @@ def open_file(filename):
     else:                               
         subprocess.run(["xdg-open", filename], check=True) # Linux
         
-def text_to_url(text: str) -> QUrl:
+def get_download_path(profile_settings: "SettingsManager[ProfileSettings]") -> Path:
+    configured = profile_settings.settings.download_directory
+    if configured is not None:
+        custom = Path(configured).expanduser()
+        if custom.is_dir():
+            return custom
+        logger.warning("Configured download directory does not exist: %s", custom)
+
+    location = QStandardPaths.writableLocation(
+        QStandardPaths.StandardLocation.DownloadLocation
+    )
+    if location:
+        path = Path(location)
+        if path.is_dir():
+            return path
+
+    default_path = Path.home() / "Downloads"
+    default_path.mkdir(parents=True, exist_ok=True)
+    return default_path
+
+
+def text_to_url(text: str, search_url: str) -> QUrl:
     """Address bar input can be a URL or a search query. This function determines which it is and returns the appropriate QUrl."""
     looks_like_address = " " not in text and (
         "://" in text or "." in text or text.startswith("localhost")
@@ -77,17 +108,18 @@ def text_to_url(text: str) -> QUrl:
 
     query = QUrlQuery()
     query.addQueryItem("q", text)
-    url = QUrl(SEARCH_URL)
+    url = QUrl(search_url)
     url.setQuery(query)
     return url
 
-def to_str(value) -> str:
+def to_str(value: Any) -> str:
+    """Convert a settings value to the string stored in the INI file."""
     if isinstance(value, bool):
         return "true" if value else "false"
     if value is None:
         return "auto"
     if isinstance(value, (list, tuple)):
-        return "\n" + "\n".join(value)
+        return "\n" + "\n".join(str(v) for v in value)
     return str(value)
 
 _TRUE_VALUES = {"true", "yes", "on", "1"}
@@ -127,5 +159,5 @@ def from_str(value: str, default: Any) -> Any:
         v = value.strip()
         return None if v.lower() in ("", "auto") else v
 
-    # Plain strings: keep as they are
+    # Plain strings
     return value.strip()
