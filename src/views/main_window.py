@@ -21,6 +21,7 @@ from user_settings import (
 from views.bookmarks_library import BookmarksLibraryView
 from views.download_history import DownloadHistoryView
 from views.history_view import HistoryView
+from views.settings_window import SettingsWindow
 from views.webview import OtusWebView
 from views.download_widget import DownloadWidget
 
@@ -137,6 +138,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionDownloads.triggered.connect(self.on_download_history)
         self.actionManage_bookmarks.triggered.connect(self.on_bookmarks_library)
         self.actionHistory.triggered.connect(self.on_history)
+        self.actionPreferences.triggered.connect(self.open_settings_window)
         
         # Help
         self.actionAbout_Otus.triggered.connect(self.show_about_dialog)
@@ -645,6 +647,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.history_view = HistoryView(parent=self, history_manager=self.history)
         self.history_view.openUrlRequested.connect(lambda url: self.openLinkInNewTab(QUrl(url)))
         self.history_view.show()
+        
+    def open_settings_window(self):
+        self.settings_window = SettingsWindow(
+            profile_settings=self.profile_settings,
+            parent=self,
+        )
+        self.settings_window.show()
 
     ######################################
     ##     Help Menu                    ##

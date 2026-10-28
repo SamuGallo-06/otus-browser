@@ -3,10 +3,12 @@ import re, platform, sys, subprocess, os
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
-from PySide6.QtCore import QByteArray, QFile, QIODevice, QStandardPaths, Qt, QUrl, QUrlQuery
+from PySide6.QtCore import QByteArray, QFile, QIODevice, QLocale, QStandardPaths, Qt, QUrl, QUrlQuery
 from PySide6.QtGui import QColor, QGuiApplication, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 import logging
+
+from settings import LANGUAGES_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -161,3 +163,23 @@ def from_str(value: str, default: Any) -> Any:
 
     # Plain strings
     return value.strip()
+
+def discover_languages() -> dict[str, str]:
+    """Return {locale_key: display_name} for every valid language folder."""
+    # The source strings are English, so English is always available (no file needed)
+    languages = {"en_US": "English"}
+
+    if not LANGUAGES_DIR.is_dir():       # iterdir() would raise if the folder is missing
+        return languages
+
+    for entry in sorted(LANGUAGES_DIR.iterdir()):
+        if not entry.is_dir() or not (entry / "otus.qm").is_file():
+            continue
+
+        locale = QLocale(entry.name)
+        if locale.language() == QLocale.Language.C:   # folder name is not a valid locale
+            continue
+
+        languages[entry.name] = locale.nativeLanguageName().capitalize()
+
+    return languages

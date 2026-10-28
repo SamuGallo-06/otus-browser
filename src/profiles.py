@@ -81,6 +81,7 @@ def _profile_from_xml(element: ET.Element) -> OtusProfile | None:
 
 
 def get_profiles() -> dict[str, OtusProfile]:
+    """"""
     _ensure_profiles_registry()
     tree = ET.parse(PROFILES_XML_PATH)
     root = tree.getroot()

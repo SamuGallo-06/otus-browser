@@ -30,7 +30,7 @@ class AppSettings:
     default_profile:                str = field(default="OtusProfile",         metadata={"section": "general"})
     always_ask_before_exit:         bool = field(default=True,                 metadata={"section": "general"})
     theme:                          str = field(default="dark",                metadata={"section": "appearance"})
-    lang:                           str = field(default="it-IT",               metadata={"section": "appearance"})
+    lang:                           str = field(default="it_IT",               metadata={"section": "appearance"})
     date_format:                    str = field(default="%d/%m/%Y",            metadata={"section": "appearance"})
     time_format:                    str = field(default="%H:%M:%S",            metadata={"section": "appearance"})
 
