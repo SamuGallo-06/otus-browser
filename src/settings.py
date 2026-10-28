@@ -16,6 +16,7 @@ LOG_FILE_PATH = PERSISTENT_STORAGE_PATH / "logs"
 PROFILES_XML_PATH = PERSISTENT_STORAGE_PATH / "profiles.xml"
 BASE_DIR = Path(__file__).resolve().parent
 RESOURCES_DIR = BASE_DIR / "resources"
+SETTINGS_PATH = PERSISTENT_STORAGE_PATH / "settings.ini"
 
 # Browser parameters
 RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop", ".bat", ".bin", ".run", ".deb", ".rpm", ".msi", ""}

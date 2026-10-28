@@ -1,21 +1,22 @@
 from PySide6.QtWidgets import (
-    QFileDialog, QLineEdit, QListWidgetItem, QMainWindow, QMenu, QSizePolicy, QTreeView, QVBoxLayout, QWidget, QMessageBox
+    QApplication, QFileDialog, QLineEdit, QListWidgetItem, QMainWindow, QMenu, QSizePolicy, QTreeView, QVBoxLayout, QWidget, QMessageBox
 )
 from PySide6.QtCore import QSortFilterProxyModel, QUrl, QUrlQuery, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile, QWebEngineDownloadRequest
+from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineDownloadRequest
 from PySide6.QtGui import QIcon, Qt
 
 from pathlib import Path
 import logging
 
-from bookmarks import Bookmark, BookmarkManager
-from downloads import Download, DownloadManager
+from bookmarks import Bookmark
+from downloads import Download
 from ui.ui_mainwindow import Ui_MainWindow
 from ui import resources_rc
+from user_settings import UserSettingsManager, get_settings_manager
 from views.bookmarks_library import BookmarksLibraryView
 from views.download_history import DownloadHistoryView
-from views.history_view import HistoryView, HistoryManager
+from views.history_view import HistoryView
 from views.webview import OtusWebView
 from views.download_widget import DownloadWidget
 
@@ -23,7 +24,7 @@ from views.download_widget import DownloadWidget
 from settings import *
 from utils import *
 from profiles import OtusProfile
-from adblock import OtusAdBlocker
+from profile_context import ProfileContext
 
 logger = logging.getLogger(__name__)
 
@@ -47,13 +48,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     exitRequested = Signal()
     closed = Signal(object)
     
-    def __init__(self, profile: OtusProfile | None = None,
-                 profile_id: str = "OtusProfile"):
+    def __init__(self, profile: OtusProfile | None = None, profile_id: str = "OtusProfile"):
         super().__init__()
         self._child_windows: list[MainWindow] = []
         if profile is None:
             profile = OtusProfile(uid=profile_id, name=profile_id)
         self.profile_data = profile
+        self.settings_manager = get_settings_manager()
         
         logger.debug("Initializing MainWindow with profile: %s", self.profile_data.uid)
         self.setupUi(self)
@@ -62,22 +63,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Set the size policy of the browser tab widget to expand and fill the available space
         self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
         logger.debug("Setting up profile: %s", self.profile_data.uid)
-        self.setup_profile(self.profile_data)
-        
-        # Setting Profile's Library
-        self.bookmarks = BookmarkManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
-        self.downloads = DownloadManager(
-            self.profile_data,
-            persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest",
-            parent=self,
-        )
-        self.history = HistoryManager(self.profile_data, persistent=self.profile_data.type != "Nocturnal" and self.profile_data.type != "Guest")
-        self.history
+        # The web profile, ad blocker and library managers are shared by all the windows
+        # that use the same profile, so they are owned by the ProfileContext, not by the window.
+        self.context = ProfileContext.for_profile(self.profile_data)
+        self.profile = self.context.profile
+        self.ad_blocker = self.context.ad_blocker
+        self.bookmarks = self.context.bookmarks
+        self.downloads = self.context.downloads
+        self.history = self.context.history
         
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
         
-        self.new_tab(HOME_URL)
+        self.new_tab(self.settings_manager.settings.home_url)
         
     def setupActions(self):
         # Address Bar
@@ -96,7 +94,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Menu Actions
         # File
-        self.actionNew_Tab.triggered.connect(lambda: self.new_tab(HOME_URL))
+        self.actionNew_Tab.triggered.connect(lambda: self.new_tab(self.settings_manager.settings.home_url))
         self.actionNew_Window.triggered.connect(self.newWindow)
         self.actionNew_Private_Window.triggered.connect(self.newNocturnalWindow)
         self.actionClose_Tab.triggered.connect(lambda: self.close_tab(self.browserTabWidget.currentIndex()))
@@ -132,28 +130,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.browserTabWidget.tabCloseRequested.connect(self.close_tab)
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
         
-    def setup_profile(self, profile: OtusProfile):
-        # Profile
-        # Create a persistent profile for the browser to store cookies, cache, and other data
-        # Profile data is stored under .local/share/OtusBrowser/Profiles using the profile UID.
-        # This allows the browser to maintain state across sessions.
-        self.profile = QWebEngineProfile(profile.uid, self)
-        profile_path = profile.storage_path
-        profile_path.mkdir(parents=True, exist_ok=True)
-        webengine_path = profile_path / "webengine"
-        webengine_path.mkdir(parents=True, exist_ok=True)
-        self.profile.setPersistentStoragePath(str(webengine_path))
-        self.profile.setCachePath(str(webengine_path / "cache"))
-        
-        # The ad blocker is parented to the profile, so it lives exactly as long as the profile.
-        self.ad_blocker = None
-        if ADBLOCKER_ENABLED:
-            self.ad_blocker = OtusAdBlocker(parent=self.profile)
-            self.profile.setUrlRequestInterceptor(self.ad_blocker)
-        
-        self.profile.downloadRequested.connect(self.onDownloadRequested)
-        self.profile.setDownloadPath(str(get_download_path()))
-
     def get_current_profile(self) -> OtusProfile:
         """Return the data structure for the profile currently used by this window."""
         return self.profile_data
@@ -185,7 +161,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def navigate_home(self):
         view = self.current_view()
         if view:
-            view.load(QUrl(HOME_URL))
+            view.load(QUrl(self.settings_manager.settings.home_url))
     
     # Tabs
     
@@ -230,7 +206,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def searchSelection(self, text: str):
         query = QUrlQuery()
         query.addQueryItem("q", text)
-        url = QUrl(SEARCH_URL)
+        url = QUrl(self.settings_manager.settings.search_url)
         url.setQuery(query)
         self.openLinkInNewTab(url)
 
@@ -290,9 +266,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             exit_code,
         )
         self.statusbar.showMessage(
-            "Web Engine render process terminated for {pageUrl}: status={status}, exit_code={exitCode}".format(
-                pageUrl=view.url().toString(), status=status, exitCode=exit_code
-            )
+            "Il processo di rendering della pagina è terminato. Ricarica la pagina."
         )
                
     # Web page navigation events
@@ -354,7 +328,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
 
     def acceptDownload(self, request: QWebEngineDownloadRequest, name: str):
-        if ASK_FOR_DOWNLOAD_PATH:
+        if self.settings_manager.settings.ask_for_download_path:
             suggested = str(get_download_path() / name)
             path, _ = QFileDialog.getSaveFileName(
                 self, "Save download as", suggested, "All files (*)",
@@ -439,7 +413,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def newWindow(self):
         logger.debug("New window action triggered")
-        new_window = MainWindow(profile_id="OtusProfile")
+        new_window = MainWindow(profile=self.profile_data)
         self._child_windows.append(new_window)
         new_window.destroyed.connect(
             lambda _object=None, child=new_window: self._child_windows.remove(child)
@@ -457,8 +431,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         new_window.show()
         
+    def _is_last_window_of_profile(self) -> bool:
+        """True if no other visible window is using the same profile as this one."""
+        return not any(
+            isinstance(w, MainWindow) and w is not self and w.isVisible()
+            and w.profile_data.uid == self.profile_data.uid
+            for w in QApplication.topLevelWidgets()
+        )
+
     def closeEvent(self, event):
-        if ALWAYS_ASK_BEFORE_EXIT:
+        if self.settings_manager.settings.always_ask_before_exit:
             box = QMessageBox(
                 QMessageBox.Icon.Question,
                 "Exit Confirmation",
@@ -473,7 +455,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 event.ignore()  # keeps the window open
                 return
         
-        if self.downloads.active_downloads():
+        # Downloads are shared by every window of the profile: only ask when closing the last one
+        if self._is_last_window_of_profile() and self.downloads.active_downloads():
             answer = QMessageBox.question(
                 self, "Downloads in progress",
                 "Some downloads are still running. Quit and cancel them?",
