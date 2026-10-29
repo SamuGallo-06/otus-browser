@@ -101,7 +101,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
         
-        self.new_tab(self.profile_settings.settings.home_url)
+        self.create_session()
         
     def setupActions(self):
         # Address Bar
@@ -160,6 +160,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.browserTabWidget.tabCloseRequested.connect(self.close_tab)
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
         
+    def create_session(self):
+        if self.profile_settings.settings.restore_previous_session:
+            try:
+                with open(self.profile_data.storage_path / "previous_session.json", "r") as f:
+                    session_data = json.load(f)
+                    open_tabs = session_data.get("open_tabs", [])
+                    for url in open_tabs:
+                        if isinstance(url, str) and url.strip():
+                            self.new_tab(url)
+
+                    self.actionSilentwing.setChecked(
+                        session_data.get("silent_wing_enabled", False)
+                    )
+                    if not open_tabs:
+                        self.new_tab()
+            except FileNotFoundError:
+                logger.info("No previous session found to restore.")
+                self.new_tab(self.profile_settings.settings.home_url)
+            except Exception as e:
+                logger.error("Failed to restore previous session: {err}".format(err=e))
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    "Failed to restore previous session. A new session will be started.",
+                    QMessageBox.StandardButton.Ok
+                )
+        elif self.profile_settings.settings.use_startup_pages:
+            pages = self.profile_settings.settings.startup_pages
+            if pages:
+                for page in pages:
+                    self.new_tab(page)
+            else:
+                self.new_tab(self.profile_settings.settings.home_url)
+        else:
+            self.new_tab(self.profile_settings.settings.home_url)
+
     def get_current_profile(self) -> OtusProfile:
         """Return the data structure for the profile currently used by this window."""
         return self.profile_data
@@ -541,14 +577,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if not isinstance(widget, OtusWebView):
                     continue
 
-                open_tabs.append({
-                    "index": index,
-                    "url": widget.url().toString(),
-                    "title": widget.title(),
-                })
+                open_tabs.append(widget.url().toString())
                 
             previousSession["open_tabs"] = open_tabs
-            previousSession["silentWingEnabled"] = self.actionSilentwing.isChecked()
+            previousSession["silent_wing_enabled"] = self.actionSilentwing.isChecked()
             try: 
                 with open(self.profile_data.storage_path / "previous_session.json", "w") as f:
                     json.dump(previousSession, f, indent=4)

@@ -42,7 +42,7 @@ class SettingsWindow(QWidget):
         self.setWindowFlag(Qt.WindowType.Window)
         self.global_settings = get_app_settings()
         self.profile_settings = profile_settings
-
+        self.ui.toolBox.setCurrentIndex(0)
         self.populate_settings()
         self.ui.applyButton.clicked.connect(self.apply_settings)
         self.ui.cancelButton.clicked.connect(self.close)
@@ -94,7 +94,16 @@ class SettingsWindow(QWidget):
 
         self.ui.askForProfileChooseCheckbox.setChecked(app.ask_for_profile_choose)
         self.ui.alwaysAskBeforeExitCheckbox.setChecked(app.always_ask_before_exit)
-        self.ui.restoreSessionCheckBox.setChecked(profile.restore_previous_session)
+        self.ui.restoreSessionRadioButton.setChecked(
+            profile.restore_previous_session
+        )
+        self.ui.useStartupPagesRadioButton.setChecked(
+            not profile.restore_previous_session and profile.use_startup_pages
+        )
+        self.ui.emptyTabRadioButton.setChecked(
+            not profile.restore_previous_session and not profile.use_startup_pages
+        )
+        self.ui.startupPages.setPlainText("\n".join(profile.startup_pages))
         self.ui.homePageUrlField.setText(profile.home_url)
 
         self.ui.searchEngineComboBox.clear()
@@ -144,7 +153,13 @@ class SettingsWindow(QWidget):
         )
         new_profile_settings = ProfileSettings(
             home_url=self.ui.homePageUrlField.text().strip() or profile.home_url,
-            restore_previous_session=self.ui.restoreSessionCheckBox.isChecked(),
+            restore_previous_session=self.ui.restoreSessionRadioButton.isChecked(),
+            use_startup_pages=self.ui.useStartupPagesRadioButton.isChecked(),
+            startup_pages=[
+                page.strip()
+                for page in self.ui.startupPages.toPlainText().splitlines()
+                if page.strip()
+            ],
             search_url=search_url,
             ask_for_download_path=(
                 self.ui.alwaysAskForDownloadPathCheckbox.isChecked()

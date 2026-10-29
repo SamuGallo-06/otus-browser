@@ -48,7 +48,9 @@ class ProfileSettings:
     # Name                         | type              | default                           | metadata
     home_url:                       str = field(default="https://duckduckgo.com",            metadata={"section": "general"})
     search_url:                     str = field(default="https://duckduckgo.com/?q={query}", metadata={"section": "general"})
-    restore_previous_session:       bool = field(default=False,                              metadata={"section": "general"})
+    restore_previous_session:       bool = field(default=False,                              metadata={"section": "startup"})
+    use_startup_pages:              bool = field(default=False,                              metadata={"section": "startup"})
+    startup_pages:                  list[str] = field(default_factory=list,                  metadata={"section": "startup"})
     ask_for_download_path:          bool = field(default=False,                              metadata={"section": "downloads"})
     download_directory:             str | None = field(default=None,                         metadata={"section": "downloads"})
     adblocker_enabled:              bool = field(default=True,                               metadata={"section": "adblocker"})
