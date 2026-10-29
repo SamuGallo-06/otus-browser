@@ -12,6 +12,7 @@ from PySide6.QtGui import QGuiApplication, QIcon
 import sys, logging
 from datetime import datetime
 from pathlib import Path
+import typer
 
 #Custom Modules
 from views.main_window import MainWindow
@@ -26,6 +27,7 @@ from user_settings import (
     SettingsManager,
     init_app_settings,
 )
+
 
 logger = logging.getLogger(__name__)
 def setupLogger():
@@ -44,12 +46,12 @@ def setupLogger():
 
 
 class OtusApp:
-    def __init__(self, app_settings: SettingsManager[AppSettings]):
+    def __init__(self, app_settings: SettingsManager[AppSettings], url: str | None = None):
         self.app_settings = app_settings
         self.login = None
         self.main_window = None
         self.profile_settings: SettingsManager[ProfileSettings] | None = None
-
+        self.start_url = url
 
     def start(self):
         if self.app_settings.settings.ask_for_profile_choose:
@@ -77,6 +79,7 @@ class OtusApp:
         self.main_window = MainWindow(
             profile=profile,
             profile_settings=self.profile_settings,
+            start_url=self.start_url
         )
         self.main_window.exitRequested.connect(self.exitApplication)
         self.main_window.closed.connect(self.unmountProfile)
@@ -117,22 +120,31 @@ def apply_theme(app: QApplication, manager: SettingsManager[AppSettings]) -> Non
         Qt.ColorScheme.Unknown,
     )
     app.styleHints().setColorScheme(scheme)
+    
+cli = typer.Typer()
 
-
-if __name__ == "__main__":
+@cli.command()
+def main(
+    url: str | None = typer.Argument(None, help=""),
+):
     setupLogger()
-
+    
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Otus Browser")
     app.setWindowIcon(QIcon(settings.OTUS_ICON_PACK + "otus_logo.svg"))
     app.setApplicationName("otus-browser")
     app.setApplicationVersion("0.0.1")
-    
+        
     app_settings = init_app_settings(settings.SETTINGS_PATH, parent=app)
     apply_theme(app, app_settings)
     app_settings.settingsChanged.connect(lambda: apply_theme(app, app_settings))
+    
 
-    otus = OtusApp(app_settings)
+    otus = OtusApp(app_settings, url)
     otus.start()
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    cli()
     

@@ -61,6 +61,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         profile: OtusProfile | None = None,
         profile_id: str = "OtusProfile",
         profile_settings: SettingsManager[ProfileSettings] | None = None,
+        start_url: str | None = None
     ):
         super().__init__()
         self._child_windows: list[MainWindow] = []
@@ -101,6 +102,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.bookmarks.reloadRequired.connect(self.__rebuild_bookmarks_menu)
         self.__rebuild_bookmarks_menu()
         
+        self.start_url = start_url
         self.create_session()
         
     def setupActions(self):
@@ -161,6 +163,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.browserTabWidget.currentChanged.connect(self.on_tab_changed)
         
     def create_session(self):
+        if self.start_url is not None:
+            self.new_tab(self.start_url)
+        
         if self.profile_settings.settings.restore_previous_session:
             try:
                 with open(self.profile_data.storage_path / "previous_session.json", "r") as f:
