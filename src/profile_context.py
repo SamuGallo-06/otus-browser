@@ -1,12 +1,14 @@
 from PySide6.QtWebEngineCore import QWebEngineDownloadRequest, QWebEngineProfile
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal
 
-from adblock import OtusAdBlocker
+from adblock import AdBlockPolicy
 from bookmarks import BookmarkManager
 from downloads import DownloadManager
+from interceptor import OtusRequestInterceptor
 from profiles import OtusProfile
+from silentwing import SilentWing
 from user_settings import ProfileSettings, SettingsManager
 from utils import get_download_path
 from views.history_view import HistoryManager
@@ -21,6 +23,8 @@ class ProfileContext(QObject):
     """
 
     _instances: dict[str, "ProfileContext"] = {}
+    silentWingChanged = Signal(bool)
+    blockedCountChanged = Signal(int)
 
     @classmethod
     def for_profile(
@@ -68,11 +72,18 @@ class ProfileContext(QObject):
             lambda: self.profile.setDownloadPath(str(get_download_path(profile_settings)))
         )
 
-        # The ad blocker is parented to the profile, so it lives exactly as long as the profile.
-        self.ad_blocker = OtusAdBlocker(profile_settings, parent=self.profile)
-        self.profile.setUrlRequestInterceptor(self.ad_blocker)
+        # Policies are owned by the interceptor, which is parented to the profile.
+        self.adblock_policy = AdBlockPolicy(profile_settings)
+        self.silent_wing_policy = SilentWing()
+        self.interceptor = OtusRequestInterceptor(
+            [self.adblock_policy, self.silent_wing_policy],
+            parent=self.profile,
+        )
+        self.profile.setUrlRequestInterceptor(self.interceptor)
+        self.total_blocked_count = 0
+        self.interceptor.requestBlocked.connect(self._on_request_blocked)
         profile_settings.settingsChanged.connect(
-            lambda: self.ad_blocker.refresh(profile_settings.settings)
+            lambda: self.adblock_policy.refresh(profile_settings.settings)
         )
 
         # Profile library, shared by every window of this profile
@@ -85,6 +96,16 @@ class ProfileContext(QObject):
         # Connected once here, NOT in every window: otherwise each download
         # would be handled N times (once per open window).
         self.profile.downloadRequested.connect(self._route_download)
+
+    def set_silent_wing_enabled(self, enabled: bool) -> None:
+        if self.silent_wing_policy.enabled == enabled:
+            return
+        self.silent_wing_policy.enabled = enabled
+        self.silentWingChanged.emit(enabled)
+
+    def _on_request_blocked(self) -> None:
+        self.total_blocked_count += 1
+        self.blockedCountChanged.emit(self.total_blocked_count)
 
     def _route_download(self, request: QWebEngineDownloadRequest):
         """Hand the download to the window that owns the page that triggered it."""

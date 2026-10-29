@@ -1,36 +1,11 @@
-from PySide6.QtCore import Qt, QUrl, QUrlQuery, Signal
+from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QMenu
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineContextMenuRequest
+from utils import clean_url
 
 W = QWebEnginePage.WebAction
-
-# Parametri di tracciamento rimossi da "Copy link without trackers".
-# Qualsiasi parametro che inizia con "utm_" viene rimosso a prescindere.
-TRACKING_PARAMS = {
-    "fbclid", "gclid", "dclid", "msclkid", "yclid", "igshid",
-    "mc_cid", "mc_eid", "_hsenc", "_hsmi",
-}
-
-
-def clean_url(url: QUrl) -> QUrl:
-    """Restituisce una copia dell'URL senza i parametri di tracciamento più comuni."""
-    query = QUrlQuery(url)
-    removed = False
-    for key, _value in query.queryItems():
-        if key.lower().startswith("utm_") or key.lower() in TRACKING_PARAMS:
-            query.removeAllQueryItems(key)
-            removed = True
-    if not removed:
-        return url
-    cleaned = QUrl(url)
-    if query.isEmpty():
-        cleaned.setQuery("")         # nessun parametro rimasto: niente "?" finale
-    else:
-        cleaned.setQuery(query)
-    return cleaned
-
 
 class OtusWebView(QWebEngineView):
     # Segnali verso la main window: la view sa *cosa* è stato cliccato,

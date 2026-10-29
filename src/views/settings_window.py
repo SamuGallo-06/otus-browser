@@ -94,6 +94,7 @@ class SettingsWindow(QWidget):
 
         self.ui.askForProfileChooseCheckbox.setChecked(app.ask_for_profile_choose)
         self.ui.alwaysAskBeforeExitCheckbox.setChecked(app.always_ask_before_exit)
+        self.ui.restoreSessionCheckBox.setChecked(profile.restore_previous_session)
         self.ui.homePageUrlField.setText(profile.home_url)
 
         self.ui.searchEngineComboBox.clear()
@@ -116,6 +117,7 @@ class SettingsWindow(QWidget):
             profile.ask_for_download_path
         )
         self.ui.enableAdBlockerCheckbox.setChecked(profile.adblocker_enabled)
+        self.ui.showTrackerCountCheckbox.setChecked(profile.show_tracker_count)
         self.ui.blockedHostsEntry.setPlainText("\n".join(profile.blocked_hosts))
 
     def apply_settings(self) -> None:
@@ -142,6 +144,7 @@ class SettingsWindow(QWidget):
         )
         new_profile_settings = ProfileSettings(
             home_url=self.ui.homePageUrlField.text().strip() or profile.home_url,
+            restore_previous_session=self.ui.restoreSessionCheckBox.isChecked(),
             search_url=search_url,
             ask_for_download_path=(
                 self.ui.alwaysAskForDownloadPathCheckbox.isChecked()
@@ -149,6 +152,7 @@ class SettingsWindow(QWidget):
             download_directory=self.ui.downloadPathField.text().strip() or None,
             adblocker_enabled=self.ui.enableAdBlockerCheckbox.isChecked(),
             blocked_hosts=self.ui.blockedHostsEntry.toPlainText().splitlines(),
+            show_tracker_count=self.ui.showTrackerCountCheckbox.isChecked(),
         )
 
         self.global_settings.update(new_app_settings)

@@ -68,31 +68,44 @@ class Ui_Preferences(object):
         self.generals.setGeometry(QRect(0, 0, 571, 328))
         self.gridLayout_3 = QGridLayout(self.generals)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.label_5 = QLabel(self.generals)
+        self.label_5.setObjectName(u"label_5")
+
+        self.gridLayout_3.addWidget(self.label_5, 1, 0, 1, 1)
+
+        self.label_6 = QLabel(self.generals)
+        self.label_6.setObjectName(u"label_6")
+        self.label_6.setTextFormat(Qt.TextFormat.MarkdownText)
+
+        self.gridLayout_3.addWidget(self.label_6, 5, 0, 1, 4)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.gridLayout_3.addItem(self.verticalSpacer_2, 11, 0, 1, 1)
+
         self.label_7 = QLabel(self.generals)
         self.label_7.setObjectName(u"label_7")
 
         self.gridLayout_3.addWidget(self.label_7, 6, 0, 1, 1)
 
-        self.profilesComboBox = QComboBox(self.generals)
-        self.profilesComboBox.setObjectName(u"profilesComboBox")
+        self.verticalSpacer_3 = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
-        self.gridLayout_3.addWidget(self.profilesComboBox, 7, 3, 1, 1)
-
-        self.askForProfileChooseCheckbox = QCheckBox(self.generals)
-        self.askForProfileChooseCheckbox.setObjectName(u"askForProfileChooseCheckbox")
-
-        self.gridLayout_3.addWidget(self.askForProfileChooseCheckbox, 9, 0, 1, 4)
+        self.gridLayout_3.addItem(self.verticalSpacer_3, 4, 0, 1, 1)
 
         self.alwaysAskBeforeExitCheckbox = QCheckBox(self.generals)
         self.alwaysAskBeforeExitCheckbox.setObjectName(u"alwaysAskBeforeExitCheckbox")
 
         self.gridLayout_3.addWidget(self.alwaysAskBeforeExitCheckbox, 8, 0, 1, 4)
 
-        self.label_8 = QLabel(self.generals)
-        self.label_8.setObjectName(u"label_8")
-        self.label_8.setTextFormat(Qt.TextFormat.MarkdownText)
+        self.homePageUrlField = QLineEdit(self.generals)
+        self.homePageUrlField.setObjectName(u"homePageUrlField")
 
-        self.gridLayout_3.addWidget(self.label_8, 0, 0, 1, 4)
+        self.gridLayout_3.addWidget(self.homePageUrlField, 6, 3, 1, 1)
+
+        self.profilesComboBox = QComboBox(self.generals)
+        self.profilesComboBox.setObjectName(u"profilesComboBox")
+
+        self.gridLayout_3.addWidget(self.profilesComboBox, 7, 3, 1, 1)
 
         self.languageComboBox = QComboBox(self.generals)
         self.languageComboBox.addItem("")
@@ -101,39 +114,31 @@ class Ui_Preferences(object):
 
         self.gridLayout_3.addWidget(self.languageComboBox, 1, 3, 1, 1)
 
-        self.label_5 = QLabel(self.generals)
-        self.label_5.setObjectName(u"label_5")
+        self.label_8 = QLabel(self.generals)
+        self.label_8.setObjectName(u"label_8")
+        self.label_8.setTextFormat(Qt.TextFormat.MarkdownText)
 
-        self.gridLayout_3.addWidget(self.label_5, 1, 0, 1, 1)
-
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.gridLayout_3.addItem(self.verticalSpacer_2, 10, 0, 1, 1)
-
-        self.homePageUrlField = QLineEdit(self.generals)
-        self.homePageUrlField.setObjectName(u"homePageUrlField")
-
-        self.gridLayout_3.addWidget(self.homePageUrlField, 6, 3, 1, 1)
+        self.gridLayout_3.addWidget(self.label_8, 0, 0, 1, 4)
 
         self.label = QLabel(self.generals)
         self.label.setObjectName(u"label")
 
         self.gridLayout_3.addWidget(self.label, 7, 0, 1, 1)
 
-        self.label_6 = QLabel(self.generals)
-        self.label_6.setObjectName(u"label_6")
-        self.label_6.setTextFormat(Qt.TextFormat.MarkdownText)
+        self.askForProfileChooseCheckbox = QCheckBox(self.generals)
+        self.askForProfileChooseCheckbox.setObjectName(u"askForProfileChooseCheckbox")
 
-        self.gridLayout_3.addWidget(self.label_6, 5, 0, 1, 4)
+        self.gridLayout_3.addWidget(self.askForProfileChooseCheckbox, 9, 0, 1, 4)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.restoreSessionCheckBox = QCheckBox(self.generals)
+        self.restoreSessionCheckBox.setObjectName(u"restoreSessionCheckBox")
 
-        self.gridLayout_3.addItem(self.verticalSpacer_3, 4, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.restoreSessionCheckBox, 10, 0, 1, 1)
 
         self.toolBox.addItem(self.generals, u"Generals")
         self.search = QWidget()
         self.search.setObjectName(u"search")
-        self.search.setGeometry(QRect(0, 0, 228, 260))
+        self.search.setGeometry(QRect(0, 0, 571, 328))
         self.gridLayout_2 = QGridLayout(self.search)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.customSearchEngineField = QLineEdit(self.search)
@@ -177,7 +182,7 @@ class Ui_Preferences(object):
         self.toolBox.addItem(self.search, u"Search")
         self.appearance = QWidget()
         self.appearance.setObjectName(u"appearance")
-        self.appearance.setGeometry(QRect(0, 0, 245, 178))
+        self.appearance.setGeometry(QRect(0, 0, 571, 328))
         self.gridLayout_4 = QGridLayout(self.appearance)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.timeFormatComboBox = QComboBox(self.appearance)
@@ -241,7 +246,7 @@ class Ui_Preferences(object):
         self.toolBox.addItem(self.appearance, u"Appearance")
         self.downloads = QWidget()
         self.downloads.setObjectName(u"downloads")
-        self.downloads.setGeometry(QRect(0, 0, 299, 79))
+        self.downloads.setGeometry(QRect(0, 0, 571, 328))
         self.gridLayout_5 = QGridLayout(self.downloads)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.label_13 = QLabel(self.downloads)
@@ -274,15 +279,20 @@ class Ui_Preferences(object):
 
         self.gridLayout_6.addWidget(self.enableAdBlockerCheckbox, 0, 0, 1, 1)
 
+        self.showTrackerCountCheckbox = QCheckBox(self.privacy_ad_blocker)
+        self.showTrackerCountCheckbox.setObjectName(u"showTrackerCountCheckbox")
+
+        self.gridLayout_6.addWidget(self.showTrackerCountCheckbox, 1, 0, 1, 1)
+
         self.label_14 = QLabel(self.privacy_ad_blocker)
         self.label_14.setObjectName(u"label_14")
 
-        self.gridLayout_6.addWidget(self.label_14, 1, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.label_14, 2, 0, 1, 1)
 
         self.blockedHostsEntry = QTextEdit(self.privacy_ad_blocker)
         self.blockedHostsEntry.setObjectName(u"blockedHostsEntry")
 
-        self.gridLayout_6.addWidget(self.blockedHostsEntry, 2, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.blockedHostsEntry, 3, 0, 1, 1)
 
         self.toolBox.addItem(self.privacy_ad_blocker, u"Privacy and Ad Blocker")
 
@@ -292,7 +302,7 @@ class Ui_Preferences(object):
         self.retranslateUi(Preferences)
 
         self.applyButton.setDefault(True)
-        self.toolBox.setCurrentIndex(0)
+        self.toolBox.setCurrentIndex(3)
         self.toolBox.layout().setSpacing(4)
 
 
@@ -304,16 +314,17 @@ class Ui_Preferences(object):
         self.restoreDefaultsButton.setText(QCoreApplication.translate("Preferences", u"Restore Defaults", None))
         self.applyButton.setText(QCoreApplication.translate("Preferences", u"Apply", None))
         self.cancelButton.setText(QCoreApplication.translate("Preferences", u"Cancel", None))
+        self.label_5.setText(QCoreApplication.translate("Preferences", u"Language", None))
+        self.label_6.setText(QCoreApplication.translate("Preferences", u"**Home Page and Startup**", None))
         self.label_7.setText(QCoreApplication.translate("Preferences", u"Home Page URL", None))
-        self.askForProfileChooseCheckbox.setText(QCoreApplication.translate("Preferences", u"Ask for Profile choose at startup", None))
         self.alwaysAskBeforeExitCheckbox.setText(QCoreApplication.translate("Preferences", u"Always ask before exiting the browser", None))
-        self.label_8.setText(QCoreApplication.translate("Preferences", u"**System**", None))
         self.languageComboBox.setItemText(0, QCoreApplication.translate("Preferences", u"English", None))
         self.languageComboBox.setItemText(1, QCoreApplication.translate("Preferences", u"Italian", None))
 
-        self.label_5.setText(QCoreApplication.translate("Preferences", u"Language", None))
+        self.label_8.setText(QCoreApplication.translate("Preferences", u"**System**", None))
         self.label.setText(QCoreApplication.translate("Preferences", u"Default Profile", None))
-        self.label_6.setText(QCoreApplication.translate("Preferences", u"**Home Page and Startup**", None))
+        self.askForProfileChooseCheckbox.setText(QCoreApplication.translate("Preferences", u"Ask for Profile choose at startup", None))
+        self.restoreSessionCheckBox.setText(QCoreApplication.translate("Preferences", u"Restore tabs from the previous session at startup", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.generals), QCoreApplication.translate("Preferences", u"Generals", None))
         self.label_2.setText(QCoreApplication.translate("Preferences", u"**Search Engine**", None))
         self.searchEngineComboBox.setItemText(0, QCoreApplication.translate("Preferences", u"DuckDuckGo (Suggested)", None))
@@ -346,6 +357,7 @@ class Ui_Preferences(object):
         self.alwaysAskForDownloadPathCheckbox.setText(QCoreApplication.translate("Preferences", u"Always ask for downloaded save file name", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.downloads), QCoreApplication.translate("Preferences", u"Downloads", None))
         self.enableAdBlockerCheckbox.setText(QCoreApplication.translate("Preferences", u"Enable Ad Blocker", None))
+        self.showTrackerCountCheckbox.setText(QCoreApplication.translate("Preferences", u"Show blocked tracker count in the status bar", None))
         self.label_14.setText(QCoreApplication.translate("Preferences", u"Blocked Hosts (one per row)", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.privacy_ad_blocker), QCoreApplication.translate("Preferences", u"Privacy and Ad Blocker", None))
     # retranslateUi

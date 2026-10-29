@@ -12,6 +12,32 @@ from settings import LANGUAGES_DIR
 
 logger = logging.getLogger(__name__)
 
+# Tracking parameters removed when SilentWing cleans a top-level URL.
+TRACKING_PARAMS = {
+    "fbclid", "gclid", "dclid", "msclkid", "yclid", "igshid",
+    "mc_cid", "mc_eid", "_hsenc", "_hsmi",
+}
+
+
+def clean_url(url: QUrl) -> QUrl:
+    """Return a copy of the URL without common tracking parameters."""
+    query = QUrlQuery(url)
+    removed = False
+    for key, _value in query.queryItems():
+        if key.lower().startswith("utm_") or key.lower() in TRACKING_PARAMS:
+            query.removeAllQueryItems(key)
+            removed = True
+    if not removed:
+        return url
+
+    cleaned = QUrl(url)
+    if query.isEmpty():
+        cleaned.setQuery("")
+    else:
+        cleaned.setQuery(query)
+    return cleaned
+
+
 if TYPE_CHECKING:
     from user_settings import SettingsManager, ProfileSettings
 

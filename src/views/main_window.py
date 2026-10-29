@@ -1,5 +1,7 @@
+import json
+
 from PySide6.QtWidgets import (
-    QApplication, QFileDialog, QLineEdit, QListWidgetItem, QMainWindow, QMenu, QSizePolicy, QTreeView, QVBoxLayout, QWidget, QMessageBox
+    QApplication, QFileDialog, QLabel, QLineEdit, QListWidgetItem, QMainWindow, QMenu, QSizePolicy, QTreeView, QVBoxLayout, QWidget, QMessageBox
 )
 from PySide6.QtCore import QSortFilterProxyModel, QUrl, QUrlQuery, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -82,7 +84,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.profile_data, self.profile_settings
         )
         self.profile = self.context.profile
-        self.ad_blocker = self.context.ad_blocker
+        self.adblock_policy = self.context.adblock_policy
+        self.silent_wing_policy = self.context.silent_wing_policy
+        self.context.silentWingChanged.connect(self._sync_silent_wing_action)
+        self.context.blockedCountChanged.connect(self._update_tracker_count)
+        self.profile_settings.settingsChanged.connect(self._update_tracker_visibility)
+        self.tracker_count_label = QLabel(self)
+        self.statusbar.addPermanentWidget(self.tracker_count_label)
+        self._sync_silent_wing_action(self.silent_wing_policy.enabled)
+        self._update_tracker_count(self.context.total_blocked_count)
+        self._update_tracker_visibility()
         self.bookmarks = self.context.bookmarks
         self.downloads = self.context.downloads
         self.history = self.context.history
@@ -106,6 +117,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionForward.triggered.connect(self.navigate_forward)
         self.actionReload.triggered.connect(self.navigate_reload)
         self.actionHome.triggered.connect(self.navigate_home)
+        self.actionSilentwing.toggled.connect(self.set_silent_wing)
 
         # Menu Actions
         # File
@@ -163,6 +175,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def navigate_reload(self):
         if view := self.current_view():
             view.reload()
+
+    def set_silent_wing(self, enabled: bool) -> None:
+        """Toggle SilentWing for the shared profile and reload the current tab."""
+        self.context.set_silent_wing_enabled(enabled)
+        logger.info("SilentWing %s", "enabled" if enabled else "disabled")
+        self.statusBar().showMessage(
+            f"SilentWing {'on' if enabled else 'off'}",
+            5000,
+        )
+        if view := self.current_view():
+            view.reload()
+
+    def _sync_silent_wing_action(self, enabled: bool) -> None:
+        self.actionSilentwing.blockSignals(True)
+        self.actionSilentwing.setChecked(enabled)
+        self.actionSilentwing.blockSignals(False)
+        self.actionSilentwing.setToolTip(
+            f"Silent Wing ({'on' if enabled else 'off'}) - "
+            f"{self.context.total_blocked_count} blocked"
+        )
+
+    def _update_tracker_count(self, count: int) -> None:
+        self.tracker_count_label.setText(f"Blocked trackers: {count}")
+        self._sync_silent_wing_action(self.silent_wing_policy.enabled)
+
+    def _update_tracker_visibility(self) -> None:
+        self.tracker_count_label.setVisible(
+            self.profile_settings.settings.show_tracker_count
+        )
         
     def navigate(self, url: str | None = None):
         if url is not None:
@@ -266,6 +307,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_load_finished(self, view: OtusWebView, ok):
         url = view.url().toString()
         title = view.title()
+        self.setWindowTitle("{title} - Otus Browser".format(title=title or url))
         if ok and view.url().scheme() in ("http", "https"):
             self.history.add_visit(url, title or url)
             logger.debug("Page loaded successfully: {pageUrl}".format(pageUrl=url))
@@ -489,7 +531,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if box.exec() == QMessageBox.StandardButton.Cancel:
                 event.ignore()  # keeps the window open
                 return
-        
+            
+        if self.profile_settings.settings.restore_previous_session:
+            previousSession = {}
+            open_tabs = []
+            for index in range(self.browserTabWidget.count()):
+                widget = self.browserTabWidget.widget(index)
+
+                if not isinstance(widget, OtusWebView):
+                    continue
+
+                open_tabs.append({
+                    "index": index,
+                    "url": widget.url().toString(),
+                    "title": widget.title(),
+                })
+                
+            previousSession["open_tabs"] = open_tabs
+            previousSession["silentWingEnabled"] = self.actionSilentwing.isChecked()
+            try: 
+                with open(self.profile_data.storage_path / "previous_session.json", "w") as f:
+                    json.dump(previousSession, f, indent=4)
+            except Exception as e:
+                logger.error("Failed to save previous session: %s", e)
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    "Failed to save previous session. Changes will not be saved.",
+                    QMessageBox.StandardButton.Ok
+                )
+            
         # Downloads are shared by every window of the profile: only ask when closing the last one
         if self._is_last_window_of_profile() and self.downloads.active_downloads():
             answer = QMessageBox.question(
