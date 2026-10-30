@@ -8,7 +8,7 @@ from PySide6.QtGui import QColor, QGuiApplication, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 import logging
 
-from settings import LANGUAGES_DIR
+from settings import LANGUAGES_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +141,7 @@ def text_to_url(text: str, search_url: str) -> QUrl:
     return url
 
 def to_str(value: Any) -> str:
-    """Convert a settings value to the string stored in the INI file."""
+    """Convert a settings value to the string stored in tP =he INI file."""
     if isinstance(value, bool):
         return "true" if value else "false"
     if value is None:
@@ -195,10 +195,10 @@ def discover_languages() -> dict[str, str]:
     # The source strings are English, so English is always available (no file needed)
     languages = {"en_US": "English"}
 
-    if not LANGUAGES_DIR.is_dir():       # iterdir() would raise if the folder is missing
+    if not LANGUAGES_PATH.is_dir():       # iterdir() would raise if the folder is missing
         return languages
 
-    for entry in sorted(LANGUAGES_DIR.iterdir()):
+    for entry in sorted(LANGUAGES_PATH.iterdir()):
         if not entry.is_dir() or not (entry / "otus.qm").is_file():
             continue
 

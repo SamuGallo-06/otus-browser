@@ -17,7 +17,10 @@ PROFILES_XML_PATH = PERSISTENT_STORAGE_PATH / "profiles.xml"
 BASE_DIR = Path(__file__).resolve().parent
 RESOURCES_DIR = BASE_DIR / "resources"
 SETTINGS_PATH = PERSISTENT_STORAGE_PATH / "settings.ini"
-LANGUAGES_DIR = PERSISTENT_STORAGE_PATH / "Languages"
+LANGUAGES_PATH = PERSISTENT_STORAGE_PATH / "Languages"
+PACKAGES_PATH = PERSISTENT_STORAGE_PATH / "Packages"
+THEMES_PATH = PERSISTENT_STORAGE_PATH / "Themes"
+HOME_PAGES_PATH = PERSISTENT_STORAGE_PATH / "HomePages"
 
 # Browser parameters
 RISKY_DOWNLOAD_EXTENSIONS = {".appimage", ".sh", ".exe", ".jar", ".desktop", ".bat", ".bin", ".run", ".deb", ".rpm", ".msi", ""}
@@ -30,6 +33,9 @@ AVAILABLE_THEMES = {
 }
 DATE_FORMAT_PRESETS = ("%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d", "%m/%d/%Y", "%d %b %Y")
 TIME_FORMAT_PRESETS = ("%H:%M:%S", "%H:%M", "%I:%M:%S %p", "%I:%M %p")
+
+#Package Manager
+PACKAGE_REGISTRY = PERSISTENT_STORAGE_PATH / "packages.xml"
 
 FEATHER_ICON_PACK = ":feather/resources/feather/"
 OTUS_ICON_PACK = ":otus/resources/"
