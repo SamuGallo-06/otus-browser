@@ -5,7 +5,7 @@
 
 #PySide6
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import QCoreApplication, QTimer, QTranslator, Qt, QLibraryInfo
 from PySide6.QtGui import QGuiApplication, QIcon
 
 #Python Modules
@@ -28,9 +28,12 @@ from user_settings import (
     SettingsManager,
     init_app_settings,
 )
+from utils import find_installed_languages, language_candidates
 
-
+cli = typer.Typer()
 logger = logging.getLogger(__name__)
+
+
 def setupLogger():
     global logger
     
@@ -121,8 +124,37 @@ def apply_theme(app: QApplication, manager: SettingsManager[AppSettings]) -> Non
         Qt.ColorScheme.Unknown,
     )
     app.styleHints().setColorScheme(scheme)
-    
-cli = typer.Typer()
+
+# Translator
+def load_language(app: QCoreApplication, code: str, langs: dict[str, Path]) -> bool:
+    candidates = language_candidates(code)
+
+    selected_code = next((candidate for candidate in candidates if candidate in langs), None)
+    folder = langs.get(selected_code) if selected_code is not None else None
+
+    base_tr = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+    qt_translator = QTranslator(app)
+    app_translator = QTranslator(app)
+
+    qt_loaded = False
+    for candidate in candidates:
+        if qt_translator.load(f"qtbase_{candidate}", base_tr):
+            qt_loaded = True
+            break
+
+    app_loaded = False
+    if folder is not None and selected_code is not None:
+        catalog = folder / f"otus_browser_{selected_code}.qm"
+        if not catalog.is_file():
+            catalog = folder / f"otus_browser_{folder.name}.qm"
+        app_loaded = app_translator.load(str(catalog))
+
+    if qt_loaded:
+        app.installTranslator(qt_translator)
+    if app_loaded:
+        app.installTranslator(app_translator)
+
+    return qt_loaded or app_loaded
 
 @cli.command()
 def main(
@@ -140,6 +172,17 @@ def main(
     apply_theme(app, app_settings)
     app_settings.settingsChanged.connect(lambda: apply_theme(app, app_settings))
     
+    languages = find_installed_languages()
+    if len(languages) > 0:
+        lang_code = app_settings.settings.lang
+
+        if load_language(app, lang_code, languages):
+            logger.info(
+                "Successfully loaded translation for language: %s",
+                lang_code,
+            )
+    else:
+        logger.info("No translations found, using default language (English)")
 
     otus = OtusApp(app_settings, url)
     otus.start()
