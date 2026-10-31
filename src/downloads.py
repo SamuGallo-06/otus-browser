@@ -6,7 +6,6 @@ import logging
 from datetime import datetime
 from functools import partial
 from typing import Callable
-from gettext import gettext as gtr
 
 from profiles import OtusProfile
 from settings import *
@@ -72,12 +71,12 @@ class DownloadManager(QObject):
                 self.save()
                 return self.__download_history
         except FileNotFoundError:
-            log.info(gtr("No download history file found, starting with an empty history."))
+            log.info("No download history file found, starting with an empty history.")
             self.__download_history = []
             self.save()
             return []
         except Exception as e:
-            log.error(gtr("Failed to load download history: {error}").format(error=str(e)))
+            log.error("Failed to load download history: {error}".format(error=str(e)))
             self.__download_history = []
             self.save()
             return []
@@ -92,7 +91,7 @@ class DownloadManager(QObject):
             with open(json_file, "w", encoding="utf-8") as f:
                 json.dump(downloads_data, f, ensure_ascii=False, indent=4)
         except Exception as e:
-            log.error(gtr("Failed to save download history: {error}").format(error=str(e)))
+            log.error("Failed to save download history: {error}".format(error=str(e)))
             
     def register(self, request: QWebEngineDownloadRequest):
         existing = self.__registered_requests.get(request)

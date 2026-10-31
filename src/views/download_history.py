@@ -1,7 +1,6 @@
 import subprocess
 import platform
 import os
-from gettext import gettext as gtr
 
 from PySide6.QtWidgets import QBoxLayout, QWidget
 from PySide6.QtCore import Qt, Signal
@@ -30,9 +29,7 @@ class DownloadHistoryView(QWidget):
             self.download_manager = download_manager
         self.download_list = self.download_manager.load() if download_manager else []
         print(
-            gtr("DownloadHistoryView initialized with {count} downloads.").format(
-                count=len(self.download_list)
-            )
+            f"DownloadHistoryView initialized with {len(self.download_list)} downloads."
         )
         layout = self.ui.scrollAreaWidgetContents.layout()
         if not isinstance(layout, QBoxLayout):
@@ -49,7 +46,7 @@ class DownloadHistoryView(QWidget):
         self.clear_layout()
         
         if self.downloads_layout is None:
-            print(gtr("Error: downloads_layout is None. Cannot add download items."))
+            print("Error: downloads_layout is None. Cannot add download items.")
             return
                  
         placeholder = self.downloads_layout.takeAt(0)
@@ -61,9 +58,8 @@ class DownloadHistoryView(QWidget):
         
         for download in self.download_list:
             print(
-                gtr(
-                    "Adding download to history view: {filename}, status: {status}"
-                ).format(filename=download.filename, status=download.status)
+                f"Adding download to history view: {download.filename}, "
+                f"status: {download.status}"
             )
             element = DownloadViewItem(download)
             element.deleteRequested.connect(self.remove_download)
@@ -78,7 +74,7 @@ class DownloadHistoryView(QWidget):
             
     def clear_layout(self):
         if(self.downloads_layout is None):
-            print(gtr("Error: No layout found to clear."))
+            print("Error: No layout found to clear.")
             return
         while self.downloads_layout.count():
             item = self.downloads_layout.takeAt(0)          # detach the item from the layout
@@ -91,14 +87,12 @@ class DownloadHistoryView(QWidget):
                
     def remove_download(self, download: Download):
         print(
-            gtr("Removing download from history view: {filename}").format(
-                filename=download.filename
-            )
+            f"Removing download from history view: {download.filename}"
         )
         self.download_manager.remove(download, self.refresh_view)
         
     def clear_history(self):
-        print(gtr("Clearing download history."))
+        print("Clearing download history.")
         self.download_manager.clear_history(self.refresh_view)
         
     def onSearchTextChanged(self, text: str):

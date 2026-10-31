@@ -4,7 +4,6 @@
 import configparser
 import logging
 import re
-from gettext import gettext as gtr
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any, ClassVar, Generic, Protocol, TypeVar
@@ -38,7 +37,7 @@ class AppSettings:
     def __post_init__(self) -> None:
         normalized = self.theme.strip().lower()
         if normalized not in AVAILABLE_THEMES:
-            logger.warning(gtr("Unknown theme %r, using dark"), self.theme)
+            logger.warning("Unknown theme %r, using dark", self.theme)
             self.theme = "dark"
         else:
             self.theme = normalized
@@ -95,7 +94,7 @@ class SettingsManager(QObject, Generic[T]):
     def serialize(self, obj: T | None = None) -> None:
         if self._closed:
             logger.warning(
-                gtr("Cannot serialize closed settings manager: %s"),
+                "Cannot serialize closed settings manager: %s",
                 self.config_path,
             )
             return
@@ -123,7 +122,7 @@ class SettingsManager(QObject, Generic[T]):
             config.read(self.config_path, encoding="utf-8")
         except configparser.Error:
             logger.warning(
-                gtr("Corrupted settings file, backing it up and using defaults")
+                "Corrupted settings file, backing it up and using defaults"
             )
             self.config_path.replace(self.config_path.with_suffix(".ini.bak"))
             return defaults
@@ -140,7 +139,7 @@ class SettingsManager(QObject, Generic[T]):
                 )
             except ValueError:
                 logger.warning(
-                    gtr("Invalid value for %s.%s, using default"),
+                    "Invalid value for %s.%s, using default",
                     section,
                     setting.name,
                 )
@@ -149,7 +148,7 @@ class SettingsManager(QObject, Generic[T]):
     def update(self, new_settings: T) -> None:
         if self._closed:
             logger.warning(
-                gtr("Cannot update closed settings manager: %s"),
+                "Cannot update closed settings manager: %s",
                 self.config_path,
             )
             return

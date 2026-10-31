@@ -4,7 +4,6 @@ import secrets, shutil, bcrypt
 from pathlib import Path
 import logging
 from dataclasses import dataclass
-from gettext import gettext as gtr
 
 from settings import *
 from pygocryptfs import *
@@ -124,14 +123,14 @@ def createProfile(profile_name: str, password: str | None = None) -> str:
         add_profile_to_registry(uid, profile_name, auth)
     except Exception:
         log.error(
-            gtr("An error occurred while adding the profile to the registry. Cleaning up...")
+            "An error occurred while adding the profile to the registry. Cleaning up..."
         )
         shutil.rmtree(profile_path, ignore_errors=True)
         raise
 
     if password:
-        log.info(gtr("Setting profile password..."))
-        log.info(gtr("Encrypting Profile..."))
+        log.info("Setting profile password...")
+        log.info("Encrypting Profile...")
         try:
             gfs = PyGocryptfs()
             conf = KEYS_DIR / f"{uid}.conf"
@@ -139,7 +138,7 @@ def createProfile(profile_name: str, password: str | None = None) -> str:
             gfs.setup(conf, password, cipher)
         except GocryptfsError:
             log.error(
-                gtr("An error occurred while encrypting the profile. Cleaning up...")
+                "An error occurred while encrypting the profile. Cleaning up..."
             )
             shutil.rmtree(profile_path, ignore_errors=True)
             raise

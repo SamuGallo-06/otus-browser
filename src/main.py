@@ -10,7 +10,6 @@ from PySide6.QtGui import QGuiApplication, QIcon
 
 #Python Modules
 import sys, logging
-from gettext import gettext as gtr
 from datetime import datetime
 from pathlib import Path
 import typer
@@ -45,8 +44,8 @@ def setupLogger():
     logdir.mkdir(parents=True, exist_ok=True)
     
     logging.basicConfig(filename=logdir / f"otus-{clock}.log", level=logging.INFO)
-    logger.info(gtr("-----------------------| Welcome to Otus Browser |-----------------------"))
-    logger.info(gtr("Date and Time: {datetime}").format(datetime=dt))
+    logger.info("-----------------------| Welcome to Otus Browser |-----------------------")
+    logger.info("Date and Time: {datetime}".format(datetime=dt))
 
 
 class OtusApp:
@@ -63,7 +62,7 @@ class OtusApp:
             self.login.profileSelected.connect(self.openMainWindow)
             self.login.show()
         else:
-            logger.info(gtr("Skipped profile selection"))
+            logger.info("Skipped profile selection")
             default_profile = self.app_settings.settings.default_profile
             profile = get_profile_by_id(default_profile)
             if profile is None:
@@ -74,7 +73,7 @@ class OtusApp:
             self.openMainWindow(profile)
 
     def openMainWindow(self, profile: OtusProfile):
-        logger.info(gtr("Opening main window"))
+        logger.info("Opening main window")
         self.profile_settings = SettingsManager(
             profile.storage_path / "settings.ini",
             ProfileSettings,
@@ -94,7 +93,7 @@ class OtusApp:
             self.login = None
             
     def exitApplication(self):
-        logger.info(gtr("Exiting application"))
+        logger.info("Exiting application")
         if self.main_window is not None:
             self.main_window.close()
             self.main_window.deleteLater()
@@ -112,11 +111,11 @@ class OtusApp:
     def _unmountProfile(self, profile: OtusProfile):
         try:
             PyGocryptfs().unmount(profile.mountpoint) #type: ignore
-            logger.info(gtr("Unmounted encrypted profile: %s"), profile.uid)
+            logger.info("Unmounted encrypted profile: %s", profile.uid)
             profile.mountpoint = None
             self.profile_settings = None
         except GocryptfsError:
-            logger.exception(gtr("Unable to unmount encrypted profile: %s"), profile.uid)
+            logger.exception("Unable to unmount encrypted profile: %s", profile.uid)
             
 def apply_theme(app: QApplication, manager: SettingsManager[AppSettings]) -> None:
     scheme = settings.AVAILABLE_THEMES.get(
@@ -158,7 +157,7 @@ def load_language(app: QCoreApplication, code: str, langs: dict[str, Path]) -> b
 
 @cli.command()
 def main(
-    url: str | None = typer.Argument(None, help=gtr("")),
+    url: str | None = typer.Argument(None, help=""),
 ):
     setupLogger()
     

@@ -7,7 +7,6 @@ from PySide6.QtCore import QByteArray, QFile, QIODevice, QLocale, QStandardPaths
 from PySide6.QtGui import QColor, QGuiApplication, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 import logging
-from gettext import gettext as gtr
 
 from settings import LANGUAGES_PATH
 
@@ -107,7 +106,7 @@ def get_download_path(profile_settings: "SettingsManager[ProfileSettings]") -> P
         if custom.is_dir():
             return custom
         logger.warning(
-            gtr("Configured download directory does not exist: %s"), custom
+            "Configured download directory does not exist: %s", custom
         )
 
     location = QStandardPaths.writableLocation(
