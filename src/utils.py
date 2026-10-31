@@ -190,22 +190,52 @@ def from_str(value: str, default: Any) -> Any:
     # Plain strings
     return value.strip()
 
-def discover_languages() -> dict[str, str]:
-    """Return {locale_key: display_name} for every valid language folder."""
-    # The source strings are English, so English is always available (no file needed)
+def normalize_language_code(code: str) -> str:
+    """Return a canonical language code such as ``it_IT``."""
+    parts = code.strip().replace("-", "_").split("_", 1)
+    language = parts[0].lower()
+    if not language:
+        return ""
+    return (
+        f"{language}_{parts[1].upper()}"
+        if len(parts) == 2 and parts[1]
+        else language
+    )
+
+
+def language_candidates(code: str) -> list[str]:
+    """Return language fallbacks from most specific to English."""
+    normalized = normalize_language_code(code)
+    candidates = [normalized] if normalized else []
+    if "_" in normalized:
+        candidates.append(normalized.split("_", 1)[0])
+    if "en" not in candidates:
+        candidates.append("en")
+    return candidates
+
+
+def discover_languages(base: Path = LANGUAGES_PATH) -> dict[str, str]:
+    """Return {locale_key: display_name} for installed translations."""
+    # English is the source language, so it is always available without a catalog.
     languages = {"en_US": "English"}
+    for code in find_installed_languages(base):
+        locale = QLocale(code)
+        languages[code] = locale.nativeLanguageName().capitalize()
 
-    if not LANGUAGES_PATH.is_dir():       # iterdir() would raise if the folder is missing
-        return languages
+    return languages
 
-    for entry in sorted(LANGUAGES_PATH.iterdir()):
-        if not entry.is_dir() or not (entry / "otus.qm").is_file():
+def find_installed_languages(base: Path = LANGUAGES_PATH) -> dict[str, Path]:
+    """Return {lang_code: dir} for every installed application translation."""
+    if not base.is_dir():
+        return {}
+
+    languages: dict[str, Path] = {}
+    for directory in sorted(base.iterdir()):
+        if not directory.is_dir():
             continue
-
-        locale = QLocale(entry.name)
-        if locale.language() == QLocale.Language.C:   # folder name is not a valid locale
+        code = normalize_language_code(directory.name)
+        if not code or QLocale(code).language() == QLocale.Language.C:
             continue
-
-        languages[entry.name] = locale.nativeLanguageName().capitalize()
-
+        if (directory / f"otus_browser_{directory.name}.qm").is_file():
+            languages.setdefault(code, directory)
     return languages
