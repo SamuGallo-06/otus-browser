@@ -47,16 +47,19 @@ class ProfileCreatorWizard(QWizard):
 
         if page == PAGE_NAME:
             if not self.profileName():
-                return self._warn("Enter a name for the profile.")
+                return self._warn(self.tr("Enter a name for the profile."))
             # TODO: controlla che non esista già un profilo con questo nome
 
         elif page == PAGE_PASSWORD:
             password = self.ui.passwordField.text()
             if len(password) < MIN_PASSWORD_LENGTH:
                 return self._warn(
-                    f"The password must be at least {MIN_PASSWORD_LENGTH} characters long.")
+                    self.tr(
+                        "The password must be at least {length} characters long."
+                    ).format(length=MIN_PASSWORD_LENGTH)
+                )
             if password != self.ui.passwordCheckField.text():
-                return self._warn("The two passwords do not match.")
+                return self._warn(self.tr("The two passwords do not match."))
 
         return True
 
@@ -89,7 +92,7 @@ class ProfileCreatorWizard(QWizard):
         self._busy = False
         self._setNavigationEnabled(True)
         if self._created_profile_id is None:
-            self.creationFailed("The profile ID was not generated.")
+            self.creationFailed(self.tr("The profile ID was not generated."))
             return
 
         self.profileCreated.emit(self._created_profile_id)
@@ -98,7 +101,9 @@ class ProfileCreatorWizard(QWizard):
     def creationFailed(self, message: str):
         self._busy = False
         self._setNavigationEnabled(True)
-        self._warn(f"The profile could not be created.\n\n{message}")
+        self._warn(self.tr("The profile could not be created.\n\n{message}").format(
+            message=message
+        ))
         self.back()
 
     # ------------------------------------------------------------------
@@ -126,7 +131,7 @@ class ProfileCreatorWizard(QWizard):
         return self.ui.profileNameField.text().strip()
 
     def _warn(self, text: str) -> bool:
-        QMessageBox.warning(self, "Profile Creator", text)
+        QMessageBox.warning(self, self.tr("Profile Creator"), text)
         return False
 
     def _setNavigationEnabled(self, enabled: bool):

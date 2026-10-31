@@ -67,10 +67,16 @@ class ProfileSelectionWidget(QWidget):
         
         if not check_password(profile, password):
             logger.warning("Incorrect password for profile: %s", profile_name)
-            QMessageBox.warning(self, "Incorrect Password", "The password you entered is incorrect. Please try again.")
+            QMessageBox.warning(
+                self,
+                self.tr("Incorrect Password"),
+                self.tr("The password you entered is incorrect. Please try again."),
+            )
             self.ui.passwordField.clear()
             self.ui.passwordField.setFocus()
-            self.ui.passwordField.setPlaceholderText("Incorrect password. Try again.")
+            self.ui.passwordField.setPlaceholderText(
+                self.tr("Incorrect password. Try again.")
+            )
             return
         
         logger.info("Profile selected: %s", profile_name)
@@ -90,23 +96,32 @@ class ProfileSelectionWidget(QWidget):
             logger.error("Gocryptfs is not installed or missing dependencies. Please install it and try again.")
             QMessageBox.critical(
                 self,
-                "Fatal Error",
-                "Gocryptfs is not installed or missing dependencies. Please install it and try again.\nDetais: {error}".format(error=str(e)),
+                self.tr("Fatal Error"),
+                self.tr(
+                    "Gocryptfs is not installed or missing dependencies. "
+                    "Please install it and try again.\nDetails: {error}"
+                ).format(error=str(e)),
             )
             return
         except GocryptfsError as e:
             QMessageBox.critical(
                 self,
-                "Fatal Error",
-                "Unable to decrypt the profile. Please check your password and try again.\nDetails: {error}".format(error=str(e)),
+                self.tr("Fatal Error"),
+                self.tr(
+                    "Unable to decrypt the profile. Please check your password "
+                    "and try again.\nDetails: {error}"
+                ).format(error=str(e)),
             )
             return
         except Exception as e:
             logger.error("An unexpected error occurred while decrypting the profile: %s", str(e))
             QMessageBox.critical(
                 self,
-                "Fatal Error",
-                "An unexpected error occurred while decrypting the profile. Please try again.",
+                self.tr("Fatal Error"),
+                self.tr(
+                    "An unexpected error occurred while decrypting the profile. "
+                    "Please try again."
+                ),
             )
             return
         

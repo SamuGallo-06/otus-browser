@@ -108,7 +108,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setupActions(self):
         # Address Bar
         self.urlBar = QLineEdit()
-        self.urlBar.setPlaceholderText("Search or enter address")
+        self.urlBar.setPlaceholderText(self.tr("Search or enter address"))
         self.urlBar.setClearButtonEnabled(True)
         self.urlBar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.toolBar.insertWidget(self.actionSilentwing, self.urlBar)
@@ -187,8 +187,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 logger.error("Failed to restore previous session: {err}".format(err=e))
                 QMessageBox.critical(
                     self,
-                    "Error",
-                    "Failed to restore previous session. A new session will be started.",
+                    self.tr("Error"),
+                    self.tr(
+                        "Failed to restore previous session. A new session will be started."
+                    ),
                     QMessageBox.StandardButton.Ok
                 )
         elif self.profile_settings.settings.use_startup_pages:
@@ -222,7 +224,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.context.set_silent_wing_enabled(enabled)
         logger.info("SilentWing %s", "enabled" if enabled else "disabled")
         self.statusBar().showMessage(
-            f"SilentWing {'on' if enabled else 'off'}",
+            self.tr("SilentWing {state}").format(
+                state=self.tr("on") if enabled else self.tr("off")
+            ),
             5000,
         )
         if view := self.current_view():
@@ -233,12 +237,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSilentwing.setChecked(enabled)
         self.actionSilentwing.blockSignals(False)
         self.actionSilentwing.setToolTip(
-            f"Silent Wing ({'on' if enabled else 'off'}) - "
-            f"{self.context.total_blocked_count} blocked"
+            self.tr("Silent Wing ({state}) - {count} blocked").format(
+                state=self.tr("on") if enabled else self.tr("off"),
+                count=self.context.total_blocked_count,
+            )
         )
 
     def _update_tracker_count(self, count: int) -> None:
-        self.tracker_count_label.setText(f"Blocked trackers: {count}")
+        self.tracker_count_label.setText(
+            self.tr("Blocked trackers: {count}").format(count=count)
+        )
         self._sync_silent_wing_action(self.silent_wing_policy.enabled)
 
     def _update_tracker_visibility(self) -> None:
@@ -340,22 +348,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def on_load_started(self, view: OtusWebView):
         logger.debug("Started loading page: %s", view.url().toString())
-        self.statusbar.showMessage("Loading page {pageUrl}".format(pageUrl=view.url()))
+        self.statusbar.showMessage(
+            self.tr("Loading page {pageUrl}").format(pageUrl=view.url())
+        )
         
     def on_load_progress(self, view: OtusWebView, progress):
-        self.statusbar.showMessage("Loading({progress}%)...".format(progress=progress))
+        self.statusbar.showMessage(
+            self.tr("Loading({progress}%)...").format(progress=progress)
+        )
 
     def on_load_finished(self, view: OtusWebView, ok):
         url = view.url().toString()
         title = view.title()
-        self.setWindowTitle("{title} - Otus Browser".format(title=title or url))
+        self.setWindowTitle(
+            self.tr("{title} - Otus Browser").format(title=title or url)
+        )
         if ok and view.url().scheme() in ("http", "https"):
             self.history.add_visit(url, title or url)
             logger.debug("Page loaded successfully: {pageUrl}".format(pageUrl=url))
-            self.statusbar.showMessage("Loaded \"{pageName}\"".format(pageName=title), 5000)       
+            self.statusbar.showMessage(
+                self.tr('Loaded "{pageName}"').format(pageName=title), 5000
+            )
         else:
             logger.error("Failed to load page: {pageUrl}".format(pageUrl=url))
-            self.statusbar.showMessage("Failed to load page {pageUrl}".format(pageUrl=url))
+            self.statusbar.showMessage(
+                self.tr("Failed to load page {pageUrl}").format(pageUrl=url)
+            )
             
         self.check_bookmark()  
 
@@ -367,7 +385,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             exit_code,
         )
         self.statusbar.showMessage(
-            "Il processo di rendering della pagina è terminato. Ricarica la pagina."
+            self.tr(
+                "Il processo di rendering della pagina è terminato. Ricarica la pagina."
+            )
         )
                
     # Web page navigation events
@@ -404,17 +424,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dw_host = request.url().host() or "(unknown host)"
         logger.debug("Download requested")
 
-        self.statusbar.showMessage(f"Download requested: {dw_name}", 5000)
+        self.statusbar.showMessage(
+            self.tr("Download requested: {filename}").format(filename=dw_name),
+            5000,
+        )
 
         # Downloa Requested
         if Path(dw_name).suffix.lower() in RISKY_DOWNLOAD_EXTENSIONS:
             box = QMessageBox(
                 QMessageBox.Icon.Warning,
-                "Suspicious Download",
-                "File «{dw_name}» is a potentially risky file. (such as an executable or script)\n"
-                "Source: {dw_host}\n\n"
-                "Downloading and executing files from the internet can be dangerous. "
-                "Do you want to download it anyway?".format(dw_name=dw_name, dw_host=dw_host),
+                self.tr("Suspicious Download"),
+                self.tr(
+                    "File «{dw_name}» is a potentially risky file. "
+                    "(such as an executable or script)\n"
+                    "Source: {dw_host}\n\n"
+                    "Downloading and executing files from the internet can be dangerous. "
+                    "Do you want to download it anyway?"
+                ).format(dw_name=dw_name, dw_host=dw_host),
                 parent=self,
             )
             box.setTextFormat(Qt.TextFormat.PlainText)
@@ -435,7 +461,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.profile_settings.settings.ask_for_download_path:
             suggested = str(get_download_path(self.profile_settings) / name)
             path, _ = QFileDialog.getSaveFileName(
-                self, "Save download as", suggested, "All files (*)",
+                self, self.tr("Save download as"), suggested, self.tr("All files (*)"),
             )
             if not path:
                 self.cancelDownload(request)  # user dismissed the dialog
@@ -477,9 +503,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         filePath = QFileDialog.getOpenFileName(
             self,
-            "Open File",
+            self.tr("Open File"),
             str(Path.home()),
-            f"Supported files ({', '.join(SUPPORTED_OPEN_FILE_EXTENSIONS)});;All files (*)"
+            self.tr("Supported files ({extensions});;All files (*)").format(
+                extensions=", ".join(SUPPORTED_OPEN_FILE_EXTENSIONS)
+            ),
         )[0]
         
         path = f"file://{filePath.replace(" ","%20")}"
@@ -491,9 +519,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not Path(filePath).suffix.lower() in SUPPORTED_OPEN_FILE_EXTENSIONS:
             QMessageBox.warning(
                 self,
-                "Unsupported file type",
-                f"The selected file type is not supported for viewing in the browser.\n\n"
-                f"Supported file types: {', '.join(SUPPORTED_OPEN_FILE_EXTENSIONS)}",
+                self.tr("Unsupported file type"),
+                self.tr(
+                    "The selected file type is not supported for viewing in the browser.\n\n"
+                    "Supported file types: {extensions}"
+                ).format(extensions=", ".join(SUPPORTED_OPEN_FILE_EXTENSIONS)),
                 QMessageBox.StandardButton.Ok
             )
             return
@@ -511,7 +541,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
 
         path, selected_filter = QFileDialog.getSaveFileName(
-            self, "Save page as", start, ";;".join(SAVE_FORMATS)
+            self,
+            self.tr("Save page as"),
+            start,
+            ";;".join(SAVE_FORMATS),
         )
         if not path:
             return
@@ -561,8 +594,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if get_app_settings().settings.always_ask_before_exit:
             box = QMessageBox(
                 QMessageBox.Icon.Question,
-                "Exit Confirmation",
-                "Are you sure you want to exit the browser?",
+                self.tr("Exit Confirmation"),
+                self.tr("Are you sure you want to exit the browser?"),
                 parent=self,
             )
             box.setStandardButtons(
@@ -593,16 +626,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 logger.error("Failed to save previous session: %s", e)
                 QMessageBox.critical(
                     self,
-                    "Error",
-                    "Failed to save previous session. Changes will not be saved.",
+                    self.tr("Error"),
+                    self.tr(
+                        "Failed to save previous session. Changes will not be saved."
+                    ),
                     QMessageBox.StandardButton.Ok
                 )
             
         # Downloads are shared by every window of the profile: only ask when closing the last one
         if self._is_last_window_of_profile() and self.downloads.active_downloads():
             answer = QMessageBox.question(
-                self, "Downloads in progress",
-                "Some downloads are still running. Quit and cancel them?",
+                self,
+                self.tr("Downloads in progress"),
+                self.tr("Some downloads are still running. Quit and cancel them?"),
             )
             if answer != QMessageBox.StandardButton.Yes:
                 event.ignore()  # keeps the window open
@@ -659,11 +695,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def toggleFullscreen(self):
         if self.isFullScreen():
             self.showNormal()
-            self.actionToggle_Fullscreen.setText("Enter Fullscreen")
+            self.actionToggle_Fullscreen.setText(self.tr("Enter Fullscreen"))
             self.actionToggle_Fullscreen.setIcon(QIcon(FEATHER_ICON_PACK + "maximize.svg"))
         else:
             self.showFullScreen()
-            self.actionToggle_Fullscreen.setText("Exit Fullscreen")
+            self.actionToggle_Fullscreen.setText(self.tr("Exit Fullscreen"))
             self.actionToggle_Fullscreen.setIcon(QIcon(FEATHER_ICON_PACK + "minimize.svg"))
 
     ######################################
@@ -705,10 +741,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if view is not None:
             url = view.url().toString()
             if(self.bookmarks.has_bookmark(url)):
-                self.actionAdd_Bookmark.setText("Remove Bookmark")
+                self.actionAdd_Bookmark.setText(self.tr("Remove Bookmark"))
                 self.actionAdd_Bookmark.triggered.connect(self.remove_bookmark)
             else:
-                self.actionAdd_Bookmark.setText("Add Bookmark")
+                self.actionAdd_Bookmark.setText(self.tr("Add Bookmark"))
                 self.actionAdd_Bookmark.triggered.connect(self.add_bookmark) 
             
     def __rebuild_bookmarks_menu(self):

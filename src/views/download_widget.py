@@ -20,7 +20,11 @@ class DownloadWidget(QWidget):
         # PlainText: un QLabel interpreta HTML, e il nome file è input non fidato
         self.ui.headerLabel.setTextFormat(Qt.TextFormat.PlainText)
         self.ui.headerLabel.setText(
-            f"Downloading: {download.filename} from {QUrl(download.source).host()}")
+            self.tr("Downloading: {filename} from {host}").format(
+                filename=download.filename,
+                host=QUrl(download.source).host(),
+            )
+        )
         self.ui.progressBar.setValue(0)
 
         self._clock = QElapsedTimer(); self._clock.start()
@@ -53,17 +57,25 @@ class DownloadWidget(QWidget):
             eta = None
 
         self.ui.detailsLabel.setText(
-            f"Downloaded {human(received)} / {human(total) if total > 0 else '?'}\n"
-            f"Transfer rate: {human(self._speed)}/s\n"
-            f"Estimated time left: {fmt_eta(eta)}")
+            self.tr(
+                "Downloaded {received} / {total}\n"
+                "Transfer rate: {rate}/s\n"
+                "Estimated time left: {eta}"
+            ).format(
+                received=human(received),
+                total=human(total) if total > 0 else "?",
+                rate=human(self._speed),
+                eta=fmt_eta(eta),
+            )
+        )
         
     def togglePause(self):
         if self.download.paused:
             self.download_manager.resume(self.download)
-            self.ui.pauseDownloadButton.setText("Pause")
+            self.ui.pauseDownloadButton.setText(self.tr("Pause"))
         else:
             self.download_manager.pause(self.download)
-            self.ui.pauseDownloadButton.setText("Resume")
+            self.ui.pauseDownloadButton.setText(self.tr("Resume"))
 
     def openFolder(self):
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.download.filepath.parent)))
@@ -74,8 +86,8 @@ class DownloadWidget(QWidget):
         else:
             result = QMessageBox.warning(
                 self,
-                "Cancel download", 
-                "Are you sure you want to cancel the download?",
+                self.tr("Cancel download"),
+                self.tr("Are you sure you want to cancel the download?"),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )
@@ -87,12 +99,12 @@ class DownloadWidget(QWidget):
         if self.download.status == "DownloadCompleted":
             self.ui.progressBar.setRange(0, 100)
             self.ui.progressBar.setValue(100)
-            self.ui.detailsLabel.setText("Download completed")
+            self.ui.detailsLabel.setText(self.tr("Download completed"))
         elif self.download.status == "DownloadCancelled":
-            self.ui.detailsLabel.setText("Download canceled")
+            self.ui.detailsLabel.setText(self.tr("Download canceled"))
             self.close()
         elif self.download.status == "DownloadInterrupted":
-            self.ui.detailsLabel.setText("Download interrupted")
+            self.ui.detailsLabel.setText(self.tr("Download interrupted"))
         else:
             return                       # DownloadInProgress / Requested
         self.ui.pauseDownloadButton.setEnabled(False)
@@ -107,6 +119,6 @@ class DownloadWidget(QWidget):
             "DownloadCompleted", "DownloadCancelled", "DownloadInterrupted"
         }:
             self.ui.pauseDownloadButton.setText(
-                "Resume" if download.paused else "Pause"
+                self.tr("Resume") if download.paused else self.tr("Pause")
             )
         self.onStateChanged()

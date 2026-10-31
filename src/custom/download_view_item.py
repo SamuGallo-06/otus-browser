@@ -30,9 +30,11 @@ class DownloadViewItem(QWidget):
         self.__title_label.setStyleSheet("QLabel { font-style: bold; }")
         self.__title_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 
-        self.__source_label = ElidedLabel(self.download.source or "unknown")
+        self.__source_label = ElidedLabel(
+            self.download.source or self.tr("unknown")
+        )
         self.__details_label = QLabel(
-            "Total Size: {size} · Created at: {time}".format(
+            self.tr("Total Size: {size} · Created at: {time}").format(
                 size=human(self.download.total_bytes),
                 time=fmt_time(self.download.timestamp),
             )
@@ -57,49 +59,57 @@ class DownloadViewItem(QWidget):
             self.__update_progress()
             self._layout.addWidget(self.__pbar)
         elif(self.download.status == "DownloadCanceled"):
-            self.__statusLabel = QLabel(" Status: Canceled")
+            self.__statusLabel = QLabel(self.tr(" Status: Canceled"))
             self._layout.addWidget(self.__statusLabel)
         elif(self.download.status == "DownloadCompleted"):
-            self.__statusLabel = QLabel(" Status: Completed")
+            self.__statusLabel = QLabel(self.tr(" Status: Completed"))
             self._layout.addWidget(self.__statusLabel)
             if(not Path(self.download.filepath).exists()):
-                self.__statusLabel.setText(" File has been moved or deleted.")
+                self.__statusLabel.setText(
+                    self.tr(" File has been moved or deleted.")
+                )
                 self.__statusLabel.setStyleSheet("font-style: italic;")
         elif(self.download.status == "DownloadInterrupted"):
-            self.__statusLabel = QLabel(" Status: Failed")
+            self.__statusLabel = QLabel(self.tr(" Status: Failed"))
             self.__statusLabel.setStyleSheet("font-style: italic; color: red;")
             self._layout.addWidget(self.__statusLabel)
             
     def define_buttons(self):
         self.__delete_button = QPushButton("", self)
         self.__delete_button.setIcon(self.style().standardIcon(getattr(QStyle, "SP_TrashIcon")))
-        self.__delete_button.setToolTip("Delete this download from history")
+        self.__delete_button.setToolTip(
+            self.tr("Delete this download from history")
+        )
         self.__delete_button.clicked.connect(
             partial(self.deleteRequested.emit, self.download)
         )
         self._layout.addWidget(self.__delete_button, alignment=Qt.AlignmentFlag.AlignRight)
         
-        self.__copy_source_button = QPushButton("Copy Source", self)
-        self.__copy_source_button.setToolTip("Copy the source URL to the clipboard")
+        self.__copy_source_button = QPushButton(self.tr("Copy Source"), self)
+        self.__copy_source_button.setToolTip(
+            self.tr("Copy the source URL to the clipboard")
+        )
         self.__copy_source_button.clicked.connect(
             partial(self.copySourceUrlRequested.emit, self.download)
         )
         self._layout.addWidget(self.__copy_source_button, alignment=Qt.AlignmentFlag.AlignRight)
 
         if self.download.status == "DownloadInProgress":
-            self.__pause_button = QPushButton("Pause", self)
+            self.__pause_button = QPushButton(self.tr("Pause"), self)
             self.__pause_button.clicked.connect(self.__toggle_pause)
             self._layout.addWidget(self.__pause_button, alignment=Qt.AlignmentFlag.AlignRight)
 
-            self.__cancel_button = QPushButton("Cancel", self)
+            self.__cancel_button = QPushButton(self.tr("Cancel"), self)
             self.__cancel_button.clicked.connect(
                 partial(self.cancelRequested.emit, self.download)
             )
             self._layout.addWidget(self.__cancel_button, alignment=Qt.AlignmentFlag.AlignRight)
         
         if(self.download.status == "DownloadCompleted" and Path(self.download.filepath).exists()):
-            self.__open_file_button = QPushButton("Open", self)
-            self.__open_file_button.setToolTip("Open this file with the default program")
+            self.__open_file_button = QPushButton(self.tr("Open"), self)
+            self.__open_file_button.setToolTip(
+                self.tr("Open this file with the default program")
+            )
             self.__open_file_button.clicked.connect(
                 lambda: open_file(self.download.filepath)
             )
@@ -131,5 +141,5 @@ class DownloadViewItem(QWidget):
             self.__update_progress()
         if hasattr(self, "_DownloadViewItem__pause_button"):
             self.__pause_button.setText(
-                "Resume" if download.paused else "Pause"
+                self.tr("Resume") if download.paused else self.tr("Pause")
             )

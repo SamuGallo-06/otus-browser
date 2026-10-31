@@ -84,8 +84,8 @@ class HistoryView(QWidget):
     def on_delete_since(self):
         result = QMessageBox.question(
             self,
-            "Delete Entire History",
-            "Delete the entire history? This cannot be undone."
+            self.tr("Delete Entire History"),
+            self.tr("Delete the entire history? This cannot be undone."),
         )
                 
         if result != QMessageBox.StandardButton.Yes:
@@ -100,8 +100,8 @@ class HistoryView(QWidget):
         
         result = QMessageBox.question(
             self,
-            "Delete Entire History",
-            "Delete the entire history? This cannot be undone."
+            self.tr("Delete Entire History"),
+            self.tr("Delete the entire history? This cannot be undone."),
         )
         
         if result != QMessageBox.StandardButton.Yes:
