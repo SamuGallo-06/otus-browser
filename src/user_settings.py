@@ -4,6 +4,7 @@
 import configparser
 import logging
 import re
+from gettext import gettext as gtr
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any, ClassVar, Generic, Protocol, TypeVar
@@ -37,7 +38,7 @@ class AppSettings:
     def __post_init__(self) -> None:
         normalized = self.theme.strip().lower()
         if normalized not in AVAILABLE_THEMES:
-            logger.warning("Unknown theme %r, using dark", self.theme)
+            logger.warning(gtr("Unknown theme %r, using dark"), self.theme)
             self.theme = "dark"
         else:
             self.theme = normalized
@@ -93,7 +94,10 @@ class SettingsManager(QObject, Generic[T]):
 
     def serialize(self, obj: T | None = None) -> None:
         if self._closed:
-            logger.warning("Cannot serialize closed settings manager: %s", self.config_path)
+            logger.warning(
+                gtr("Cannot serialize closed settings manager: %s"),
+                self.config_path,
+            )
             return
         obj = obj if obj is not None else self._settings
         config = configparser.ConfigParser(interpolation=None)
@@ -118,7 +122,9 @@ class SettingsManager(QObject, Generic[T]):
         try:
             config.read(self.config_path, encoding="utf-8")
         except configparser.Error:
-            logger.warning("Corrupted settings file, backing it up and using defaults")
+            logger.warning(
+                gtr("Corrupted settings file, backing it up and using defaults")
+            )
             self.config_path.replace(self.config_path.with_suffix(".ini.bak"))
             return defaults
 
@@ -134,7 +140,7 @@ class SettingsManager(QObject, Generic[T]):
                 )
             except ValueError:
                 logger.warning(
-                    "Invalid value for %s.%s, using default",
+                    gtr("Invalid value for %s.%s, using default"),
                     section,
                     setting.name,
                 )
@@ -142,7 +148,10 @@ class SettingsManager(QObject, Generic[T]):
 
     def update(self, new_settings: T) -> None:
         if self._closed:
-            logger.warning("Cannot update closed settings manager: %s", self.config_path)
+            logger.warning(
+                gtr("Cannot update closed settings manager: %s"),
+                self.config_path,
+            )
             return
         self.serialize(new_settings)
         self._settings = new_settings

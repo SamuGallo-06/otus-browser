@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QBoxLayout, QSizePolicy, QVBoxLayout, QWidget
 from PySide6.QtCore import Qt, Signal
+from gettext import gettext as gtr
 
 from bookmarks import Bookmark
 from custom.bookmark_view_item import BookmarkViewItem
@@ -31,7 +32,7 @@ class BookmarksLibraryView(QWidget):
         
     def clear_layout(self):
         if(self._layout is None):
-            print("Error: No layout found to clear.")
+            print(gtr("Error: No layout found to clear."))
             return
         while self._layout.count():
             item = self._layout.takeAt(0)          # detach the item from the layout
@@ -66,7 +67,7 @@ class BookmarksLibraryView(QWidget):
         self.edit_dialog.close()
 
     def on_delete_requested(self, b:Bookmark):
-        print(f"Delete requested for bookmark: {b.url}")
+        print(gtr("Delete requested for bookmark: {url}").format(url=b.url))
         self.delete_requested.emit(b)
         
         

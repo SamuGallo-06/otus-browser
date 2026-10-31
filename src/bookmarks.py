@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import json
 import logging
 import hashlib
+from gettext import gettext as gtr
 from pathlib import Path
 from PySide6.QtGui import QIcon
 
@@ -48,7 +49,7 @@ class BookmarkManager(QObject):
                 bookmarks_data = json.load(f)
                 return [Bookmark(**data) for data in bookmarks_data]
         except Exception as e:
-            logger.error("Failed to load bookmarks: %s", e)
+            logger.error(gtr("Failed to load bookmarks: %s"), e)
             return []
         
     def save_bookmarks(self):
@@ -57,7 +58,7 @@ class BookmarkManager(QObject):
                 json.dump([bookmark.__dict__ for bookmark in self.bookmarks], f, ensure_ascii=False, indent=4)
             self.reloadRequired.emit()
         except Exception as e:
-            logger.error("Failed to save bookmarks: %s", e)
+            logger.error(gtr("Failed to save bookmarks: %s"), e)
             
     def search(self, url: str) -> Bookmark | None:
         for b in self.bookmarks:
@@ -70,12 +71,15 @@ class BookmarkManager(QObject):
     
     def add_bookmark(self, bookmark: Bookmark):
         if not bookmark.url or not bookmark.title:
-            logger.error("Bookmark must have a URL and a title.")
+            logger.error(gtr("Bookmark must have a URL and a title."))
             return
         if any(b.url == bookmark.url for b in self.bookmarks):
-            logger.warning("Bookmark with URL '%s' already exists. Skipping addition.", bookmark.url)
+            logger.warning(
+                gtr("Bookmark with URL '%s' already exists. Skipping addition."),
+                bookmark.url,
+            )
             return
-        print(f"Adding bookmark: {bookmark}")
+        print(gtr("Adding bookmark: {bookmark}").format(bookmark=bookmark))
         self.bookmarks.append(bookmark)
         if self.persistent:
             self.save_bookmarks()
@@ -83,7 +87,7 @@ class BookmarkManager(QObject):
             self.reloadRequired.emit()
         
     def deleteBookmark(self, bookmark: Bookmark):
-        print(f"Deleting bookmark: {bookmark}")
+        print(gtr("Deleting bookmark: {bookmark}").format(bookmark=bookmark))
         self.bookmarks[:] = [b for b in self.bookmarks if b.url != bookmark.url]
         if self.persistent:
             self.save_bookmarks()

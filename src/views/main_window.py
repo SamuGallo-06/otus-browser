@@ -1,4 +1,5 @@
 import json
+from gettext import gettext as gtr
 
 from PySide6.QtWidgets import (
     QApplication, QFileDialog, QLabel, QLineEdit, QListWidgetItem, QMainWindow, QMenu, QSizePolicy, QTreeView, QVBoxLayout, QWidget, QMessageBox
@@ -72,13 +73,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             raise ValueError("profile_settings is required")
         self.profile_settings = profile_settings
         
-        logger.debug("Initializing MainWindow with profile: %s", self.profile_data.uid)
+        logger.debug(gtr("Initializing MainWindow with profile: %s"), self.profile_data.uid)
         self.setupUi(self)
         self.setupActions()
         
         # Set the size policy of the browser tab widget to expand and fill the available space
         self.browserTabWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) #This makes the browser view large as bog as the main window
-        logger.debug("Setting up profile: %s", self.profile_data.uid)
+        logger.debug(gtr("Setting up profile: %s"), self.profile_data.uid)
         # The web profile, ad blocker and library managers are shared by all the windows
         # that use the same profile, so they are owned by the ProfileContext, not by the window.
         self.context = ProfileContext.for_profile(
@@ -181,10 +182,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     if not open_tabs:
                         self.new_tab()
             except FileNotFoundError:
-                logger.info("No previous session found to restore.")
+                logger.info(gtr("No previous session found to restore."))
                 self.new_tab(self.profile_settings.settings.home_url)
             except Exception as e:
-                logger.error("Failed to restore previous session: {err}".format(err=e))
+                logger.error(gtr("Failed to restore previous session: {err}").format(err=e))
                 QMessageBox.critical(
                     self,
                     self.tr("Error"),
@@ -222,7 +223,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_silent_wing(self, enabled: bool) -> None:
         """Toggle SilentWing for the shared profile and reload the current tab."""
         self.context.set_silent_wing_enabled(enabled)
-        logger.info("SilentWing %s", "enabled" if enabled else "disabled")
+        logger.info(
+            gtr("SilentWing %s"), gtr("enabled") if enabled else gtr("disabled")
+        )
         self.statusBar().showMessage(
             self.tr("SilentWing {state}").format(
                 state=self.tr("on") if enabled else self.tr("off")
@@ -307,7 +310,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if url:
             view.load(QUrl(url))
             
-        logger.debug("New tab created with URL: {url}".format(url=(url if url else "None")))
+        logger.debug(
+            gtr("New tab created with URL: {url}").format(
+                url=(url if url else gtr("None"))
+            )
+        )
         
         return view
     
@@ -325,7 +332,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return None
 
     def on_url_changed(self, view, qurl):
-        logger.debug("URL changed in tab: %s", qurl.toString())
+        logger.debug(gtr("URL changed in tab: %s"), qurl.toString())
         if view is self.current_view():
             self.urlBar.setText(qurl.toString())
 
@@ -344,10 +351,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         view = self.current_view()
         if view:
             self.urlBar.setText(view.url().toString())
-            logger.debug("Tab changed to index %d with URL: %s", index, view.url().toString())
+            logger.debug(
+                gtr("Tab changed to index %d with URL: %s"),
+                index,
+                view.url().toString(),
+            )
 
     def on_load_started(self, view: OtusWebView):
-        logger.debug("Started loading page: %s", view.url().toString())
+        logger.debug(gtr("Started loading page: %s"), view.url().toString())
         self.statusbar.showMessage(
             self.tr("Loading page {pageUrl}").format(pageUrl=view.url())
         )
@@ -365,12 +376,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         if ok and view.url().scheme() in ("http", "https"):
             self.history.add_visit(url, title or url)
-            logger.debug("Page loaded successfully: {pageUrl}".format(pageUrl=url))
+            logger.debug(gtr("Page loaded successfully: {pageUrl}").format(pageUrl=url))
             self.statusbar.showMessage(
                 self.tr('Loaded "{pageName}"').format(pageName=title), 5000
             )
         else:
-            logger.error("Failed to load page: {pageUrl}".format(pageUrl=url))
+            logger.error(gtr("Failed to load page: {pageUrl}").format(pageUrl=url))
             self.statusbar.showMessage(
                 self.tr("Failed to load page {pageUrl}").format(pageUrl=url)
             )
@@ -379,7 +390,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def on_render_process_terminated(self, view, status, exit_code):
         logger.error(
-            "WebEngine render process terminated for %s: status=%s, exit_code=%s",
+            gtr("WebEngine render process terminated for %s: status=%s, exit_code=%s"),
             view.url().toString(),
             status,
             exit_code,
@@ -422,7 +433,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         dw_name = sanitize_filename(request.suggestedFileName())
         dw_host = request.url().host() or "(unknown host)"
-        logger.debug("Download requested")
+        logger.debug(gtr("Download requested"))
 
         self.statusbar.showMessage(
             self.tr("Download requested: {filename}").format(filename=dw_name),
@@ -477,12 +488,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         record = self.downloads.accept(request)
         widget = DownloadWidget(record, self.downloads, parent=self)
         widget.show()
-        logger.debug("Download accepted")
+        logger.debug(gtr("Download accepted"))
 
     def cancelDownload(self, request: QWebEngineDownloadRequest):
         request.cancel()
         
-        logger.debug("Download canceled")
+        logger.debug(gtr("Download canceled"))
 
     def pause_download(self, download: Download):
         self.downloads.pause(download)
@@ -499,7 +510,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     ######################################
     
     def openFile(self):
-        logger.debug("Open file action triggered")
+        logger.debug(gtr("Open file action triggered"))
 
         filePath = QFileDialog.getOpenFileName(
             self,
@@ -531,7 +542,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.openLinkInNewTab(url)
         
     def savePage(self):
-        logger.debug("Save page action triggered")
+        logger.debug(gtr("Save page action triggered"))
         view = self.current_view()
         if view is None:
             return
@@ -551,7 +562,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         view.page().save(path, SAVE_FORMATS[selected_filter])
 
     def newWindow(self):
-        logger.debug("New window action triggered")
+        logger.debug(gtr("New window action triggered"))
         new_window = MainWindow(
             profile=self.profile_data,
             profile_settings=self.profile_settings,
@@ -564,7 +575,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         new_window.show()
         
     def newNocturnalWindow(self):
-        logger.debug("New nocturnal window action triggered")
+        logger.debug(gtr("New nocturnal window action triggered"))
         nocturnal_profile = OtusProfile(uid="OtusNocturnal", name="OtusNocturnal")
         nocturnal_settings = SettingsManager(
             nocturnal_profile.storage_path / "settings.ini",
@@ -623,7 +634,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 with open(self.profile_data.storage_path / "previous_session.json", "w") as f:
                     json.dump(previousSession, f, indent=4)
             except Exception as e:
-                logger.error("Failed to save previous session: %s", e)
+                logger.error(gtr("Failed to save previous session: %s"), e)
                 QMessageBox.critical(
                     self,
                     self.tr("Error"),
@@ -781,11 +792,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.bookmarks_library.show()
         
     def on_bookmark_delete_requested(self, bookmark: Bookmark):
-        print(f"Bookmark delete requested for {bookmark}")
+        print(gtr("Bookmark delete requested for {bookmark}").format(bookmark=bookmark))
         self.bookmarks.deleteBookmark(bookmark)
 
     def on_bookmark_saved(self):
-        print("Bookmark saved.")
+        print(gtr("Bookmark saved."))
         self.bookmarks.save_bookmarks()
         
     def on_history(self):
