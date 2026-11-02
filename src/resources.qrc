@@ -295,5 +295,6 @@
     <file>resources/otus_shield.svg</file>
     <file>resources/otus-users.svg</file>
     <file>resources/otus_window.svg</file>
+    <file>resources/otus-pkg-default.png</file>
 </qresource>
 </RCC>   

@@ -1,3 +1,4 @@
+import logging
 import xml.etree.ElementTree as ET
 import tarfile
 from shutil import copy2
@@ -12,16 +13,19 @@ from PySide6.QtCore import QObject, Signal
 ## Base dir of a package is the manifest dir
 ## install dir is
 
+log = logging.getLogger(__name__)
+
 @dataclass
 class OtusPackage:
-    id:str
+    id: str
     type: str
-    name:str
-    version:str
+    name: str
+    version: str
     meta: dict[str, str]
     authors: list[str]
     description: str
     license: str
+    icon: str | None
     files: list[dict[str, str]] # {"source": src, "dest": dest}
     directories: list[dict[str, str]] # {"source": tar, "dest": directory}
 
@@ -39,6 +43,18 @@ class InstallError(Exception):
 
 class PackageNotFound(Exception):
     "Raised when a package is not found in the registry."
+    pass
+
+class PackageAlreadyInstalled(Exception):
+    "Raised when a package is already installed."
+    pass
+
+class PackageNotInstalled(Exception):
+    "Raised when a package is not installed."
+    pass
+
+class PackageTypeNotSupported(Exception):
+    "Raised when a package type is not supported."
     pass
 
 class PackageManager(QObject):
@@ -127,9 +143,23 @@ class PackageManager(QObject):
             description = manifest.get("Description"),  #type: ignore
             authors = authors,
             license = manifest.get("License"),          #type: ignore
+            icon = manifest.get("icon"),
             files = files,
             directories = directories,
         )
+
+        if pkg.icon is not None:
+            icon_path = Path(pkg.icon)
+            if (
+                not pkg.icon.strip()
+                or icon_path.is_absolute()
+                or icon_path.name != pkg.icon
+                or "\\" in pkg.icon
+                or ".." in icon_path.parts
+            ):
+                raise InvalidManifest(
+                    "Package icon must be a file in the package root"
+                )
         
         return pkg
 
@@ -156,6 +186,13 @@ class PackageManager(QObject):
             pkg = self.parse_manifest(manifest_path)
             package_source_dir = temp_dir_path
 
+            if pkg.icon is not None:
+                icon_source = package_source_dir / pkg.icon
+                if not icon_source.is_file():
+                    raise CorruptedPackage(
+                        f"Package icon not found: {pkg.icon}"
+                    )
+
             #3 Calculating target directory based on package type
             if pkg.type == "language":
                 pkg_dir = Path(LANGUAGES_PATH) / pkg.meta["lang_code"]
@@ -167,13 +204,34 @@ class PackageManager(QObject):
                 pkg_dir = Path(PACKAGES_PATH) / pkg.id
 
             #4 Computing total operations for progress tracking
-            count = len(pkg.files) + len(pkg.directories)
+            count = len(pkg.files) + len(pkg.directories) + (1 if pkg.icon else 0)
             total_ops = count + 2
             completed_ops = 1  # manifest già letto
 
             def emit_progress(message: str) -> None:
                 percentage = int((completed_ops / total_ops) * 100)
                 self.progressUpdated.emit(message, percentage)
+
+            installed_icon = None
+            if pkg.icon is not None:
+                pkg_dir.mkdir(parents=True, exist_ok=True)
+                installed_icon = pkg_dir / Path(pkg.icon).name
+                try:
+                    copy2(package_source_dir / pkg.icon, installed_icon)
+                except Exception as e:
+                    raise InstallError(
+                        f"Failed to copy package icon to {installed_icon}: {e}"
+                    )
+                completed_ops += 1
+                emit_progress(f"Installed package icon ({completed_ops - 1}/{count})")
+
+            pkg_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                copy2(manifest_path, pkg_dir / "manifest.otus")
+            except Exception as e:
+                raise InstallError(
+                    f"Failed to copy manifest to {pkg_dir / 'manifest.otus'}: {e}"
+                )
 
             #5 Copying files to the target directory
             for file in pkg.files:
@@ -211,6 +269,7 @@ class PackageManager(QObject):
 
         #7 Finalizing installation and updating the package registry
         self.progressUpdated.emit("Finalizing package...", 99)
+        pkg.icon = str(installed_icon) if installed_icon is not None else None
         self.update_registry(pkg, str(pkg_dir))
         completed_ops += 1
         self.progressUpdated.emit("Package installed", 100)
@@ -257,6 +316,9 @@ class PackageManager(QObject):
         package_elem.set("license", pkg.license)
         directory_elem = ET.SubElement(package_elem, "directory")
         directory_elem.text = dir
+        if pkg.icon is not None:
+            icon_elem = ET.SubElement(package_elem, "icon")
+            icon_elem.text = pkg.icon
 
         root.append(package_elem)
         tree.write(registry_path, encoding="utf-8", xml_declaration=True)
@@ -298,4 +360,52 @@ class PackageManager(QObject):
             path.rmdir()
         elif path.is_file():
             path.unlink()
-    
+
+    def get_installed_packages(self):
+
+        if not PACKAGE_REGISTRY.exists():
+            return []
+
+        tree = ET.parse(PACKAGE_REGISTRY)
+        root = tree.getroot()
+
+        invalids = 0
+
+        installed_packages = []
+        for package_elem in root.findall("Package"):
+            pkg_type = package_elem.attrib.get("type")
+            pkg_id = package_elem.attrib.get("id")
+            pkg_version = package_elem.attrib.get("version")
+            pkg_name = package_elem.attrib.get("name")
+            pkg_description = package_elem.attrib.get("description")
+            pkg_license = package_elem.attrib.get("license")
+            icon_elem = package_elem.find("icon")
+            pkg_icon = icon_elem.text if icon_elem is not None else None
+            pkg_meta = {k: v for k, v in package_elem.attrib.items() if k not in {"type", "id", "version", "name", "description", "license"}}
+            authors_elem = package_elem.find("Authors")
+            authors = [author_elem.text for author_elem in authors_elem.findall("Author") if author_elem.text is not None] if authors_elem is not None else []
+
+            if pkg_id is None or pkg_type is None or pkg_version is None or pkg_name is None or pkg_description is None or pkg_license is None or len(authors) == 0:
+                invalids += 1
+                continue
+
+            installed_packages.append(
+                OtusPackage(
+                    id=pkg_id,
+                    type=pkg_type,
+                    name=pkg_name,
+                    version=pkg_version,
+                    meta=pkg_meta,
+                    authors=authors,
+                    description=pkg_description,
+                    license=pkg_license,
+                    icon=pkg_icon,
+                    files=[],  # Files and directories are not stored in the registry
+                    directories=[]
+                )
+            )
+
+        if invalids > 0:
+            log.warning(f"Warning: {invalids} invalid packages found in the registry.")
+
+        return installed_packages

@@ -27,7 +27,7 @@ from views.history_view import HistoryView
 from views.settings_window import SettingsWindow
 from views.webview import OtusWebView
 from views.download_widget import DownloadWidget
-
+from views.package_manager_window import OtusPackageManager
 
 from settings import *
 from utils import *
@@ -154,6 +154,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionManage_bookmarks.triggered.connect(self.on_bookmarks_library)
         self.actionHistory.triggered.connect(self.on_history)
         self.actionPreferences.triggered.connect(self.open_settings_window)
+        self.actionPackage_Manager.triggered.connect(self.open_package_manager)
         
         # Help
         self.actionAbout_Otus.triggered.connect(self.show_about_dialog)
@@ -809,6 +810,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             parent=self,
         )
         self.settings_window.show()
+        
+    def open_package_manager(self):
+        self.package_manager_window = OtusPackageManager(self)
+        self.package_manager_window.show()
 
     ######################################
     ##     Help Menu                    ##
