@@ -7,6 +7,7 @@ from pathlib import Path
 from settings import *
 from zipfile import ZipFile
 import tempfile
+from utils import sha256check
 
 from PySide6.QtCore import QObject, Signal
 
@@ -28,6 +29,7 @@ class OtusPackage:
     icon: str | None
     files: list[dict[str, str]] # {"source": src, "dest": dest}
     directories: list[dict[str, str]] # {"source": tar, "dest": directory}
+    directory: str | None = None
 
 class InvalidManifest(Exception):
     "Raised when a package manifest is invalid or cannot be parsed."
@@ -109,14 +111,14 @@ class PackageManager(QObject):
 
                 if source is None or dest is None:
                     raise InvalidManifest(
-                        f"Missing src or dest attributes for {entry.tag}"
+                        self.tr("Missing src or dest attributes for {entry}: {entry}".format(entry=entry, attrib=entry.attrib))
                     )
                 if sha256 is None:
-                    raise InvalidManifest(f"Missing sha256 attribute for {entry.tag}")
+                    raise InvalidManifest(self.tr("Missing sha256 attribute for {entry}: {entry}".format(entry=entry, attrib=entry.attrib)))
 
                 if entry.tag == "File":
                     if sha256 is None:
-                        raise InvalidManifest("Missing sha256 attribute for File")
+                        raise InvalidManifest(self.tr("Missing sha256 attribute for File"))
                     files.append({
                         "source": source,
                         "destination": dest,
@@ -129,7 +131,7 @@ class PackageManager(QObject):
                         "sha256": sha256,
                     })
                 else:
-                    raise InvalidManifest(f"Unknown Files entry: {entry.tag}")
+                    raise InvalidManifest(self.tr("Unknown Files entry: {entry.tag}").format(entry=entry))
         
                 
         pkg = OtusPackage(
@@ -158,7 +160,29 @@ class PackageManager(QObject):
                 or ".." in icon_path.parts
             ):
                 raise InvalidManifest(
-                    "Package icon must be a file in the package root"
+                    self.tr("Package icon must be a file in the package root")
+                )
+
+        if pkg.type == "app":
+            runtime = pkg.meta.get("runtime")
+            entrypoint = pkg.meta.get("entrypoint")
+            if runtime != "self":
+                raise InvalidManifest(
+                    "App packages must declare Meta runtime=\"self\""
+                )
+            if not entrypoint:
+                raise InvalidManifest(
+                    "App packages must declare an entrypoint"
+                )
+            entrypoint_path = Path(entrypoint)
+            if (
+                entrypoint_path.is_absolute()
+                or "\\" in entrypoint
+                or ".." in entrypoint_path.parts
+                or entrypoint_path == Path(".")
+            ):
+                raise InvalidManifest(
+                    "App entrypoint must be a safe relative path"
                 )
         
         return pkg
@@ -185,6 +209,14 @@ class PackageManager(QObject):
             self.progressUpdated.emit("Reading manifest...", 0)
             pkg = self.parse_manifest(manifest_path)
             package_source_dir = temp_dir_path
+
+            if pkg.type == "app":
+                entrypoint = pkg.meta["entrypoint"]
+                entrypoint_source = package_source_dir / entrypoint
+                if not entrypoint_source.is_file():
+                    raise CorruptedPackage(
+                        f"App entrypoint not found: {entrypoint}"
+                    )
 
             if pkg.icon is not None:
                 icon_source = package_source_dir / pkg.icon
@@ -232,6 +264,15 @@ class PackageManager(QObject):
                 raise InstallError(
                     f"Failed to copy manifest to {pkg_dir / 'manifest.otus'}: {e}"
                 )
+                
+            #4.5 Checking for file's integrity using SHA256 hash
+            for file in pkg.files:
+                source = package_source_dir / file["source"]
+                expected_hash = file["sha256"]
+                if not sha256check(source, expected_hash):
+                    raise CorruptedPackage(
+                        f"File {file['source']} is corrupted or has been tampered with."
+                    )
 
             #5 Copying files to the target directory
             for file in pkg.files:
@@ -271,6 +312,8 @@ class PackageManager(QObject):
         self.progressUpdated.emit("Finalizing package...", 99)
         pkg.icon = str(installed_icon) if installed_icon is not None else None
         self.update_registry(pkg, str(pkg_dir))
+        if pkg.type == "app":
+            self.update_app_registry(pkg, str(pkg_dir))
         completed_ops += 1
         self.progressUpdated.emit("Package installed", 100)
 
@@ -322,6 +365,40 @@ class PackageManager(QObject):
 
         root.append(package_elem)
         tree.write(registry_path, encoding="utf-8", xml_declaration=True)
+
+    def update_app_registry(self, pkg: OtusPackage, directory: str) -> None:
+        if not APP_REGISTRY.exists():
+            APP_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+            ET.ElementTree(ET.Element("OtusAppRegistry")).write(
+                APP_REGISTRY, encoding="utf-8", xml_declaration=True
+            )
+
+        tree = ET.parse(APP_REGISTRY)
+        root = tree.getroot()
+        for app in root.findall("App"):
+            if app.get("id") == pkg.id:
+                root.remove(app)
+
+        app_elem = ET.Element(
+            "App",
+            attrib={
+                "id": pkg.id,
+                "package_id": pkg.id,
+                "name": pkg.name,
+                "version": pkg.version,
+                "runtime": pkg.meta["runtime"],
+                "entrypoint": pkg.meta["entrypoint"],
+                "directory": directory,
+                "description": pkg.description,
+            },
+        )
+        authors_elem = ET.SubElement(app_elem, "Authors")
+        for author in pkg.authors:
+            ET.SubElement(authors_elem, "Author").text = author
+        if pkg.icon is not None:
+            app_elem.set("icon", pkg.icon)
+        root.append(app_elem)
+        tree.write(APP_REGISTRY, encoding="utf-8", xml_declaration=True)
         
     def uninstall_package(self, pkg_id: str) -> None:
         registry_path = PACKAGE_REGISTRY
@@ -348,6 +425,17 @@ class PackageManager(QObject):
 
         root.remove(package_elem)
         tree.write(registry_path, encoding="utf-8", xml_declaration=True)
+        self.remove_app_registry(pkg_id)
+
+    def remove_app_registry(self, pkg_id: str) -> None:
+        if not APP_REGISTRY.exists():
+            return
+        tree = ET.parse(APP_REGISTRY)
+        root = tree.getroot()
+        for app in root.findall("App"):
+            if app.get("id") == pkg_id:
+                root.remove(app)
+        tree.write(APP_REGISTRY, encoding="utf-8", xml_declaration=True)
         
     def rm_rf(self, path: Path) -> None:
         """Recursively remove a directory and its contents."""
@@ -379,6 +467,8 @@ class PackageManager(QObject):
             pkg_name = package_elem.attrib.get("name")
             pkg_description = package_elem.attrib.get("description")
             pkg_license = package_elem.attrib.get("license")
+            directory_elem = package_elem.find("directory")
+            pkg_directory = directory_elem.text if directory_elem is not None else None
             icon_elem = package_elem.find("icon")
             pkg_icon = icon_elem.text if icon_elem is not None else None
             pkg_meta = {k: v for k, v in package_elem.attrib.items() if k not in {"type", "id", "version", "name", "description", "license"}}
@@ -401,7 +491,8 @@ class PackageManager(QObject):
                     license=pkg_license,
                     icon=pkg_icon,
                     files=[],  # Files and directories are not stored in the registry
-                    directories=[]
+                    directories=[],
+                    directory=pkg_directory,
                 )
             )
 

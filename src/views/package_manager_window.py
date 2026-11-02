@@ -1,14 +1,26 @@
 from PySide6.QtWidgets import (
-    QFileDialog, QGridLayout, QLabel, QMessageBox, QProgressDialog, QVBoxLayout, QWidget
+    QFileDialog, QGridLayout, QLabel, QMessageBox, QPushButton, QProgressDialog,
+    QVBoxLayout, QWidget
 )
-from PySide6.QtCore import Qt, QSize, QThread, Signal
+from PySide6.QtCore import QUrl, Qt, QSize, QThread, Signal
 from PySide6.QtGui import QIcon
+from pathlib import Path
 
 from settings import OTUS_ICON_PACK
 
 from ui.ui_package_manager import Ui_OtusPackageManager
 
-from package_manager import PackageManager
+from package_manager import (
+    PackageManager,
+    InstallError,
+    CorruptedPackage,
+    InvalidManifest,
+    PackageTypeNotSupported,
+    PackageNotFound,
+    PackageAlreadyInstalled,
+    PackageNotInstalled,
+    PackageTypeNotSupported
+)
 
 ITEM_WIDTH = 110
 ICON_SIZE = QSize(64, 64)
@@ -17,7 +29,7 @@ DEFAULT_ICON = OTUS_ICON_PACK + "otus-pkg-default.png"
 
 class PackageItem(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, package, open_callback=None, parent=None):
         super().__init__(parent)
         self.setFixedWidth(ITEM_WIDTH)
 
@@ -36,6 +48,10 @@ class PackageItem(QWidget):
 
         self._layout.addWidget(self.pixmapLabel)
         self._layout.addWidget(self.nameLabel)
+        if package.type == "app" and open_callback is not None:
+            open_button = QPushButton("Open", self)
+            open_button.clicked.connect(open_callback)
+            self._layout.addWidget(open_button)
 
 
 class InstallThread(QThread):
@@ -102,7 +118,12 @@ class OtusPackageManager(QWidget):
             row = index // self._columns
             col = index % self._columns
 
-            pkg_item = PackageItem()
+            pkg_item = PackageItem(
+                pkg,
+                (lambda checked=False, package=pkg: self.open_app(package))
+                if pkg.type == "app"
+                else None,
+            )
             pkg_item.nameLabel.setText(f"<b>{pkg.name}</b><br/>{pkg.version}")
             icon = QIcon(pkg.icon) if pkg.icon else QIcon()
             if icon.isNull():
@@ -110,6 +131,32 @@ class OtusPackageManager(QWidget):
             pkg_item.pixmapLabel.setPixmap(icon.pixmap(ICON_SIZE))
 
             self.pkgs_layout.addWidget(pkg_item, row, col)
+
+    def open_app(self, package):
+        if package.directory is None:
+            QMessageBox.warning(self, "Open Application", "Application directory is missing.")
+            return
+        if package.meta.get("runtime") != "self":
+            QMessageBox.warning(self, "Open Application", "Unsupported application runtime.")
+            return
+
+        entrypoint = package.meta.get("entrypoint")
+        if not entrypoint:
+            QMessageBox.warning(self, "Open Application", "Application entrypoint is missing.")
+            return
+
+        app_directory = Path(package.directory).resolve()
+        entrypoint_path = (app_directory / entrypoint).resolve()
+        if not entrypoint_path.is_relative_to(app_directory) or not entrypoint_path.is_file():
+            QMessageBox.warning(self, "Open Application", "Application entrypoint is invalid.")
+            return
+
+        main_window = self.window()
+        new_tab = getattr(main_window, "new_tab", None)
+        if not callable(new_tab):
+            QMessageBox.warning(self, "Open Application", "The browser window is unavailable.")
+            return
+        new_tab(QUrl.fromLocalFile(str(entrypoint_path)).toString())
 
     def clear_layout(self):
         while self.pkgs_layout.count():
@@ -154,14 +201,29 @@ class OtusPackageManager(QWidget):
         dialog.setValue(0)
         dialog.show()
         self._progress_dialog = dialog
-
-        self._install_error = None
-        thread = InstallThread(self.pkgs_manager, file_path, parent=self)
-        thread.progress.connect(self._on_install_progress)
-        thread.failed.connect(self._on_install_failed)
-        thread.finished.connect(self._on_install_finished)
-        self._install_thread = thread
-        thread.start()
+        try:
+            self._install_error = None
+            thread = InstallThread(self.pkgs_manager, file_path, parent=self)
+            thread.progress.connect(self._on_install_progress)
+            thread.failed.connect(self._on_install_failed)
+            thread.finished.connect(self._on_install_finished)
+            self._install_thread = thread
+            thread.start()
+        except InvalidManifest as e:
+            dialog.close()
+            QMessageBox.critical(self, "Package Installation Error", str(e))
+        except PackageTypeNotSupported as e:
+            dialog.close()
+            QMessageBox.critical(self, "Package Installation Error", str(e))
+        except PackageAlreadyInstalled as e:
+            dialog.close()
+            QMessageBox.critical(self, "Package Installation Error", str(e))
+        except PackageNotInstalled as e:
+            dialog.close()
+            QMessageBox.critical(self, "Package Installation Error", f"Package not installed: {str(e)}")
+        except CorruptedPackage as e:
+            dialog.close()
+            QMessageBox.critical(self, "Package Installation Error", f"Corrupted package: {str(e)}")
 
     def _on_install_progress(self, message: str, value: int):
         if self._progress_dialog is not None:

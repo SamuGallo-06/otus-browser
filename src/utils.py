@@ -7,6 +7,7 @@ from PySide6.QtCore import QByteArray, QFile, QIODevice, QLocale, QStandardPaths
 from PySide6.QtGui import QColor, QGuiApplication, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 import logging
+import hashlib
 
 from settings import LANGUAGES_PATH
 
@@ -241,3 +242,21 @@ def find_installed_languages(base: Path = LANGUAGES_PATH) -> dict[str, Path]:
         if (directory / f"otus_browser_{directory.name}.qm").is_file():
             languages.setdefault(code, directory)
     return languages
+
+def sha256check(filename, expect) -> bool:
+    """Check if the file with the name "filename" matches the SHA-256 sum
+    in "expect"."""
+    h = hashlib.sha256()
+    # This will raise an exception if the file doesn't exist. Catching
+    # and handling it is left as an exercise for the reader.
+    with open(filename, 'rb') as fh:
+        # Read and hash the file in 4K chunks. Reading the whole
+        # file at once might consume a lot of memory if it is
+        # large.
+        while True:
+            data = fh.read(4096)
+            if len(data) == 0:
+                break
+            else:
+                h.update(data)
+    return expect == h.hexdigest()

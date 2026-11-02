@@ -164,7 +164,7 @@ def main(
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Otus Browser")
     app.setWindowIcon(QIcon(settings.OTUS_ICON_PACK + "otus_logo.svg"))
-    app.setApplicationName("otus-browser")
+    app.setApplicationName("OtusBrowser")
     app.setApplicationVersion("0.0.1")
         
     app_settings = init_app_settings(settings.SETTINGS_PATH, parent=app)

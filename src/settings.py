@@ -36,6 +36,7 @@ TIME_FORMAT_PRESETS = ("%H:%M:%S", "%H:%M", "%I:%M:%S %p", "%I:%M %p")
 
 #Package Manager
 PACKAGE_REGISTRY = PERSISTENT_STORAGE_PATH / "packages.xml"
+APP_REGISTRY = PERSISTENT_STORAGE_PATH / "apps.xml"
 
 FEATHER_ICON_PACK = ":feather/resources/feather/"
 OTUS_ICON_PACK = ":otus/resources/"
