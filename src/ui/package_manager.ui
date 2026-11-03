@@ -23,25 +23,21 @@
       <string>Details</string>
      </property>
      <widget class="QWidget" name="dockWidgetContents">
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Version</string>
+      <layout class="QVBoxLayout" name="detailsLayout">
+       <item>
+        <widget class="QPlainTextEdit" name="detailsText">
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Description: </string>
+       <item>
+        <widget class="QPushButton" name="uninstallPackageButton">
+         <property name="enabled">
+          <bool>false</bool>
          </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Authors</string>
+          <string>Uninstall</string>
          </property>
         </widget>
        </item>
@@ -57,21 +53,28 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QScrollArea" name="scrollArea">
-     <property name="widgetResizable">
+    <widget class="QListWidget" name="packageList">
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>64</width>
+       <height>64</height>
+      </size>
+     </property>
+     <property name="resizeMode">
+      <enum>QListView::Adjust</enum>
+     </property>
+     <property name="movement">
+      <enum>QListView::Static</enum>
+     </property>
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <property name="uniformItemSizes">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>580</width>
-        <height>221</height>
-       </rect>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_3"/>
-     </widget>
     </widget>
    </item>
    <item row="0" column="0">

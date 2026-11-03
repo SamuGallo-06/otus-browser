@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QLabel,
-    QLineEdit, QPushButton, QScrollArea, QSizePolicy,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QLineEdit,
+    QListView, QListWidget, QListWidgetItem, QPlainTextEdit,
+    QPushButton, QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_OtusPackageManager(object):
     def setupUi(self, OtusPackageManager):
@@ -31,22 +31,19 @@ class Ui_OtusPackageManager(object):
         self.dockWidget.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea|Qt.DockWidgetArea.LeftDockWidgetArea|Qt.DockWidgetArea.RightDockWidgetArea)
         self.dockWidgetContents = QWidget()
         self.dockWidgetContents.setObjectName(u"dockWidgetContents")
-        self.gridLayout = QGridLayout(self.dockWidgetContents)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.label_2 = QLabel(self.dockWidgetContents)
-        self.label_2.setObjectName(u"label_2")
+        self.detailsLayout = QVBoxLayout(self.dockWidgetContents)
+        self.detailsLayout.setObjectName(u"detailsLayout")
+        self.detailsText = QPlainTextEdit(self.dockWidgetContents)
+        self.detailsText.setObjectName(u"detailsText")
+        self.detailsText.setReadOnly(True)
 
-        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
+        self.detailsLayout.addWidget(self.detailsText)
 
-        self.label = QLabel(self.dockWidgetContents)
-        self.label.setObjectName(u"label")
+        self.uninstallPackageButton = QPushButton(self.dockWidgetContents)
+        self.uninstallPackageButton.setObjectName(u"uninstallPackageButton")
+        self.uninstallPackageButton.setEnabled(False)
 
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-
-        self.label_3 = QLabel(self.dockWidgetContents)
-        self.label_3.setObjectName(u"label_3")
-
-        self.gridLayout.addWidget(self.label_3, 2, 0, 1, 1)
+        self.detailsLayout.addWidget(self.uninstallPackageButton)
 
         self.dockWidget.setWidget(self.dockWidgetContents)
 
@@ -57,17 +54,16 @@ class Ui_OtusPackageManager(object):
 
         self.gridLayout_2.addWidget(self.installPackageButton, 3, 0, 1, 1)
 
-        self.scrollArea = QScrollArea(OtusPackageManager)
-        self.scrollArea.setObjectName(u"scrollArea")
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollAreaWidgetContents = QWidget()
-        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 580, 221))
-        self.gridLayout_3 = QGridLayout(self.scrollAreaWidgetContents)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.packageList = QListWidget(OtusPackageManager)
+        self.packageList.setObjectName(u"packageList")
+        self.packageList.setViewMode(QListView.IconMode)
+        self.packageList.setIconSize(QSize(64, 64))
+        self.packageList.setResizeMode(QListView.Adjust)
+        self.packageList.setMovement(QListView.Static)
+        self.packageList.setSpacing(12)
+        self.packageList.setUniformItemSizes(True)
 
-        self.gridLayout_2.addWidget(self.scrollArea, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.packageList, 1, 0, 1, 1)
 
         self.searchBox = QLineEdit(OtusPackageManager)
         self.searchBox.setObjectName(u"searchBox")
@@ -84,9 +80,7 @@ class Ui_OtusPackageManager(object):
     def retranslateUi(self, OtusPackageManager):
         OtusPackageManager.setWindowTitle(QCoreApplication.translate("OtusPackageManager", u"Package Manager - Otus Browser", None))
         self.dockWidget.setWindowTitle(QCoreApplication.translate("OtusPackageManager", u"Details", None))
-        self.label_2.setText(QCoreApplication.translate("OtusPackageManager", u"Version", None))
-        self.label.setText(QCoreApplication.translate("OtusPackageManager", u"Description: ", None))
-        self.label_3.setText(QCoreApplication.translate("OtusPackageManager", u"Authors", None))
+        self.uninstallPackageButton.setText(QCoreApplication.translate("OtusPackageManager", u"Uninstall", None))
         self.installPackageButton.setText(QCoreApplication.translate("OtusPackageManager", u"Install Package", None))
         self.searchBox.setPlaceholderText(QCoreApplication.translate("OtusPackageManager", u"Search Packages...", None))
     # retranslateUi

@@ -125,6 +125,7 @@ class SettingsWindow(QWidget):
         self.ui.alwaysAskForDownloadPathCheckbox.setChecked(
             profile.ask_for_download_path
         )
+        self.ui.checkBox.setChecked(profile.pdf_viewer_enabled)
         self.ui.enableAdBlockerCheckbox.setChecked(profile.adblocker_enabled)
         self.ui.showTrackerCountCheckbox.setChecked(profile.show_tracker_count)
         self.ui.blockedHostsEntry.setPlainText("\n".join(profile.blocked_hosts))
@@ -165,6 +166,7 @@ class SettingsWindow(QWidget):
                 self.ui.alwaysAskForDownloadPathCheckbox.isChecked()
             ),
             download_directory=self.ui.downloadPathField.text().strip() or None,
+            pdf_viewer_enabled=self.ui.checkBox.isChecked(),
             adblocker_enabled=self.ui.enableAdBlockerCheckbox.isChecked(),
             blocked_hosts=self.ui.blockedHostsEntry.toPlainText().splitlines(),
             show_tracker_count=self.ui.showTrackerCountCheckbox.isChecked(),

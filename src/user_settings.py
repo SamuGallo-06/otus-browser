@@ -53,6 +53,7 @@ class ProfileSettings:
     startup_pages:                  list[str] = field(default_factory=list,                  metadata={"section": "startup"})
     ask_for_download_path:          bool = field(default=False,                              metadata={"section": "downloads"})
     download_directory:             str | None = field(default=None,                         metadata={"section": "downloads"})
+    pdf_viewer_enabled:             bool = field(default=True,                               metadata={"section": "downloads"})
     adblocker_enabled:              bool = field(default=True,                               metadata={"section": "adblocker"})
     blocked_hosts:                  list[str] = field(default_factory=lambda: list(DEFAULT_BLOCKED_HOSTS), metadata={"section": "adblocker"})
     show_tracker_count:             bool = field(default=True,                               metadata={"section": "privacy"})

@@ -154,84 +154,88 @@
     <message>
         <location filename="../src/views/download_widget.py" line="23"/>
         <source>Downloading: {filename} from {host}</source>
-        <translation type="unfinished"></translation>
+        <translation>Download in corso: {filename} da {host}</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="61"/>
         <source>Downloaded {received} / {total}
 Transfer rate: {rate}/s
 Estimated time left: {eta}</source>
-        <translation type="unfinished"></translation>
+        <translation>Scaricati {received} / {total} 
+Velocità: {rate}/s
+Tempo stimato: {eta}</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="75"/>
         <location filename="../src/views/download_widget.py" line="122"/>
         <location filename="../src/ui/download.ui" line="80"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausa</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="78"/>
         <location filename="../src/views/download_widget.py" line="122"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translation>Riprendi</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="89"/>
         <source>Cancel download</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla download</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="90"/>
         <source>Are you sure you want to cancel the download?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sei sicuro di voler annullare il download?</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="102"/>
         <source>Download completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Download completato</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="104"/>
         <source>Download canceled</source>
-        <translation type="unfinished"></translation>
+        <translation>Download annullato</translation>
     </message>
     <message>
         <location filename="../src/views/download_widget.py" line="107"/>
         <source>Download interrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>Download interrotto</translation>
     </message>
     <message>
         <location filename="../src/ui/download.ui" line="14"/>
         <source>Download in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Download in corso</translation>
     </message>
     <message>
         <location filename="../src/ui/download.ui" line="36"/>
         <source>Downloading {filename} from {url}</source>
-        <translation type="unfinished"></translation>
+        <translation>Download in corso: {filename} da {url}</translation>
     </message>
     <message>
         <location filename="../src/ui/download.ui" line="66"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <location filename="../src/ui/download.ui" line="73"/>
         <source>Open Download Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri cartella download</translation>
     </message>
     <message>
         <location filename="../src/ui/download.ui" line="87"/>
         <source>Downloaded {received} / {total} KB
 Transfer rate: {tranfer_rate} {tr_unit} / s
 Estimated time left: {eta}</source>
-        <translation type="unfinished"></translation>
+        <translation>Scaricati {received} / {total} KB 
+Velocità: {tranfer_rate} {tr_unit} / s
+Tempo stimato: {eta}</translation>
     </message>
     <message>
         <location filename="../src/ui/download.ui" line="96"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;:/feather/resources/feather/download-cloud.svg&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -239,32 +243,32 @@ Estimated time left: {eta}</source>
     <message>
         <location filename="../src/ui/edit_bookmark.ui" line="17"/>
         <source>Edit Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica segnalibro</translation>
     </message>
     <message>
         <location filename="../src/ui/edit_bookmark.ui" line="29"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descrizione</translation>
     </message>
     <message>
         <location filename="../src/ui/edit_bookmark.ui" line="36"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <location filename="../src/ui/edit_bookmark.ui" line="59"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../src/ui/edit_bookmark.ui" line="66"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Titolo</translation>
     </message>
     <message>
         <location filename="../src/ui/edit_bookmark.ui" line="73"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
@@ -272,42 +276,42 @@ Estimated time left: {eta}</source>
     <message>
         <location filename="../src/ui/history.ui" line="14"/>
         <source>History - Otus Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Cronologia - Otus Browser</translation>
     </message>
     <message>
         <location filename="../src/ui/history.ui" line="42"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../src/ui/history.ui" line="47"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Titolo</translation>
     </message>
     <message>
         <location filename="../src/ui/history.ui" line="52"/>
         <source>Visited At</source>
-        <translation type="unfinished"></translation>
+        <translation>Visitato il</translation>
     </message>
     <message>
         <location filename="../src/ui/history.ui" line="57"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Conteggio</translation>
     </message>
     <message>
         <location filename="../src/ui/history.ui" line="70"/>
         <source>Delete history since</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella cronologia dal</translation>
     </message>
     <message>
         <location filename="../src/ui/history.ui" line="84"/>
         <source>Delete history</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella cronologia</translation>
     </message>
     <message>
         <location filename="../src/ui/history.ui" line="95"/>
         <source>Search History...</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca nella cronologia...</translation>
     </message>
 </context>
 <context>
@@ -316,13 +320,13 @@ Estimated time left: {eta}</source>
         <location filename="../src/views/history_view.py" line="87"/>
         <location filename="../src/views/history_view.py" line="103"/>
         <source>Delete Entire History</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella intera cronologia</translation>
     </message>
     <message>
         <location filename="../src/views/history_view.py" line="88"/>
         <location filename="../src/views/history_view.py" line="104"/>
         <source>Delete the entire history? This cannot be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vuoi cancellare l&apos;intera cronologia di navigazione? Quest&apos;azione non può essere annullata.</translation>
     </message>
 </context>
 <context>
@@ -330,85 +334,85 @@ Estimated time left: {eta}</source>
     <message>
         <location filename="../src/views/main_window.py" line="111"/>
         <source>Search or enter address</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca o inserisci l&apos;url</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="190"/>
         <location filename="../src/views/main_window.py" line="629"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="192"/>
         <source>Failed to restore previous session. A new session will be started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile ripristinare la sessione precedente. Verrà avviata una nuova sessione.</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="227"/>
         <source>SilentWing {state}</source>
-        <translation type="unfinished"></translation>
+        <translation>SilentWing {state}</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="228"/>
         <location filename="../src/views/main_window.py" line="241"/>
         <source>on</source>
-        <translation type="unfinished"></translation>
+        <translation>on</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="228"/>
         <location filename="../src/views/main_window.py" line="241"/>
         <source>off</source>
-        <translation type="unfinished"></translation>
+        <translation>off</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="240"/>
         <source>Silent Wing ({state}) - {count} blocked</source>
-        <translation type="unfinished"></translation>
+        <translation>Silent Wing ({state}) - {count} bloccati</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="248"/>
         <source>Blocked trackers: {count}</source>
-        <translation type="unfinished"></translation>
+        <translation>Tracker bloccati: {count}</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="352"/>
         <source>Loading page {pageUrl}</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento di {pageUrl}</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="357"/>
         <source>Loading({progress}%)...</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento ({progress}%)...</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="364"/>
         <source>{title} - Otus Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>{title} - Otus Browser</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="370"/>
         <source>Loaded &quot;{pageName}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricata &quot;{pageName}&quot;</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="375"/>
         <source>Failed to load page {pageUrl}</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile caricare la pagina {pageUrl}</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="389"/>
         <source>Il processo di rendering della pagina è terminato. Ricarica la pagina.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il processo di rendering della pagina è terminato. Ricarica la pagina.</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="428"/>
         <source>Download requested: {filename}</source>
-        <translation type="unfinished"></translation>
+        <translation>Download richiesto: {filename}</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="436"/>
         <source>Suspicious Download</source>
-        <translation type="unfinished"></translation>
+        <translation>Download sospetto</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="438"/>
@@ -416,411 +420,417 @@ Estimated time left: {eta}</source>
 Source: {dw_host}
 
 Downloading and executing files from the internet can be dangerous. Do you want to download it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file «{dw_name}» è potenzialmente pericoloso (come uno script o un eseguibile)
+Fonte: {dw_host}
+
+Scaricare ed eseguire file da internet può esporti a rischi di sicurezza per il tuo computer e i tuoi dati personali.
+Vuoi scaricarlo comunque?</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="464"/>
         <source>Save download as</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva download con nome</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="464"/>
         <source>All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti i file (*)</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="506"/>
         <location filename="../src/ui/mainwindow.ui" line="423"/>
         <source>Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri file</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="508"/>
         <source>Supported files ({extensions});;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>File supportati ({extensions});;Tutti i file (*)</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="522"/>
         <source>Unsupported file type</source>
-        <translation type="unfinished"></translation>
+        <translation>File non supportato</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="524"/>
         <source>The selected file type is not supported for viewing in the browser.
 
 Supported file types: {extensions}</source>
-        <translation type="unfinished"></translation>
+        <translation>Il formato del file selezionato non è supportato per la visualizzazione nel browser.
+
+Formati supportati: {extensions}</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="545"/>
         <source>Save page as</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva pagina con nome</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="597"/>
         <source>Exit Confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation>Conferma uscita</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="598"/>
         <source>Are you sure you want to exit the browser?</source>
-        <translation type="unfinished"></translation>
+        <translation>Confermi di voler uscire dal browser?</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="631"/>
         <source>Failed to save previous session. Changes will not be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile salvare la sessione precedente. Le modifiche non verranno salvate.</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="640"/>
         <source>Downloads in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Download in corso</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="641"/>
         <source>Some downloads are still running. Quit and cancel them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vi sono download ancora in corso. Vuoi uscire e annullarli?</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="698"/>
         <source>Enter Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Attiva schermo intero</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="702"/>
         <source>Exit Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Disattiva schermo intero</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="744"/>
         <source>Remove Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina segnalibro</translation>
     </message>
     <message>
         <location filename="../src/views/main_window.py" line="747"/>
         <source>Add Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi segnalibro</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="14"/>
         <source>Otus Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Otus Browser</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="54"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>File</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="68"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="79"/>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="88"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Aiuto</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="96"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumenti</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="106"/>
         <source>Bookmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>Segnalibri</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="123"/>
         <source>toolBar</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="147"/>
         <source>Silent Wing</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="150"/>
         <source>F6</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="162"/>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="165"/>
         <source>Open the home page</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri la Homepage</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="168"/>
         <source>Ctrl+Shift+H</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="180"/>
         <source>Reload</source>
-        <translation type="unfinished"></translation>
+        <translation>Ricarica</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="183"/>
         <source>Reload this page</source>
-        <translation type="unfinished"></translation>
+        <translation>Ricarica questa pagina</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="186"/>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="198"/>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Avanti</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="201"/>
         <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Destra</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="213"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Indietro</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="216"/>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Sinistra</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="228"/>
         <source>New Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova scheda</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="231"/>
         <source>Ctrl+T</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="240"/>
         <source>New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova finestra</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="243"/>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="252"/>
         <source>New Private Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova finestra notturna</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="255"/>
         <source>Ctrl+Shift+N</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="264"/>
         <source>Close Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiudi scheda</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="267"/>
         <source>Ctrl+W</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="276"/>
         <source>Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglia</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="279"/>
         <source>Ctrl+X</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="288"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="291"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="300"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Incolla</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="303"/>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="312"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona tutto</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="315"/>
         <source>Ctrl+A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="324"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="327"/>
         <source>Ctrl+F</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="336"/>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandisci</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="339"/>
         <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="348"/>
         <source>Zoom out</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpicciolisci</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="351"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="360"/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina Zoom</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="363"/>
         <source>Ctrl+0</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="372"/>
         <source>About Otus</source>
-        <translation type="unfinished"></translation>
+        <translation>Info su Otus</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="381"/>
         <source>History</source>
-        <translation type="unfinished"></translation>
+        <translation>Cronologia</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="384"/>
         <source>Ctrl+H</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="393"/>
         <source>Downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>Download</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="396"/>
         <location filename="../src/ui/mainwindow.ui" line="489"/>
         <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="405"/>
         <source>Package Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestore Pacchetti</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="414"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferenze</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="426"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="435"/>
         <source>Save Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva Pagina</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="438"/>
         <source>Ctrl+Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="447"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Esci</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="450"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="459"/>
         <source>Toggle Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Schermo Intero</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="468"/>
         <source>GitHub Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Repository GitHub</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="477"/>
         <source>Report Issue</source>
-        <translation type="unfinished"></translation>
+        <translation>Segnala problema</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="486"/>
         <source>Add bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi segnalibro</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="498"/>
         <source>Bookmark all tabs…</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi tutte le schede ai segnalibri…</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="501"/>
         <source>Ctrl+Shift+D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="506"/>
         <source>Manage bookmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestisci segnalibri</translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.ui" line="509"/>
         <source>Ctrl+Shift+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -828,247 +838,247 @@ Supported file types: {extensions}</source>
     <message>
         <location filename="../src/ui/preferences.ui" line="14"/>
         <source>Preferences - Otus Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferenze - Otus Browser</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="24"/>
         <source>Restore Defaults</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina predefiniti</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="35"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Applica</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="65"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="94"/>
         <source>Generals</source>
-        <translation type="unfinished"></translation>
+        <translation>Generali</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="100"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Lingua</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="107"/>
         <source>**Home Page and Profiles**</source>
-        <translation type="unfinished"></translation>
+        <translation>**Homepage e Profili**</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="130"/>
         <source>Home Page URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL della Homepage</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="137"/>
         <source>Always ask before exiting the browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiedi sempre prima di uscire</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="167"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="172"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="180"/>
         <source>**System**</source>
-        <translation type="unfinished"></translation>
+        <translation>**Sistema**</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="190"/>
         <source>Default Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilo predefinito</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="197"/>
         <source>Ask for Profile choose at startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiedi il profilo da usare all&apos;avvio</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="205"/>
         <source>Startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvio</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="211"/>
         <source>Restore tabs from the previous session</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina schede dalla sessione precedente</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="218"/>
         <source>Open a set of pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri una serie di pagine</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="225"/>
         <source>Open an empty tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri una nuova scheda vuota</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="245"/>
         <source>Enter the URLs you want to open on startup in the box below (one per line)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci nel riquadro sottostante gli URL da aprire all&apos;avvio (uno per riga)</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="274"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Ricerca</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="296"/>
         <source>**Search Engine**</source>
-        <translation type="unfinished"></translation>
+        <translation>**Motore di Ricerca**</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="307"/>
         <source>DuckDuckGo (Suggested)</source>
-        <translation type="unfinished"></translation>
+        <translation>DuckDuckGo (Consigliato)</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="312"/>
         <source>Brave Search</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="317"/>
         <source>Qwant</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="322"/>
         <source>Startpage</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="327"/>
         <source>Google</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="332"/>
         <source>Bing</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="340"/>
         <source>Choose which search engine is used when you search from the address bar. You can also choose a custom search engine. Use `{query}` where your search terms should go.</source>
-        <translation type="unfinished"></translation>
+        <translation>Scegli quale motore di ricerca utilizzare quando cerchi dalla barra degli indirizzi. Puoi anche scegliere un motore di ricerca personalizzato. Usa `{query}` nel punto in cui inserire i termini di ricerca.</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="353"/>
         <source>Custom search engine</source>
-        <translation type="unfinished"></translation>
+        <translation>Motore di ricerca personalizzato</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="369"/>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Aspetto</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="376"/>
         <source>H:M:S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="385"/>
         <source>YEAR-MONTH-DAY</source>
-        <translation type="unfinished"></translation>
+        <translation>ANNO-MESE-GIORNO</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="390"/>
         <source>DAY-MONTH-YEAR</source>
-        <translation type="unfinished"></translation>
+        <translation>GIORNO-MESE-ANNO</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="395"/>
         <source>DAY/MONTH/YEAR</source>
-        <translation type="unfinished"></translation>
+        <translation>GIORNO/MESE/ANNO</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="403"/>
         <source>Time Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato Ora</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="411"/>
         <source>System Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Predefinito di sistema</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="416"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiaro</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="421"/>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Scuro</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="442"/>
         <source>**Theme**</source>
-        <translation type="unfinished"></translation>
+        <translation>**Tema**</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="452"/>
         <source>Date Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato data</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="459"/>
         <source>**Locale**</source>
-        <translation type="unfinished"></translation>
+        <translation>**Lingua**</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="469"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="504"/>
         <source>Downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>Downloaf</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="510"/>
         <source>Download Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Percorso file scaricati</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="533"/>
         <source>Always ask for downloaded save file name</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiedi sempre dove salvare i file scaricati</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="549"/>
         <source>Privacy and Ad Blocker</source>
-        <translation type="unfinished"></translation>
+        <translation>Privacy e Ad Blocker</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="555"/>
         <source>Enable Ad Blocker</source>
-        <translation type="unfinished"></translation>
+        <translation>Abilita Ad Blocker</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="562"/>
         <source>Show blocked tracker count in the status bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra il conteggio dei tracer bloccati nella barra di stato</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences.ui" line="569"/>
         <source>Blocked Hosts (one per row)</source>
-        <translation type="unfinished"></translation>
+        <translation>Host bloccati (uno per riga)</translation>
     </message>
 </context>
 <context>
@@ -1076,39 +1086,41 @@ Supported file types: {extensions}</source>
     <message>
         <location filename="../src/views/profile_creator_wizard.py" line="50"/>
         <source>Enter a name for the profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci un nome per il profilo.</translation>
     </message>
     <message>
         <location filename="../src/views/profile_creator_wizard.py" line="58"/>
         <source>The password must be at least {length} characters long.</source>
-        <translation type="unfinished"></translation>
+        <translation>La password deve contenere almeno {length} caratteri.</translation>
     </message>
     <message>
         <location filename="../src/views/profile_creator_wizard.py" line="62"/>
         <source>The two passwords do not match.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le due password non corrispondono.</translation>
     </message>
     <message>
         <location filename="../src/views/profile_creator_wizard.py" line="95"/>
         <source>The profile ID was not generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;ID del profilo non è stato generato.</translation>
     </message>
     <message>
         <location filename="../src/views/profile_creator_wizard.py" line="104"/>
         <source>The profile could not be created.
 
 {message}</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile creare il profilo.
+
+{message}</translation>
     </message>
     <message>
         <location filename="../src/views/profile_creator_wizard.py" line="134"/>
         <source>Profile Creator</source>
-        <translation type="unfinished"></translation>
+        <translation>Creazione di un profilo</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="14"/>
         <source>Profile Creator Wizard - Otus Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Creazione guidata profilo - Otus Browser</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="21"/>
@@ -1116,86 +1128,86 @@ Supported file types: {extensions}</source>
         <location filename="../src/ui/profile_creator_wizard.ui" line="119"/>
         <location filename="../src/ui/profile_creator_wizard.ui" line="152"/>
         <source>Create a Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea un profilo</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="33"/>
         <source>Welcome to the Profile Creator Wizard!
 
 This tool will guide you step-by-step through setting up a new customized profile, ensuring maximum privacy and security for your browsing experience</source>
-        <translation type="unfinished"></translation>
+        <translation>Benvenuto nella Procedura guidata di creazione profilo! Questo strumento ti guiderà passo dopo passo nella configurazione di un nuovo profilo personalizzato, garantendo la massima privacy e sicurezza per la tua navigazione</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="49"/>
         <source>Create Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Creazione guidata profilo</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="52"/>
         <source>Choose a Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Scegli un nome utente</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="61"/>
         <source>Enter a name to identify this profile in the dropdown menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Scegli un nome univoco per il profilo</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="78"/>
         <location filename="../src/ui/profile_creator_wizard.ui" line="122"/>
         <source>Choose a password for the profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Scegli una password per il profilo</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="87"/>
         <source>To keep your data private, you can protect this profile with a password.
 Enabling encryption ensures that your settings and browsing data are securely locked when you log out.</source>
-        <translation type="unfinished"></translation>
+        <translation>Per mantenere riservati i tuoi dati, puoi proteggere questo profilo con una password. Attivando la cifratura, le impostazioni e la cronologia saranno al sicuro al momento del logout.</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="98"/>
         <source>Encrypt this profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Cifra questo profilo</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="131"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Password</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="141"/>
         <source>Password Confirmation</source>
-        <translation type="unfinished"></translation>
+        <translation>Conferma password</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="155"/>
         <source>Working on it...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ci sto lavorando...</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="164"/>
         <source>Creating profile...</source>
-        <translation type="unfinished"></translation>
+        <translation>Creazione del profilo...</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="182"/>
         <source>Profile Created!</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilo creato con successo!</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="185"/>
         <source>You&apos;re all set!</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurazione completata!</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="194"/>
         <source>Your new profile is ready to use. You can now select it from the dropdown menu and switch between profiles at any time, or log in right now.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il nuovo profilo è pronto. Ora puoi selezionarlo dal menu a tendina per cambiare profilo quando vuoi, oppure effettuare l&apos;accesso adesso.</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_creator_wizard.ui" line="217"/>
         <source>Log in with your profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Accedi con questo profilo</translation>
     </message>
 </context>
 <context>
@@ -1203,76 +1215,78 @@ Enabling encryption ensures that your settings and browsing data are securely lo
     <message>
         <location filename="../src/views/profile_screen.py" line="72"/>
         <source>Incorrect Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Password errata</translation>
     </message>
     <message>
         <location filename="../src/views/profile_screen.py" line="73"/>
         <source>The password you entered is incorrect. Please try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>La password immessa non è corretta. Riprova.</translation>
     </message>
     <message>
         <location filename="../src/views/profile_screen.py" line="78"/>
         <source>Incorrect password. Try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Password errata. Riprova.</translation>
     </message>
     <message>
         <location filename="../src/views/profile_screen.py" line="99"/>
         <location filename="../src/views/profile_screen.py" line="109"/>
         <location filename="../src/views/profile_screen.py" line="120"/>
         <source>Fatal Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore fatale</translation>
     </message>
     <message>
         <location filename="../src/views/profile_screen.py" line="101"/>
         <source>Gocryptfs is not installed or missing dependencies. Please install it and try again.
 Details: {error}</source>
-        <translation type="unfinished"></translation>
+        <translation>Gocryptfs non è installato o mancano delle dipendenze. Installalo e riprova.
+Dettagli: {error}</translation>
     </message>
     <message>
         <location filename="../src/views/profile_screen.py" line="111"/>
         <source>Unable to decrypt the profile. Please check your password and try again.
 Details: {error}</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile decifrare il profilo. Verifica la password e riprova.
+Dettagli: {error}</translation>
     </message>
     <message>
         <location filename="../src/views/profile_screen.py" line="122"/>
         <source>An unexpected error occurred while decrypting the profile. Please try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si è verificato un errore non meglio specificato durante la decrittografia del profilo. Riprova.</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_selection.ui" line="14"/>
         <source>Select Profile - Otus Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un profilo - Otus Browser</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_selection.ui" line="20"/>
         <source># Welcome to Otus Browser</source>
-        <translation type="unfinished"></translation>
+        <translation># Benvenuto in Otus Browser</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_selection.ui" line="55"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Password</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_selection.ui" line="65"/>
         <source>No profiles available, Please create a profile first</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun profilo disponibile, Creane uno</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_selection.ui" line="72"/>
         <source>Login</source>
-        <translation type="unfinished"></translation>
+        <translation>Login</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_selection.ui" line="83"/>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation>Ospite</translation>
     </message>
     <message>
         <location filename="../src/ui/profile_selection.ui" line="136"/>
         <source>New Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo profilo</translation>
     </message>
 </context>
 </TS>

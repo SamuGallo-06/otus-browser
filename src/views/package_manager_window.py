@@ -1,8 +1,7 @@
 from PySide6.QtWidgets import (
-    QFileDialog, QGridLayout, QLabel, QMessageBox, QPushButton, QProgressDialog,
-    QVBoxLayout, QWidget
+    QFileDialog, QListWidgetItem, QMessageBox, QProgressDialog, QWidget
 )
-from PySide6.QtCore import QUrl, Qt, QSize, QThread, Signal
+from PySide6.QtCore import QUrl, Qt, QThread, Signal
 from PySide6.QtGui import QIcon
 from pathlib import Path
 
@@ -18,40 +17,10 @@ from package_manager import (
     PackageTypeNotSupported,
     PackageNotFound,
     PackageAlreadyInstalled,
-    PackageNotInstalled,
-    PackageTypeNotSupported
+    PackageNotInstalled
 )
 
-ITEM_WIDTH = 110
-ICON_SIZE = QSize(64, 64)
 DEFAULT_ICON = OTUS_ICON_PACK + "otus-pkg-default.png"
-
-
-class PackageItem(QWidget):
-
-    def __init__(self, package, open_callback=None, parent=None):
-        super().__init__(parent)
-        self.setFixedWidth(ITEM_WIDTH)
-
-        # The layout MUST be installed on the widget (passing `self`), otherwise the
-        # labels are never reparented to it and they are never shown.
-        self._layout = QVBoxLayout(self)
-
-        self.pixmapLabel = QLabel("")
-        self.pixmapLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.pixmapLabel.setPixmap(QIcon(DEFAULT_ICON).pixmap(ICON_SIZE))
-
-        self.nameLabel = QLabel("")
-        self.nameLabel.setTextFormat(Qt.TextFormat.RichText)
-        self.nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.nameLabel.setWordWrap(True)
-
-        self._layout.addWidget(self.pixmapLabel)
-        self._layout.addWidget(self.nameLabel)
-        if package.type == "app" and open_callback is not None:
-            open_button = QPushButton("Open", self)
-            open_button.clicked.connect(open_callback)
-            self._layout.addWidget(open_button)
 
 
 class InstallThread(QThread):
@@ -86,51 +55,87 @@ class OtusPackageManager(QWidget):
         self.ui.setupUi(self)
         self.pkgs_manager = PackageManager()
 
-        layout = self.ui.scrollAreaWidgetContents.layout()
-        if not isinstance(layout, QGridLayout):
-            raise RuntimeError("scrollAreaWidgetContents must have a grid layout")
-        self.pkgs_layout: QGridLayout = layout
-        self.pkgs_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-
-        self._columns = 0
         self._install_thread: InstallThread | None = None
         self._progress_dialog: QProgressDialog | None = None
         self._install_error: str | None = None
 
         self.ui.installPackageButton.clicked.connect(self.on_install_package)
+        self.ui.searchBox.textChanged.connect(self.filter_packages)
+        self.ui.packageList.currentItemChanged.connect(self.show_package_details)
+        self.ui.packageList.itemDoubleClicked.connect(self.open_selected_app)
+        self.ui.uninstallPackageButton.clicked.connect(self.uninstall_selected_package)
         self.populate_packages()
 
     # ------------------------------------------------------------------
-    # Installed packages grid
+    # Installed packages list
     # ------------------------------------------------------------------
-    def _compute_columns(self) -> int:
-        spacing = self.pkgs_layout.horizontalSpacing()
-        spacing = max(spacing, 0)
-        viewport_width = self.ui.scrollArea.viewport().width()
-        return max(1, viewport_width // (ITEM_WIDTH + spacing))
-
     def populate_packages(self):
-        self.clear_layout()
-
-        self._columns = self._compute_columns()
-
-        for index, pkg in enumerate(self.pkgs_manager.get_installed_packages()):
-            row = index // self._columns
-            col = index % self._columns
-
-            pkg_item = PackageItem(
-                pkg,
-                (lambda checked=False, package=pkg: self.open_app(package))
-                if pkg.type == "app"
-                else None,
-            )
-            pkg_item.nameLabel.setText(f"<b>{pkg.name}</b><br/>{pkg.version}")
+        package_list = self.ui.packageList
+        package_list.clear()
+        for pkg in self.pkgs_manager.get_installed_packages():
             icon = QIcon(pkg.icon) if pkg.icon else QIcon()
             if icon.isNull():
                 icon = QIcon(DEFAULT_ICON)
-            pkg_item.pixmapLabel.setPixmap(icon.pixmap(ICON_SIZE))
+            item = QListWidgetItem(icon, f"{pkg.name}\n{pkg.version}", package_list)
+            item.setData(Qt.ItemDataRole.UserRole, pkg)
+        self.filter_packages(self.ui.searchBox.text())
 
-            self.pkgs_layout.addWidget(pkg_item, row, col)
+    def filter_packages(self, text: str):
+        query = text.casefold().strip()
+        for index in range(self.ui.packageList.count()):
+            item = self.ui.packageList.item(index)
+            package = item.data(Qt.ItemDataRole.UserRole)
+            searchable = f"{package.name} {package.id} {package.description}".casefold()
+            item.setHidden(bool(query and query not in searchable))
+
+    def show_package_details(self, current: QListWidgetItem | None, _previous: QListWidgetItem | None):
+        if current is None:
+            self.ui.detailsText.clear()
+            self.ui.uninstallPackageButton.setEnabled(False)
+            return
+        package = current.data(Qt.ItemDataRole.UserRole)
+        self.ui.detailsText.setPlainText(
+            f"Name: {package.name}\n"
+            f"ID: {package.id}\n"
+            f"Version: {package.version}\n"
+            f"Type: {package.type}\n"
+            f"Authors: {', '.join(package.authors)}\n"
+            f"License: {package.license}\n\n"
+            f"{package.description}"
+        )
+        self.ui.uninstallPackageButton.setEnabled(True)
+
+    def uninstall_selected_package(self):
+        item = self.ui.packageList.currentItem()
+        if item is None:
+            return
+
+        package = item.data(Qt.ItemDataRole.UserRole)
+        answer = QMessageBox.question(
+            self,
+            "Uninstall Package",
+            f"Are you sure you want to uninstall '{package.name}'?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            self.pkgs_manager.uninstall_package(package.id)
+        except (PackageNotFound, PackageNotInstalled) as error:
+            QMessageBox.critical(self, "Package Uninstallation Error", str(error))
+            return
+        except OSError as error:
+            QMessageBox.critical(self, "Package Uninstallation Error", str(error))
+            return
+
+        self.populate_packages()
+
+    def open_selected_app(self, item: QListWidgetItem):
+        package = item.data(Qt.ItemDataRole.UserRole)
+        if package.type == "app":
+            self.open_app(package)
 
     def open_app(self, package):
         if package.directory is None:
@@ -157,22 +162,6 @@ class OtusPackageManager(QWidget):
             QMessageBox.warning(self, "Open Application", "The browser window is unavailable.")
             return
         new_tab(QUrl.fromLocalFile(str(entrypoint_path)).toString())
-
-    def clear_layout(self):
-        while self.pkgs_layout.count():
-            item = self.pkgs_layout.takeAt(0)  # detach the item from the layout
-            if item is None:
-                continue
-            widget = item.widget()
-            if widget is not None:
-                widget.setParent(None)  # hide it immediately
-                widget.deleteLater()  # free it when control returns to the event loop
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        # Re-flow the grid only when the number of columns actually changes
-        if self._compute_columns() != self._columns:
-            self.populate_packages()
 
     # ------------------------------------------------------------------
     # Installation

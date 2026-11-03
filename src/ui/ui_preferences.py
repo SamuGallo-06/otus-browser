@@ -133,6 +133,7 @@ class Ui_Preferences(object):
         self.toolBox.addItem(self.generals, u"Generals")
         self.startup = QWidget()
         self.startup.setObjectName(u"startup")
+        self.startup.setGeometry(QRect(0, 0, 626, 333))
         self.gridLayout_7 = QGridLayout(self.startup)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.restoreSessionRadioButton = QRadioButton(self.startup)
@@ -284,24 +285,35 @@ class Ui_Preferences(object):
         self.downloads.setGeometry(QRect(0, 0, 626, 333))
         self.gridLayout_5 = QGridLayout(self.downloads)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.gridLayout_5.addItem(self.verticalSpacer_6, 8, 0, 1, 1)
+
         self.label_13 = QLabel(self.downloads)
         self.label_13.setObjectName(u"label_13")
 
         self.gridLayout_5.addWidget(self.label_13, 1, 0, 1, 1)
 
-        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.gridLayout_5.addItem(self.verticalSpacer_6, 3, 0, 1, 1)
-
         self.downloadPathField = QLineEdit(self.downloads)
         self.downloadPathField.setObjectName(u"downloadPathField")
 
-        self.gridLayout_5.addWidget(self.downloadPathField, 1, 2, 1, 1)
+        self.gridLayout_5.addWidget(self.downloadPathField, 1, 1, 1, 2)
+
+        self.checkBox = QCheckBox(self.downloads)
+        self.checkBox.setObjectName(u"checkBox")
+
+        self.gridLayout_5.addWidget(self.checkBox, 4, 0, 1, 3)
 
         self.alwaysAskForDownloadPathCheckbox = QCheckBox(self.downloads)
         self.alwaysAskForDownloadPathCheckbox.setObjectName(u"alwaysAskForDownloadPathCheckbox")
 
         self.gridLayout_5.addWidget(self.alwaysAskForDownloadPathCheckbox, 2, 0, 1, 3)
+
+        self.label_16 = QLabel(self.downloads)
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setTextFormat(Qt.TextFormat.MarkdownText)
+
+        self.gridLayout_5.addWidget(self.label_16, 3, 0, 1, 3)
 
         self.toolBox.addItem(self.downloads, u"Downloads")
         self.privacy_ad_blocker = QWidget()
@@ -337,7 +349,7 @@ class Ui_Preferences(object):
         self.retranslateUi(Preferences)
 
         self.applyButton.setDefault(True)
-        self.toolBox.setCurrentIndex(0)
+        self.toolBox.setCurrentIndex(4)
         self.toolBox.layout().setSpacing(6)
 
 
@@ -393,7 +405,9 @@ class Ui_Preferences(object):
         self.label_4.setText(QCoreApplication.translate("Preferences", u"Theme", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.appearance), QCoreApplication.translate("Preferences", u"Appearance", None))
         self.label_13.setText(QCoreApplication.translate("Preferences", u"Download Path", None))
+        self.checkBox.setText(QCoreApplication.translate("Preferences", u"Open PDF Files with the browser's PDF reader.", None))
         self.alwaysAskForDownloadPathCheckbox.setText(QCoreApplication.translate("Preferences", u"Always ask for downloaded save file name", None))
+        self.label_16.setText(QCoreApplication.translate("Preferences", u"**Extensions**", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.downloads), QCoreApplication.translate("Preferences", u"Downloads", None))
         self.enableAdBlockerCheckbox.setText(QCoreApplication.translate("Preferences", u"Enable Ad Blocker", None))
         self.showTrackerCountCheckbox.setText(QCoreApplication.translate("Preferences", u"Show blocked tracker count in the status bar", None))

@@ -5,7 +5,11 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QSortFilterProxyModel, QUrl, QUrlQuery, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineDownloadRequest
+from PySide6.QtWebEngineCore import (
+    QWebEngineDownloadRequest,
+    QWebEnginePage,
+    QWebEngineSettings,
+)
 from PySide6.QtGui import QIcon, Qt
 
 from pathlib import Path
@@ -90,6 +94,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.context.silentWingChanged.connect(self._sync_silent_wing_action)
         self.context.blockedCountChanged.connect(self._update_tracker_count)
         self.profile_settings.settingsChanged.connect(self._update_tracker_visibility)
+        self.profile_settings.settingsChanged.connect(self._update_pdf_viewer)
         self.tracker_count_label = QLabel(self)
         self.statusbar.addPermanentWidget(self.tracker_count_label)
         self._sync_silent_wing_action(self.silent_wing_policy.enabled)
@@ -284,6 +289,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         view.savePageRequested.connect(self.savePage)
         page = BrowserPage(self.profile, self.new_tab, view)
         view.setPage(page)
+        self._update_pdf_viewer(view)
         index = self.browserTabWidget.addTab(view, "New Tab")
         self.browserTabWidget.setCurrentIndex(index)
 
@@ -317,6 +323,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         
         return view
+
+    def _update_pdf_viewer(self, view: OtusWebView | None = None) -> None:
+        """Apply the profile's Chromium PDF viewer setting to one or all tabs."""
+        enabled = self.profile_settings.settings.pdf_viewer_enabled
+        views = [view] if view is not None else [
+            self.browserTabWidget.widget(index)
+            for index in range(self.browserTabWidget.count())
+        ]
+        for candidate in views:
+            if isinstance(candidate, OtusWebView):
+                candidate.settings().setAttribute(
+                    QWebEngineSettings.WebAttribute.PdfViewerEnabled,
+                    enabled,
+                )
     
     def searchSelection(self, text: str):
         query = QUrlQuery()

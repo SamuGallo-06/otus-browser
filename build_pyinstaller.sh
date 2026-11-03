@@ -1,0 +1,1 @@
+pyinstaller --onedir --name "otus-browser" main.py
